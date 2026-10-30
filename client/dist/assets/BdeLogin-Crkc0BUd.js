@@ -1,0 +1,1 @@
+import{l as e,t}from"./index-C5Mez-_2.js";import{t as n}from"./AuthLayout-mNtV9ZlP.js";import{t as r}from"./LoginForm-DytehTbt.js";e();var i=t(),a=()=>(0,i.jsx)(n,{children:(0,i.jsx)(r,{role:`bde`,dashboardPath:`/bde/dashboard`,forgotPasswordPath:`/bde/forgot-password`})});export{a as BdeLogin,a as default};

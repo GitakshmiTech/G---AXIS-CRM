@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #092EA0;
+  --color-secondary: #2E8EFF;
+  --color-black-90: #262727;
+  --color-white-100: #FFFFFF;
+  --color-gray: #F3F5FA;
+  --color-success: #019F68;
+  --color-alert: #E14759;
+  --color-purple: #864AD2;
+  --color-warning: #FFA500;
+  --color-stroke: #D2D2E4;
+  --color-alert-border: #FFD5DA;
+  --color-alert-light: #FFF0F2;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-gray text-black-90 font-sans;
+  }
+}
+
+/* ================================================================================================================== */
+/*    Scrollbar Utilities (Hide scrollbars while retaining touch/scroll capabilities) */
+/* ================================================================================================================== */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* ================================================================================================================== */
+/*    Slim Scrollbar Utility (Subtle, sleek scrollbar for modals and drawers) */
+/* ================================================================================================================== */
+.slim-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.slim-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.slim-scrollbar::-webkit-scrollbar-thumb {
+  background: #D0D5DD;
+  border-radius: 9999px;
+}
+.slim-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #98A2B3;
+}
+.slim-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #D0D5DD transparent;
+}
+
+/* ================================================================================================================== */
+/*    Table Scrollbar Utility (Vertical scrollbar starts strictly below the sticky table header) */
+/* ================================================================================================================== */
+.table-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.table-scrollbar::-webkit-scrollbar-track:vertical {
+  background: transparent;
+}
+.table-scrollbar::-webkit-scrollbar-track:horizontal {
+  background: transparent;
+}
+.table-scrollbar::-webkit-scrollbar-thumb {
+  background: #D0D5DD;
+  border-radius: 9999px;
+}
+.table-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #98A2B3;
+}
+.table-scrollbar::-webkit-scrollbar-button:single-button:vertical:decrement {
+  display: block;
+  height: 44px;
+  width: 5px;
+  background-repeat: no-repeat;
+  background-position: center bottom 2px;
+  background-size: 5px 4px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 7'%3E%3Cpolygon points='5,0 0,7 10,7' fill='%2398A2B3'/%3E%3C/svg%3E");
+}
+.table-scrollbar::-webkit-scrollbar-button:single-button:vertical:decrement:hover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 7'%3E%3Cpolygon points='5,0 0,7 10,7' fill='%23667085'/%3E%3C/svg%3E");
+}
+.table-scrollbar::-webkit-scrollbar-button:single-button:vertical:increment {
+  display: block;
+  height: 12px;
+  width: 5px;
+  background-repeat: no-repeat;
+  background-position: center 2px;
+  background-size: 5px 4px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 7'%3E%3Cpolygon points='0,0 10,0 5,7' fill='%2398A2B3'/%3E%3C/svg%3E");
+}
+.table-scrollbar::-webkit-scrollbar-button:single-button:vertical:increment:hover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 7'%3E%3Cpolygon points='0,0 10,0 5,7' fill='%23667085'/%3E%3C/svg%3E");
+}
+/* Horizontal Buttons (Left & Right Arrows) */
+.table-scrollbar::-webkit-scrollbar-button:single-button:horizontal:decrement {
+  display: block;
+  width: 12px;
+  height: 5px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 4px 5px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 10'%3E%3Cpolygon points='7,0 7,10 0,5' fill='%2398A2B3'/%3E%3C/svg%3E");
+}
+.table-scrollbar::-webkit-scrollbar-button:single-button:horizontal:decrement:hover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 10'%3E%3Cpolygon points='7,0 7,10 0,5' fill='%23667085'/%3E%3C/svg%3E");
+}
+.table-scrollbar::-webkit-scrollbar-button:single-button:horizontal:increment {
+  display: block;
+  width: 12px;
+  height: 5px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 4px 5px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 10'%3E%3Cpolygon points='0,0 0,10 7,5' fill='%2398A2B3'/%3E%3C/svg%3E");
+}
+.table-scrollbar::-webkit-scrollbar-button:single-button:horizontal:increment:hover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 10'%3E%3Cpolygon points='0,0 0,10 7,5' fill='%23667085'/%3E%3C/svg%3E");
+}
+@supports not selector(::-webkit-scrollbar) {
+  .table-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #D0D5DD transparent;
+  }
+}
+
+/* ================================================================================================================== */
+/*    Auth Layout Mobile Spacing Utility (16px horizontal spacing for mobile screens) */
+/* ================================================================================================================== */
+@media (max-width: 639px) {
+  .auth-form-scroll-container > * {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}

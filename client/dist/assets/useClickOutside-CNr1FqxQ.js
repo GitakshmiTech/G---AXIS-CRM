@@ -1,0 +1,1 @@
+import{l as e,u as t}from"./index-C5Mez-_2.js";var n=t(e(),1),r=(e,t)=>{(0,n.useEffect)(()=>{let n=n=>{e.current&&!e.current.contains(n.target)&&t(n)};return document.addEventListener(`mousedown`,n),document.addEventListener(`touchstart`,n),()=>{document.removeEventListener(`mousedown`,n),document.removeEventListener(`touchstart`,n)}},[e,t])};export{r as t};

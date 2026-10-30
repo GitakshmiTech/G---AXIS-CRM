@@ -1,0 +1,1 @@
+import{l as e,t}from"./index-C5Mez-_2.js";import{t as n}from"./AuthLayout-mNtV9ZlP.js";import{t as r}from"./LoginForm-DytehTbt.js";e();var i=t(),a=()=>(0,i.jsx)(n,{children:(0,i.jsx)(r,{role:`sales`,dashboardPath:`/sales/dashboard`,forgotPasswordPath:`/sales/forgot-password`})});export{a as SalesLogin,a as default};

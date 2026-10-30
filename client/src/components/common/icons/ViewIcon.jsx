@@ -1,0 +1,21 @@
+import React from 'react';
+
+//==================================================================================================================
+//    VIEW ICON COMPONENT
+//    Shared icon component rendering the inline SVG asset.
+// ==================================================================================================================
+export const ViewIcon = ({ className = "w-[18px] h-[18px]" }) => {
+  return (
+    <svg 
+      className={className}
+      width="16" 
+      height="12" 
+      viewBox="0 0 16 12" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M9.95035 5.88508C9.95035 7.10055 8.96508 8.08583 7.7496 8.08583C6.5342 8.08583 5.54888 7.10055 5.54888 5.88508C5.54888 4.66961 6.5342 3.68433 7.7496 3.68433C8.96508 3.68433 9.95035 4.66961 9.95035 5.88508Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7.75001 0.75C4.46527 0.75 1.68479 2.90885 0.75 5.88508C1.68478 8.8613 4.46527 11.0202 7.75001 11.0202C11.0347 11.0202 13.8152 8.8613 14.75 5.88508C13.8152 2.90887 11.0347 0.75 7.75001 0.75Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+};
