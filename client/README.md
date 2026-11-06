@@ -13,4 +13,9 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 ## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Changelog & Security Updates
+
+### [06/11/2026] Dependency Security Patch & Repository .gitignore Consolidation
+- **Vulnerability Remediation**: Resolved 4 moderate severity vulnerabilities in `minimatch` (`GHSA-g3hv-75wg-m249` / `CVE-2026-118764`) by adding package `overrides` for `minimatch: "^11.0.1"` in `package.json`. Audited with `0 vulnerabilities`.
+- **Centralized .gitignore**: Established a clean, unified root `.gitignore` covering frontend and backend dependencies (`node_modules`), secrets (`.env*`), build outputs (`dist`, `build`), caches, and editor metadata without altering existing application code.
+
