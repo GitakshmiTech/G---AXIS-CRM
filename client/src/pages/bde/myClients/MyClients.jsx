@@ -249,7 +249,7 @@ export const MyClients = () => {
         pagination={
           <Pagination
             currentPage={currentPage}
-            totalEntries={180}
+            totalEntries={filteredClients.length}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
             className="pt-0 border-t-0"

@@ -48,7 +48,7 @@ const STATUS_SEQUENCE = [
   'Pending Approval',
 ];
 
-export const INITIAL_QUOTATIONS_DATA = Array.from({ length: 10 }, (_, index) => ({
+export const INITIAL_QUOTATIONS_DATA = Array.from({ length: 25 }, (_, index) => ({
   id: `quote-${index + 1}`,
   code: `#${String(index + 1).padStart(3, '0')}`,
   dealName: 'Johnson Doe',

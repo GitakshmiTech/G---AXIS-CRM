@@ -15,6 +15,19 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 ## Changelog & Security Updates
 
+### [06/11/2026] Dynamic Table Pagination & Project-Wide Reset Filter Button Integration
+- **100% Dynamic Pagination Standardized Across All CRM Table Pages**:
+  - In [`Pagination.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/Pagination.jsx), removed hardcoded default `totalEntries=180` and implemented dynamic entry calculation (`currentCount` strictly reflects actual entries rendered on current page based on `(currentPage - 1) * pageSize + 1` to `min(currentPage * pageSize, totalEntries)`). Added automated out-of-bounds page correction when filtering reduces total pages below the active page index.
+  - Replaced hardcoded `totalEntries={180}` with dynamic filtered arrays across all 17 CRM table pages:
+    - Admin: `ClientManagement` (`filteredClients.length`), `ContactManagement` (`filteredContacts.length`), `DealManagement` (`filteredDeals.length`), `Quotations` (`filteredQuotations.length`), `StaffManagement` (`filteredStaff.length`).
+    - BDE: `MyClients` (`filteredClients.length`), `MyContacts` (`filteredContacts.length`), `MyDeals` (`filteredDeals.length`), `MyLeads` (`filteredLeads.length`), `Quotations` (`filteredQuotations.length`).
+    - Sales: `LeadManagement` (`filteredLeads.length`), `MyClients` (`filteredClients.length`), `MyContacts` (`filteredContacts.length`), `MyDeals` (`filteredDeals.length`), `MyTeam` (`filteredMembers.length`), `Quotations` (`filteredQuotations.length`), `ReportAnalytics` (dynamic view length).
+  - Expanded mock datasets (`INITIAL_LEADS_DATA`, `INITIAL_CLIENTS_DATA`, `INITIAL_CONTACTS_DATA`, `INITIAL_DEALS_DATA`, `INITIAL_QUOTATIONS_DATA`) to 25 items each so multi-page navigation and dynamic page counts can be tested seamlessly.
+- **Top Reset Filter Button Integrated Across All Table Pages**:
+  - Added `onResetFilters` handler to `DataTableToolbar` across all tables previously missing it (`ContactManagement` across Admin, BDE, Sales, and CRM Configuration tables `DealStagesTable`, `IndustryTierTable`, `LeadSourcesTable`, `LeadStatusesTable`, and `ConfigurationReasonTable`).
+  - Clicking the top `Reset ⟳` button immediately clears search queries and resets all dropdown filters to 'All', smoothly returning pagination to Page 1 without modifying any existing business logic.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.91s with 0 errors.
+
 ### [06/11/2026] More Actions Dropdown Icons Aligned with Custom Assets (Group 10 / Group 10 (1))
 - **Import/Export Dropdown Icons Swapped to Custom Assets**:
   - In [`DataTableToolbar.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/Table/DataTableToolbar.jsx), replaced Lucide's `Download` and `Upload` square-tray icons with the project's custom designed `ImportIcon` (`client/src/assets/Group 10 (1).png`) and `ExportIcon` (`client/src/assets/Group 10.png`), exactly matching the user's reference mockup.

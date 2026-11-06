@@ -76,7 +76,7 @@ export const CITY_OPTIONS = [
   { value: 'Bengaluru', label: 'Bengaluru' },
 ];
 
-export const INITIAL_LEADS_DATA = [
+const BASE_LEADS = [
   {
     id: 'lead-1',
     code: '#001',
@@ -328,6 +328,15 @@ export const INITIAL_LEADS_DATA = [
     createdTime: '08:45 AM',
   },
 ];
+
+export const INITIAL_LEADS_DATA = Array.from({ length: 25 }, (_, i) => {
+  const base = BASE_LEADS[i % BASE_LEADS.length];
+  return {
+    ...base,
+    id: `lead-${i + 1}`,
+    code: `#${String(i + 1).padStart(3, '0')}`,
+  };
+});
 
 //==================================================================================================================
 //    MOCK LEAD ACTIVITIES DATA

@@ -215,6 +215,10 @@ export const MyContacts = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             searchPlaceholder="Search here..."
+            onResetFilters={() => {
+              setSearchQuery('');
+              setCurrentPage(1);
+            }}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             onExport={() => alert('Exporting Contacts Data...')}
@@ -223,7 +227,7 @@ export const MyContacts = () => {
         pagination={
           <Pagination
             currentPage={currentPage}
-            totalEntries={180}
+            totalEntries={filteredContacts.length}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
             className="pt-0 border-t-0"

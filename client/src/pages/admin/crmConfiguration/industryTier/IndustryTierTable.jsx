@@ -302,6 +302,10 @@ export const IndustryTierTable = () => {
         searchPlaceholder="Search here..."
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        onResetFilters={() => {
+          setSearchQuery('');
+          setCurrentPage(1);
+        }}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onExport={handleExport}

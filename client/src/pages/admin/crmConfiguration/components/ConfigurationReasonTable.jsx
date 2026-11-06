@@ -58,7 +58,7 @@ export const ConfigurationReasonTable = memo(({ config }) => {
   return (
     <div className="flex-1 w-full min-w-0 h-full flex flex-col min-h-0">
       <TableContainer
-        toolbar={<DataTableToolbar searchPlaceholder="Search here..." searchQuery={searchQuery} onSearchChange={(value) => { setSearchQuery(value); setCurrentPage(1); }} viewMode={viewMode} onViewModeChange={setViewMode} onExport={() => {}} actionButton={{ label: config.addLabel, onClick: handleOpenAdd }} />}
+        toolbar={<DataTableToolbar searchPlaceholder="Search here..." searchQuery={searchQuery} onSearchChange={(value) => { setSearchQuery(value); setCurrentPage(1); }} onResetFilters={() => { setSearchQuery(''); setCurrentPage(1); }} viewMode={viewMode} onViewModeChange={setViewMode} onExport={() => {}} actionButton={{ label: config.addLabel, onClick: handleOpenAdd }} />}
         pagination={<Pagination currentPage={currentPage} totalEntries={filteredItems.length} pageSize={pageSize} onPageChange={setCurrentPage} className="pt-0 border-t-0" />}
       >
         <DataTable columns={columns} data={visibleItems} rowKey="id" emptyMessage={`No ${config.title.toLowerCase()} configured.`} />

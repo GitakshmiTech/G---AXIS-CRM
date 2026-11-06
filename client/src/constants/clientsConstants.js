@@ -27,7 +27,7 @@ export const MOCK_STAKEHOLDER_AVATARS = [
   'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face',
 ];
 
-export const INITIAL_CLIENTS_DATA = Array.from({ length: 10 }, (_, index) => ({
+export const INITIAL_CLIENTS_DATA = Array.from({ length: 25 }, (_, index) => ({
   id: `client-${index + 1}`,
   code: `#${String(index + 1).padStart(3, '0')}`,
   name: 'ABC Company Pvt Ltd',

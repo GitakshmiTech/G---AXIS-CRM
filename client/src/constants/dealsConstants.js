@@ -27,7 +27,7 @@ export const MOCK_DEAL_AVATARS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
 ];
 
-export const INITIAL_DEALS_DATA = Array.from({ length: 10 }, (_, index) => ({
+export const INITIAL_DEALS_DATA = Array.from({ length: 25 }, (_, index) => ({
   id: `deal-${index + 1}`,
   code: `#${String(index + 1).padStart(3, '0')}`,
   dealName: 'Johnson Doe',

@@ -453,7 +453,7 @@ export const ReportAnalytics = memo(() => {
           pagination={
             <Pagination
               currentPage={currentPage}
-              totalEntries={180}
+              totalEntries={activeView === 'bde' ? INITIAL_BDE_DATA.length : LEAD_SOURCE_DATA.length}
               pageSize={pageSize}
               onPageChange={setCurrentPage}
               className="pt-0 border-t-0"
