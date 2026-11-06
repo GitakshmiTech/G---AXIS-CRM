@@ -4,14 +4,15 @@
 //==================================================================================================================
 import React, { useState, useMemo, memo } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { ExportButton } from '../../../components/common/buttons/ExportButton';
-import { StatCard } from '../../../components/common/StatCard';
+import { TableFilterSelect } from '../../../components/Table/TableFilterSelect';
+import { ExportButton } from '../../../components/buttons/ExportButton';
+import { StatCard } from '../../../components/cards/StatCard';
 import { BarChart } from '../../../components/common/BarChart';
 import { LeadStatusBreakdown } from '../../../components/common/LeadStatusBreakdown';
-import { LeadStageDistributionCard } from '../../../components/common/LeadStageDistributionCard';
+import { LeadStageDistributionCard } from '../../../components/cards/LeadStageDistributionCard';
 import { LeadSourcePerformance } from '../../../components/common/LeadSourcePerformance';
-import { ExecutiveActivityCard } from '../../../components/common/ExecutiveActivityCard';
-import { SystemHealthCard } from '../../../components/common/SystemHealthCard';
+import { ExecutiveActivityCard } from '../../../components/cards/ExecutiveActivityCard';
+import { SystemHealthCard } from '../../../components/cards/SystemHealthCard';
 import {
   ADMIN_STAT_CARDS,
   ADMIN_LEAD_VOLUME_PACING_MONTHLY,
@@ -49,7 +50,7 @@ export const AdminDashboard = memo(() => {
       {/* ==============================================================================================================
           1. DASHBOARD PAGE HEADER (Image 1 & Image 3)
       ============================================================================================================== */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 select-none">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 ">
         <div className="flex flex-col">
           <h1 className="text-xl sm:text-2xl font-bold text-primary tracking-tight leading-tight">
             Dashboard
@@ -66,7 +67,7 @@ export const AdminDashboard = memo(() => {
             <button
               type="button"
               onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
-              className="h-[38px] inline-flex items-center gap-2 px-3 sm:px-3.5 rounded-[7px] border border-stroke text-xs sm:text-sm font-semibold text-black-90 bg-white-100 hover:bg-gray/50 transition-colors cursor-pointer shadow-3xs"
+              className="h-8 inline-flex items-center gap-2 px-3 sm:px-3.5 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-xs font-semibold text-black-90 hover:bg-gray/80 transition-colors cursor-pointer"
             >
               <span>{timeFilter}</span>
               <ChevronDown
@@ -78,7 +79,11 @@ export const AdminDashboard = memo(() => {
             </button>
 
             {isFilterDropdownOpen && (
-              <div className="absolute right-0 mt-1.5 w-36 bg-white-100 border border-stroke rounded-xl shadow-lg py-1 z-30">
+              <div
+                data-ui-style="dropdown-menu"
+                data-ui-width="trigger"
+                className="absolute top-full left-0 right-0 w-full min-w-full mt-1 bg-gray border-none rounded-none p-0 z-30 shadow-none animate-in fade-in zoom-in-95 duration-100"
+              >
                 {FILTER_OPTIONS.map((option) => (
                   <button
                     key={option}
@@ -87,13 +92,13 @@ export const AdminDashboard = memo(() => {
                       setTimeFilter(option);
                       setIsFilterDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
+                    className={`w-full text-left px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer rounded-none ${
                       timeFilter === option
                         ? 'text-primary bg-primary/10 font-bold'
-                        : 'text-black-90 hover:bg-gray'
+                        : 'text-black-90 hover:bg-white-100'
                     }`}
                   >
-                    {option}
+                    <span className="truncate whitespace-nowrap">{option}</span>
                   </button>
                 ))}
               </div>
@@ -127,46 +132,48 @@ export const AdminDashboard = memo(() => {
         <BarChart
           title="Lead Volume Pacing"
           headerRight={
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap select-none">
-              <div className="flex bg-gray rounded-lg p-[3px] border border-stroke">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <div
+                data-ui-style="joined-control"
+                className="flex items-center bg-gray rounded-[7px] p-[3px] border-b-2 border-stroke/80"
+              >
                 <button
                   type="button"
+                  data-ui-style="filter-tab"
                   onClick={() => setRevenueTab('Monthly')}
-                  className={`px-3 py-1 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${
+                  className={`px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
                     revenueTab === 'Monthly'
-                      ? 'font-bold bg-primary text-white-100 shadow-2xs'
-                      : 'font-medium text-black-90/60 hover:text-black-90'
+                      ? 'font-bold bg-primary text-white-100'
+                      : 'font-medium text-black-90 hover:text-black-90'
                   }`}
                 >
                   Monthly
                 </button>
                 <button
                   type="button"
+                  data-ui-style="filter-tab"
                   onClick={() => setRevenueTab('Yearly')}
-                  className={`px-3 py-1 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${
+                  className={`px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
                     revenueTab === 'Yearly'
-                      ? 'font-bold bg-primary text-white-100 shadow-2xs'
-                      : 'font-medium text-black-90/60 hover:text-black-90'
+                      ? 'font-bold bg-primary text-white-100'
+                      : 'font-medium text-black-90 hover:text-black-90'
                   }`}
                 >
                   Yearly
                 </button>
               </div>
 
-              <div className="relative">
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="appearance-none border border-stroke rounded-lg pl-3 pr-8 py-1.5 text-xs sm:text-sm font-medium bg-white-100 text-black-90 outline-none focus:border-primary cursor-pointer shadow-2xs"
-                >
-                  <option value="2025">2025</option>
-                  <option value="2024">2024</option>
-                </select>
-                <ChevronDown
-                  size={14}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black-90/60 pointer-events-none"
-                />
-              </div>
+              <TableFilterSelect
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                options={[
+                  { value: '2025', label: '2025' },
+                  { value: '2024', label: '2024' },
+                ]}
+                showAllOption={false}
+                placeholder="2025"
+                selectClassName="h-8"
+              />
             </div>
           }
           data={currentChartData}
@@ -217,14 +224,14 @@ export const AdminDashboard = memo(() => {
           5. ROW 4: SALES EXECUTIVE & BDE ACTIVITY BREAKDOWN (IMAGE 1 & IMAGE 2)
           Multi-layer activity metric boxes with stacked performance meters
       ============================================================================================================== */}
-      <div className="flex flex-col gap-3 select-none pt-1">
+      <div className="flex flex-col gap-3  pt-1">
         {/* Section Header with Legend Pill */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <h2 className="text-lg sm:text-xl font-bold text-black-90">
             Sales Executive & BDE Activity Breakdown
           </h2>
 
-          <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 rounded-full border border-stroke bg-white-100 text-xs font-semibold shadow-3xs text-black-90/80 self-start sm:self-auto">
+          <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3.5 py-1.5 rounded-[7px] border-b-2 border-stroke/80 bg-gray text-xs font-semibold text-black-90/80 self-start sm:self-auto">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
               <span>Leads Handled</span>
@@ -264,7 +271,7 @@ export const AdminDashboard = memo(() => {
           6. ROW 5: PLATFORM & SYSTEM HEALTH TELEMETRY (IMAGE 1 & IMAGE 3)
           Telemetry monitoring status cards displaying uptime, latency, and core engine diagnostics
       ============================================================================================================== */}
-      <div className="flex flex-col gap-3 select-none pt-1">
+      <div className="flex flex-col gap-3  pt-1">
         <h2 className="text-lg sm:text-xl font-bold text-black-90">
           Platform & System Health Telemetry
         </h2>

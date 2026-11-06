@@ -76,12 +76,13 @@ export const PillSwitcher = memo(({
     <div
       ref={containerRef}
       role="tablist"
-      className={`relative inline-flex items-center h-[34px] bg-[#F2F4F8] p-1 rounded-lg border border-[#E4E7EC] shrink-0 select-none ${className}`.trim()}
+      data-ui-style="joined-control"
+      className={`relative inline-flex items-center h-[34px] bg-gray p-1 rounded-[7px] border-b-2 border-stroke/80 shrink-0  ${className}`.trim()}
     >
       {/* Hardware-Accelerated Sliding Pill Indicator (Pinned top-1 and bottom-1 for exact vertical centering) */}
       <div
         aria-hidden="true"
-        className={`absolute top-1 bottom-1 left-0 rounded-[6px] bg-white-100 shadow-2xs pointer-events-none z-0 ${
+        className={`absolute top-1 bottom-1 left-0 rounded-[5px] bg-white-100 border-none pointer-events-none z-0 ${
           isFirstRender.current
             ? ''
             : 'transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]'
@@ -104,9 +105,10 @@ export const PillSwitcher = memo(({
             }}
             type="button"
             role="tab"
+            data-ui-style="filter-tab"
             aria-selected={isActive}
             onClick={() => onTabChange && onTabChange(tab.id)}
-            className={`relative z-10 h-full flex items-center justify-center px-3.5 text-xs select-none cursor-pointer outline-none focus:outline-none whitespace-nowrap transition-colors duration-200 ${
+            className={`relative z-10 h-full flex items-center justify-center px-3.5 text-xs  cursor-pointer outline-none focus:outline-none whitespace-nowrap transition-colors duration-200 ${
               isActive
                 ? 'text-primary font-bold'
                 : 'text-black-90/70 hover:text-black-90 font-medium'

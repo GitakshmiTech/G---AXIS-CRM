@@ -4,11 +4,11 @@
 //==================================================================================================================
 
 import React, { useState, useEffect, memo, useCallback, useRef } from 'react';
-import { Drawer } from '../../../components/common/Drawer';
-import { TextInput } from '../../../components/common/input common/TextInput/TextInput';
-import { DropdownInput } from '../../../components/common/input common/DropdownInput/DropdownInput';
-import { PhoneNumber } from '../../../components/common/input common/PhoneNumber/PhoneNumber';
-import { BackButton } from '../../../components/common/buttons/BackButton';
+import { Drawer } from '../../../components/sidebar/Drawer';
+import { TextInput } from '../../../components/inputs/TextInput';
+import { DropdownInput } from '../../../components/inputs/DropdownInput';
+import { PhoneNumber } from '../../../components/inputs/PhoneNumber';
+import { BackButton } from '../../../components/buttons/BackButton';
 import { ContactAvatarPlaceholder } from '../../../components/common/ContactAvatarPlaceholder';
 import { LEAD_SOURCES } from '../../../constants/leadsConstants';
 
@@ -103,7 +103,7 @@ export const EditContactDrawer = memo(({
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all shadow-xs cursor-pointer active:scale-95"
+              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
             >
               Save Details
             </button>
@@ -138,7 +138,7 @@ export const EditContactDrawer = memo(({
             <button
               type="button"
               onClick={handleUploadProfileClick}
-              className="px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none shadow-xs active:scale-95"
+              className="px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold transition-colors cursor-pointer   active:scale-95"
             >
               Upload Profile
             </button>

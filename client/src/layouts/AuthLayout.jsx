@@ -1,7 +1,7 @@
 //==================================================================================================================
 //    React & Assets Imports
 //==================================================================================================================
-import { QuoteIcon } from "../components/common/icons/QuoteIcon";
+import { QuoteIcon } from "../components/icons/QuoteIcon";
 import bgPattern from "../assets/Frame 172.png";
 import logo from "../assets/Group 4.png";
 
@@ -40,7 +40,7 @@ export const AuthLayout = ({ children }) => {
         {/* ================================================================================================================== */}
 
         {/* ================================================================================================================== */}
-        <div className="z-10 bg-black/15 backdrop-blur-lg border border-white-100/20 p-10 md:p-12 rounded-3xl max-w-[auto] flex flex-col shadow-2xl">
+        <div className="z-10 bg-black/15 backdrop-blur-lg border border-white-100/20 p-10 md:p-12 rounded-3xl max-w-[auto] flex flex-col ">
           {/* ================================================================================================================== */}
 
           {/* ================================================================================================================== */}

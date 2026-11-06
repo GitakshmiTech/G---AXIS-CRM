@@ -13,7 +13,7 @@ export const MobilePageHeader = memo(({ title, subtitle, className = '' }) => {
   if (!title && !subtitle) return null;
 
   return (
-    <div className={`sm:hidden px-3 pt-0 pb-2 flex flex-col shrink-0 select-none ${className}`}>
+    <div className={`sm:hidden px-3 pt-0 pb-2 flex flex-col shrink-0  ${className}`}>
       {title && (
         <h1 className="text-lg font-bold text-primary leading-tight">
           {title}

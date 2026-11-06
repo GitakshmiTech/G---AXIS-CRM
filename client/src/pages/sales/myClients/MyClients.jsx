@@ -4,13 +4,13 @@
 //==================================================================================================================
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { TableContainer } from '../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../components/common/DataTable';
-import { Pagination } from '../../../components/common/Pagination';
-import { ViewBtn } from '../../../components/common/buttons/ViewBtn';
-import { EditBtn } from '../../../components/common/buttons/EditBtn';
-import { AvatarStack } from '../../../components/common/AvatarStack';
+import { TableContainer } from '../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../components/Table/DataTable';
+import { Pagination } from '../../../components/inputs/Pagination';
+import { ViewBtn } from '../../../components/buttons/ViewBtn';
+import { EditBtn } from '../../../components/buttons/EditBtn';
+import { AvatarStack } from '../../../components/inputs/AvatarStack';
 import { EditClientDrawer } from './EditClientDrawer';
 import {
   INITIAL_CLIENTS_DATA,
@@ -175,7 +175,7 @@ export const MyClients = () => {
       label: 'Stage',
       sortable: true,
       render: (row) => (
-        <div className="w-[112px] h-[24px] inline-flex items-center justify-center px-3 py-0.5 bg-gray rounded-[7px] text-xs font-semibold text-black-90 select-none">
+        <div className="w-[112px] h-[24px] inline-flex items-center justify-center px-3 py-0.5 bg-gray rounded-[7px] text-xs font-semibold text-black-90 ">
           {row.stage}
         </div>
       ),
@@ -244,7 +244,7 @@ export const MyClients = () => {
         pagination={
           <Pagination
             currentPage={currentPage}
-            totalEntries={180}
+            totalEntries={filteredClients.length}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
             className="pt-0 border-t-0"

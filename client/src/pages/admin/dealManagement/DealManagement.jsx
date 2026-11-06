@@ -4,13 +4,13 @@
 //==================================================================================================================
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { TableContainer } from '../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../components/common/DataTable';
-import { Pagination } from '../../../components/common/Pagination';
-import { ViewBtn } from '../../../components/common/buttons/ViewBtn';
-import { EditBtn } from '../../../components/common/buttons/EditBtn';
-import { AvatarStack } from '../../../components/common/AvatarStack';
+import { TableContainer } from '../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../components/Table/DataTable';
+import { Pagination } from '../../../components/inputs/Pagination';
+import { ViewBtn } from '../../../components/buttons/ViewBtn';
+import { EditBtn } from '../../../components/buttons/EditBtn';
+import { AvatarStack } from '../../../components/inputs/AvatarStack';
 import { EditDealDrawer } from './EditDealDrawer';
 import {
   INITIAL_DEALS_DATA,
@@ -153,7 +153,7 @@ export const DealManagement = () => {
       sortable: true,
       align: 'center',
       render: (row) => (
-        <div className="px-5 py-1.5 bg-gray rounded-[8px] inline-flex items-center justify-center text-xs font-bold text-black-90 select-none">
+        <div className="px-5 py-1.5 bg-gray rounded-[8px] inline-flex items-center justify-center text-xs font-bold text-black-90 ">
           {row.stage}
         </div>
       ),
@@ -164,7 +164,7 @@ export const DealManagement = () => {
       sortable: true,
       align: 'center',
       render: (row) => (
-        <div className="flex flex-col items-center justify-center select-none">
+        <div className="flex flex-col items-center justify-center ">
           <div className="px-4 py-1.5 bg-gray rounded-[8px] inline-flex items-center justify-center">
             <span className="text-xs font-bold text-primary whitespace-nowrap">
               {row.expectedCloseDate}
@@ -257,7 +257,7 @@ export const DealManagement = () => {
         pagination={
           <Pagination
             currentPage={currentPage}
-            totalEntries={180}
+            totalEntries={filteredDeals.length}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
             className="pt-0 border-t-0"

@@ -3,13 +3,14 @@
 //    React primitives, Lucide icons, common StatCard component, and BDE telemetry constants
 //==================================================================================================================
 import { useState, useMemo } from 'react';
+import { TableFilterSelect } from '../../../components/Table/TableFilterSelect';
 import { ChevronDown, ChevronRight, Upload, Mail } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa6';
-import { StatCard } from '../../../components/common/StatCard';
+import { StatCard } from '../../../components/cards/StatCard';
 import { BarChart } from '../../../components/common/BarChart';
 import { DealDistribution } from '../../../components/common/DealDistribution';
-import { ViewIcon } from '../../../components/common/icons/ViewIcon';
-import { EditIcon } from '../../../components/common/icons/EditIcon';
+import { ViewIcon } from '../../../components/icons/ViewIcon';
+import { EditIcon } from '../../../components/icons/EditIcon';
 import {
   BDE_STAT_CARDS,
   BDE_REVENUE_CHART_MONTHLY,
@@ -24,13 +25,13 @@ import {
 //==================================================================================================================
 const Last5LeadsTable = () => {
   return (
-    <div className="bg-white-100 rounded-xl border border-stroke overflow-hidden flex flex-col shadow-2xs">
+    <div className="bg-white-100 rounded-xl border-b-2 border-stroke/80 overflow-hidden flex flex-col ">
       {/* Table Header Section */}
-      <div className="p-4 sm:p-5 pb-3 flex justify-between items-center select-none">
+      <div className="p-4 sm:p-5 pb-3 flex justify-between items-center ">
         <h3 className="font-bold text-lg text-black-90">Last 5 Leads</h3>
         <button
           type="button"
-          className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg border border-stroke text-xs sm:text-sm font-semibold text-primary hover:bg-gray/60 transition-colors cursor-pointer select-none"
+          className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-[7px] border-b-2 border-stroke/80 bg-gray text-xs sm:text-sm font-semibold text-primary hover:bg-gray/80 transition-colors cursor-pointer "
         >
           <span>View All Leads</span>
           <ChevronRight size={14} className="text-primary flex-shrink-0" />
@@ -61,7 +62,7 @@ const Last5LeadsTable = () => {
                 Quick Contact
               </th>
               <th className="py-2.5 px-4 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
-                <div className="inline-flex items-center gap-1 select-none">
+                <div className="inline-flex items-center gap-1 ">
                   <span>Created Date</span>
                   <ChevronDown size={13} className="text-primary flex-shrink-0" />
                 </div>
@@ -89,7 +90,7 @@ const Last5LeadsTable = () => {
                     <img
                       src={lead.leadAvatar}
                       alt={lead.leadName}
-                      className="w-8 h-8 rounded-full object-cover border border-stroke/60 flex-shrink-0"
+                      className="w-8 h-8 rounded-full object-cover border-none flex-shrink-0"
                     />
                     <span className="text-sm font-bold text-black-90">
                       {lead.leadName}
@@ -103,7 +104,7 @@ const Last5LeadsTable = () => {
                     <img
                       src={lead.companyLogo}
                       alt={lead.companyName}
-                      className="w-8 h-8 rounded-full object-cover border border-stroke/60 flex-shrink-0"
+                      className="w-8 h-8 rounded-full object-cover border-none flex-shrink-0"
                     />
                     <span className="text-sm font-bold text-black-90">
                       {lead.companyName}
@@ -132,7 +133,7 @@ const Last5LeadsTable = () => {
                       type="button"
                       title="WhatsApp Contact"
                       aria-label="WhatsApp Contact"
-                      className="w-8 h-8 rounded-full bg-gray flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+                      className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
                     >
                       <FaWhatsapp size={18} className="text-[#25D366]" />
                     </button>
@@ -140,7 +141,7 @@ const Last5LeadsTable = () => {
                       type="button"
                       title="Email Contact"
                       aria-label="Email Contact"
-                      className="w-8 h-8 rounded-full bg-gray text-primary flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+                      className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-primary flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
                     >
                       <Mail size={16} strokeWidth={2} />
                     </button>
@@ -166,7 +167,7 @@ const Last5LeadsTable = () => {
                       type="button"
                       title="View Lead Details"
                       aria-label="View lead details"
-                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray text-secondary flex items-center justify-center hover:bg-secondary/20 transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-secondary flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer"
                     >
                       <ViewIcon className="w-3.5 h-3.5" />
                     </button>
@@ -174,7 +175,7 @@ const Last5LeadsTable = () => {
                       type="button"
                       title="Edit Lead"
                       aria-label="Edit lead"
-                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray text-secondary flex items-center justify-center hover:bg-secondary/20 transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-secondary flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer"
                     >
                       <EditIcon className="w-3.5 h-3.5" />
                     </button>
@@ -210,7 +211,7 @@ export const BdeDashboard = () => {
       {/* ==================================================================================================================
           Dashboard Welcome Header & Action Controls
       ================================================================================================================== */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 select-none">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 ">
         {/* Left: Heading and Ecosystem Subtitle */}
         <div className="flex flex-col">
           <h1 className="text-xl sm:text-[24px] font-bold text-primary tracking-tight leading-tight">
@@ -226,7 +227,7 @@ export const BdeDashboard = () => {
           {/* Static Date Filter Button */}
           <button
             type="button"
-            className="inline-flex items-center gap-2 px-3.5 py-2 bg-white-100 border border-stroke rounded-lg text-xs sm:text-sm font-medium text-black-90 hover:border-primary/40 transition-colors shadow-2xs select-none"
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs sm:text-sm font-medium text-black-90 hover:bg-gray transition-colors cursor-pointer"
           >
             <span>By Date</span>
             <ChevronDown size={15} className="text-black-90/60" />
@@ -237,7 +238,7 @@ export const BdeDashboard = () => {
             type="button"
             title="Export Overview"
             aria-label="Export Overview"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-secondary text-white-100 flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-2xs cursor-pointer"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-secondary text-white-100 flex items-center justify-center hover:opacity-90 active:scale-95 transition-all  cursor-pointer"
           >
             <Upload size={17} strokeWidth={2.2} />
           </button>
@@ -265,44 +266,48 @@ export const BdeDashboard = () => {
         <BarChart
           title="Monthly vs Yearly Revenue"
           headerRight={
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap select-none">
-              <div className="flex bg-gray rounded-lg p-[3px] border border-stroke">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <div
+                data-ui-style="joined-control"
+                className="flex items-center bg-gray rounded-[7px] p-[3px] border-b-2 border-stroke/80"
+              >
                 <button
                   type="button"
+                  data-ui-style="filter-tab"
                   onClick={() => setRevenueTab('Monthly')}
-                  className={`px-3 py-1 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${revenueTab === 'Monthly'
-                    ? 'font-bold bg-primary text-white-100 shadow-2xs'
-                    : 'font-medium text-black-90/60 hover:text-black-90'
-                    }`}
+                  className={`px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
+                    revenueTab === 'Monthly'
+                      ? 'font-bold bg-primary text-white-100'
+                      : 'font-medium text-black-90 hover:text-black-90'
+                  }`}
                 >
                   Monthly
                 </button>
                 <button
                   type="button"
+                  data-ui-style="filter-tab"
                   onClick={() => setRevenueTab('Yearly')}
-                  className={`px-3 py-1 rounded-md text-xs sm:text-sm transition-colors cursor-pointer ${revenueTab === 'Yearly'
-                    ? 'font-bold bg-primary text-white-100 shadow-2xs'
-                    : 'font-medium text-black-90/60 hover:text-black-90'
-                    }`}
+                  className={`px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
+                    revenueTab === 'Yearly'
+                      ? 'font-bold bg-primary text-white-100'
+                      : 'font-medium text-black-90 hover:text-black-90'
+                  }`}
                 >
                   Yearly
                 </button>
               </div>
 
-              <div className="relative">
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="appearance-none border border-stroke rounded-lg pl-3 pr-8 py-1.5 text-xs sm:text-sm font-medium bg-white-100 text-black-90 outline-none focus:border-primary cursor-pointer shadow-2xs"
-                >
-                  <option value="2025">2025</option>
-                  <option value="2024">2024</option>
-                </select>
-                <ChevronDown
-                  size={14}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black-90/60 pointer-events-none"
-                />
-              </div>
+              <TableFilterSelect
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                options={[
+                  { value: '2025', label: '2025' },
+                  { value: '2024', label: '2024' },
+                ]}
+                showAllOption={false}
+                placeholder="2025"
+                selectClassName="h-8"
+              />
             </div>
           }
           data={currentChartData}

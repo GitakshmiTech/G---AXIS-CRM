@@ -3,7 +3,7 @@
 //    Centralized mock data and dropdown options for My Contacts workspace module
 //==================================================================================================================
 
-export const INITIAL_CONTACTS_DATA = Array.from({ length: 10 }, (_, index) => ({
+export const INITIAL_CONTACTS_DATA = Array.from({ length: 25 }, (_, index) => ({
   id: `contact-${index + 1}`,
   code: `#${String(index + 1).padStart(3, '0')}`,
   name: 'Johnson Doe',
@@ -15,7 +15,7 @@ export const INITIAL_CONTACTS_DATA = Array.from({ length: 10 }, (_, index) => ({
   activeDeals: 2,
   phone: '98765 43210',
   email: 'johnson.doe@abccompany.com',
-  createdDate: '14 May 2025',
+  createdDate: '14/05/2025',
   createdTime: '08:45 AM',
   leadSource: 'LinkedIn',
   assignedBde: 'Johnson Doe',

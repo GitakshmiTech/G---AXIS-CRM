@@ -6,12 +6,12 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Mail } from 'lucide-react';
 import whatsappIcon from '../../../assets/icons/Group.png';
-import { TableContainer } from '../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../components/common/DataTable';
-import { Pagination } from '../../../components/common/Pagination';
-import { ViewBtn } from '../../../components/common/buttons/ViewBtn';
-import { EditBtn } from '../../../components/common/buttons/EditBtn';
+import { TableContainer } from '../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../components/Table/DataTable';
+import { Pagination } from '../../../components/inputs/Pagination';
+import { ViewBtn } from '../../../components/buttons/ViewBtn';
+import { EditBtn } from '../../../components/buttons/EditBtn';
 import { EditContactDrawer } from './EditContactDrawer';
 import { INITIAL_CONTACTS_DATA } from '../../../constants/contactsConstants';
 
@@ -164,14 +164,14 @@ export const ContactManagement = () => {
             href={`https://wa.me/${row.phone.replace(/[^0-9]/g, '')}`}
             target="_blank"
             rel="noreferrer"
-            className="w-8 h-8 rounded-full bg-gray flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
             title="Chat on WhatsApp"
           >
             <img src={whatsappIcon} alt="WhatsApp" className="w-4 h-4 object-contain" />
           </a>
           <a
             href={`mailto:${row.email}`}
-            className="w-8 h-8 rounded-full bg-[#F3F5FA] flex items-center justify-center text-primary hover:bg-gray transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
             title="Send Email"
           >
             <Mail size={16} strokeWidth={2} />
@@ -215,6 +215,10 @@ export const ContactManagement = () => {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             searchPlaceholder="Search here..."
+            onResetFilters={() => {
+              setSearchQuery('');
+              setCurrentPage(1);
+            }}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             onExport={() => alert('Exporting Contacts Data...')}
@@ -223,7 +227,7 @@ export const ContactManagement = () => {
         pagination={
           <Pagination
             currentPage={currentPage}
-            totalEntries={180}
+            totalEntries={filteredContacts.length}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
             className="pt-0 border-t-0"

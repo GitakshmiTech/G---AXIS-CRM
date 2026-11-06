@@ -4,8 +4,8 @@
 //==================================================================================================================
 
 import React, { useState, memo } from 'react';
-import { Drawer } from '../../../components/common/Drawer';
-import { Button } from '../../../components/common/buttons/Button';
+import { Drawer } from '../../../components/sidebar/Drawer';
+import { Button } from '../../../components/buttons/Button';
 import { MOCK_COMMENTS } from '../../../constants/leadsConstants';
 
 export const LeadCommentsDrawer = memo(({
@@ -52,7 +52,7 @@ export const LeadCommentsDrawer = memo(({
             placeholder="Add comment here"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            className="flex-1 min-w-0 h-[38px] sm:h-[40px] px-3 sm:px-3.5 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg text-xs text-black-90 placeholder:text-[#475467] font-normal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+            className="flex-1 min-w-0 h-[38px] sm:h-[40px] px-3 sm:px-3.5 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none transition-all"
           />
           <button
             type="submit"
@@ -68,7 +68,7 @@ export const LeadCommentsDrawer = memo(({
           <div key={item.id} className="flex flex-col gap-1">
             <div className="flex items-start gap-3">
               {/* Comment Bubble */}
-              <div className="flex-1 bg-[#F2F4F7] border border-[#E4E7EC] rounded-2xl p-3.5 text-xs text-[#344054] leading-relaxed shadow-2xs">
+              <div className="flex-1 bg-[#F2F4F7] border border-stroke rounded-2xl p-3.5 text-xs text-black-90 leading-relaxed ">
                 {item.text}
               </div>
 
@@ -76,12 +76,12 @@ export const LeadCommentsDrawer = memo(({
               <img
                 src={item.avatar}
                 alt="Commenter"
-                className="w-9 h-9 rounded-full object-cover shrink-0 border border-stroke"
+                className="w-9 h-9 rounded-full object-cover shrink-0"
               />
             </div>
 
             {/* Comment Timestamp */}
-            <span className="text-[11px] text-[#475467]/70 pr-12 text-right font-medium">
+            <span className="text-[11px] text-black-90/80/70 pr-12 text-right font-medium">
               {item.timestamp}
             </span>
           </div>

@@ -48,7 +48,7 @@ const STATUS_SEQUENCE = [
   'Pending Approval',
 ];
 
-export const INITIAL_QUOTATIONS_DATA = Array.from({ length: 10 }, (_, index) => ({
+export const INITIAL_QUOTATIONS_DATA = Array.from({ length: 25 }, (_, index) => ({
   id: `quote-${index + 1}`,
   code: `#${String(index + 1).padStart(3, '0')}`,
   dealName: 'Johnson Doe',
@@ -58,7 +58,7 @@ export const INITIAL_QUOTATIONS_DATA = Array.from({ length: 10 }, (_, index) => 
   extraProductCount: 5,
   expectedValue: '₹483,500',
   status: STATUS_SEQUENCE[index % STATUS_SEQUENCE.length],
-  createdDate: '14 May 2025',
+  createdDate: '14/05/2025',
   createdTime: '08:45 AM',
   companyName: 'HyperScale Systems',
   linkedCompany: 'HyperScale Systems',
