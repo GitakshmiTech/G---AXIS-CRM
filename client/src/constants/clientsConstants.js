@@ -39,7 +39,7 @@ export const INITIAL_CLIENTS_DATA = Array.from({ length: 10 }, (_, index) => ({
   assignedBde: 'Johnson Doe',
   assignedBdeAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60&h=60&fit=crop&crop=face',
   stage: 'Proposal',
-  createdDate: '14 May 2025',
+  createdDate: '14/05/2025',
   createdTime: '08:45 AM',
   employeeScale: '0 - 50',
   email: 'johnson.doe@abccompany.com',

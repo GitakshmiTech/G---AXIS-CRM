@@ -5,13 +5,13 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { Plus, ChevronDown } from 'lucide-react';
-import { TableContainer } from '../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../components/common/DataTable';
-import { Pagination } from '../../../components/common/Pagination';
-import { ViewBtn } from '../../../components/common/buttons/ViewBtn';
-import { EditBtn } from '../../../components/common/buttons/EditBtn';
-import { AvatarStack } from '../../../components/common/AvatarStack';
+import { TableContainer } from '../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../components/Table/DataTable';
+import { Pagination } from '../../../components/inputs/Pagination';
+import { ViewBtn } from '../../../components/buttons/ViewBtn';
+import { EditBtn } from '../../../components/buttons/EditBtn';
+import { AvatarStack } from '../../../components/inputs/AvatarStack';
 import { CreateQuotationDrawer } from './CreateQuotationDrawer';
 import {
   INITIAL_QUOTATIONS_DATA,
@@ -196,7 +196,7 @@ export const Quotations = () => {
       align: 'center',
       render: (row) => (
         <span
-          className={`w-[132px] h-[24px] rounded-[8px] text-xs font-semibold whitespace-nowrap inline-flex items-center justify-center select-none ${getStatusBadgeClass(
+          className={`w-[132px] h-[24px] rounded-[8px] text-xs font-semibold whitespace-nowrap inline-flex items-center justify-center  ${getStatusBadgeClass(
             row.status
           )}`}
         >

@@ -29,12 +29,12 @@ export const LeadSourcePerformance = memo(({
 
   return (
     <div
-      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border border-stroke flex flex-col justify-between shadow-2xs h-full ${className}`}
+      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border-b-2 border-stroke/80 flex flex-col justify-between  h-full ${className}`}
     >
       {/* ==============================================================================================================
           CARD HEADER & METRIC TOGGLE BADGE
       ============================================================================================================== */}
-      <div className="flex items-start justify-between pb-3 border-b border-stroke/60 select-none">
+      <div className="flex items-start justify-between pb-3 border-b border-stroke/60 ">
         <div>
           <h3 className="font-bold text-lg text-black-90">{title}</h3>
           {subtitle && (
@@ -47,7 +47,7 @@ export const LeadSourcePerformance = memo(({
         {badge && (
           <button
             type="button"
-            className="inline-flex items-center px-3.5 py-1.5 rounded-lg border border-stroke bg-gray/40 hover:bg-gray transition-colors text-xs sm:text-[13px] font-medium text-black-90 shadow-3xs select-none cursor-pointer"
+            className="inline-flex items-center px-3.5 py-1.5 rounded-[7px] border-b-2 border-stroke/80 bg-gray hover:bg-gray transition-colors text-xs sm:text-[13px] font-medium text-black-90 cursor-pointer"
           >
             {badge}
           </button>
@@ -61,7 +61,7 @@ export const LeadSourcePerformance = memo(({
         {items.map((item, idx) => (
           <div key={item.id ?? idx} className="flex flex-col gap-1.5">
             {/* Channel Source, Total Leads & Conversion Rate Tag */}
-            <div className="flex items-center justify-between text-xs sm:text-sm select-none">
+            <div className="flex items-center justify-between text-xs sm:text-sm ">
               <span className="font-medium text-black-90">
                 {item.source}
               </span>

@@ -8,8 +8,8 @@ import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-do
 //    Layout, Input & Common Components
 //==================================================================================================================
 import { AuthLayout } from '../../layouts/AuthLayout';
-import PasswordInput from '../../components/common/input common/passwordInput/PasswordInput';
-import Button from '../../components/common/buttons/Button';
+import PasswordInput from '../../components/inputs/PasswordInput';
+import Button from '../../components/buttons/Button';
 
 //==================================================================================================================
 //    NEW PASSWORD COMPONENT
@@ -112,7 +112,7 @@ const NewPassword = ({ role: roleProp }) => {
               setError('');
             }}
             required
-            inputClassName="w-full h-[40px] px-3 py-2 pr-10 bg-gray border border-stroke rounded-lg focus:outline-none focus:border-primary text-sm font-medium placeholder:text-black-90/50"
+            inputClassName="w-full h-[40px] px-3 py-2 pr-10 bg-gray border-b-2 border-stroke/80 rounded-[7px] focus:outline-none text-sm font-medium placeholder:text-black-90/50"
           />
 
           <PasswordInput
@@ -125,7 +125,7 @@ const NewPassword = ({ role: roleProp }) => {
               setError('');
             }}
             required
-            inputClassName="w-full h-[40px] px-3 py-2 pr-10 bg-gray border border-stroke rounded-lg focus:outline-none focus:border-primary text-sm font-medium placeholder:text-black-90/50"
+            inputClassName="w-full h-[40px] px-3 py-2 pr-10 bg-gray border-b-2 border-stroke/80 rounded-[7px] focus:outline-none text-sm font-medium placeholder:text-black-90/50"
           />
 
           {error && (

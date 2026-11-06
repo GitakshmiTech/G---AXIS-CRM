@@ -4,13 +4,13 @@
 //==================================================================================================================
 
 import React, { useState, useEffect, memo, useCallback } from 'react';
-import { Drawer } from '../../../../components/common/Drawer';
-import { TextInput } from '../../../../components/common/input common/TextInput/TextInput';
-import { DropdownInput } from '../../../../components/common/input common/DropdownInput/DropdownInput';
-import { IdInput } from '../../../../components/common/input common/IdInput/IdInput';
-import { StatusRadioInput } from '../../../../components/common/input common/StatusRadioInput/StatusRadioInput';
-import { BackButton } from '../../../../components/common/buttons/BackButton';
-import { DeleteButton } from '../../../../components/common/buttons/DeleteButton';
+import { Drawer } from '../../../../components/sidebar/Drawer';
+import { TextInput } from '../../../../components/inputs/TextInput';
+import { DropdownInput } from '../../../../components/inputs/DropdownInput';
+import { IdInput } from '../../../../components/inputs/IdInput';
+import { StatusRadioInput } from '../../../../components/inputs/StatusRadioInput';
+import { BackButton } from '../../../../components/buttons/BackButton';
+import { DeleteButton } from '../../../../components/buttons/DeleteButton';
 import { DEAL_STAGE_NAME_OPTIONS } from '../../../../constants/crmConfigurationConstants';
 
 export const AddDealStageDrawer = memo(({
@@ -90,7 +90,7 @@ export const AddDealStageDrawer = memo(({
             <button
               type="button"
               onClick={handleSubmit}
-              className="h-[44px] px-6 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-sm font-semibold transition-colors shadow-2xs cursor-pointer active:scale-95 flex items-center justify-center"
+              className="h-[44px] px-6 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-sm font-semibold transition-colors  cursor-pointer active:scale-95 flex items-center justify-center"
             >
               Save Details
             </button>

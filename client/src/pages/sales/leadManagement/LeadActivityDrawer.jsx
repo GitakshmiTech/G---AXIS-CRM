@@ -4,9 +4,9 @@
 //==================================================================================================================
 
 import React, { memo } from 'react';
-import { Drawer } from '../../../components/common/Drawer';
-import { ActivityCard } from '../../../components/common/ActivityCard';
-import { BackButton } from '../../../components/common/buttons/BackButton';
+import { Drawer } from '../../../components/sidebar/Drawer';
+import { ActivityCard } from '../../../components/cards/ActivityCard';
+import { BackButton } from '../../../components/buttons/BackButton';
 import { MOCK_ACTIVITIES } from '../../../constants/leadsConstants';
 
 //==================================================================================================================

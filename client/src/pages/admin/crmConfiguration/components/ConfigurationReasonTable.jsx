@@ -5,11 +5,11 @@
 
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { CircleX, Clock, Mail, NotebookText, Phone, Video, CircleCheck } from 'lucide-react';
-import { TableContainer } from '../../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../../components/common/DataTable';
-import { Pagination } from '../../../../components/common/Pagination';
-import { EditBtn } from '../../../../components/common/buttons/EditBtn';
+import { TableContainer } from '../../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../../components/Table/DataTable';
+import { Pagination } from '../../../../components/inputs/Pagination';
+import { EditBtn } from '../../../../components/buttons/EditBtn';
 import { ConfigurationReasonDrawer } from './ConfigurationReasonDrawer';
 
 const ACTIVITY_ICONS = { Phone, Mail, Video, CircleCheck, Clock, NotebookText };

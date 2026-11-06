@@ -4,7 +4,7 @@
 //==================================================================================================================
 import React, { useMemo, useCallback } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { SidebarProvider, Sidebar } from '../components/common/Sidebar';
+import { SidebarProvider, Sidebar } from '../components/sidebar/Sidebar';
 import { TopHeader } from '../components/common/TopHeader';
 import { MobilePageHeader } from '../components/common/MobilePageHeader';
 
@@ -104,7 +104,7 @@ export const AdminLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full bg-gray p-0 sm:p-2 lg:p-4 overflow-hidden relative gap-2 sm:gap-3 lg:gap-4 select-none">
+      <div className="flex h-screen w-full bg-white-100 p-0 overflow-hidden relative">
         
         {/* ==============================================================================================================
             SUPER ADMIN SIDEBAR COMPONENT
@@ -114,7 +114,7 @@ export const AdminLayout = () => {
         {/* ==============================================================================================================
             MAIN WORKSPACE AREA
         ============================================================================================================== */}
-        <div className="flex-1 flex flex-col h-full min-w-0 relative z-20 gap-3 sm:gap-3.5 transition-all duration-300 overflow-hidden select-text">
+        <div className="flex-1 flex flex-col h-full min-w-0 relative z-20 transition-all duration-300 overflow-hidden select-text bg-white-100">
           
           <TopHeader 
             userRole="Super Admin"
@@ -137,7 +137,7 @@ export const AdminLayout = () => {
           {/* ==============================================================================================================
               DYNAMIC PAGE CONTENT (OUTLET)
           ============================================================================================================== */}
-          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+          <div className="flex-1 overflow-hidden flex flex-col min-h-0 bg-gray rounded-tl-[15px]">
             {headerContent && (
               <MobilePageHeader
                 title={headerContent.title}
@@ -145,10 +145,10 @@ export const AdminLayout = () => {
               />
             )}
             <main
-              className={`flex-1 flex flex-col min-h-0 ${
+              className={`flex-1 flex flex-col min-h-0 bg-gray rounded-tl-[15px] ${
                 isScrollablePage
-                  ? 'overflow-y-auto overflow-x-hidden px-3 sm:px-0 pb-3 sm:pb-0 pt-1 sm:pt-0 no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'
-                  : 'overflow-hidden px-3 sm:px-0 pb-3 sm:pb-0 pt-1 sm:pt-0'
+                  ? 'overflow-y-auto overflow-x-hidden p-2 sm:p-2.5 md:p-3 no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'
+                  : 'overflow-hidden p-2 sm:p-2.5 md:p-3'
               }`}
             >
               <Outlet />

@@ -5,13 +5,13 @@
 
 import React, { useState, useEffect, memo } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { Drawer } from '../../../components/common/Drawer';
-import { TextInput } from '../../../components/common/input common/TextInput/TextInput';
-import { DropdownInput } from '../../../components/common/input common/DropdownInput/DropdownInput';
-import { PhoneNumber } from '../../../components/common/input common/PhoneNumber/PhoneNumber';
-import { BackButton } from '../../../components/common/buttons/BackButton';
-import { DocumentCard } from '../../../components/common/DocumentCard';
-import { UploadDropzone } from '../../../components/common/UploadDropzone';
+import { Drawer } from '../../../components/sidebar/Drawer';
+import { TextInput } from '../../../components/inputs/TextInput';
+import { DropdownInput } from '../../../components/inputs/DropdownInput';
+import { PhoneNumber } from '../../../components/inputs/PhoneNumber';
+import { BackButton } from '../../../components/buttons/BackButton';
+import { DocumentCard } from '../../../components/cards/DocumentCard';
+import { UploadDropzone } from '../../../components/inputs/UploadDropzone';
 import {
   PRODUCT_INTEREST_OPTIONS,
   INDUSTRY_OPTIONS,
@@ -38,7 +38,7 @@ export const AddLeadDrawer = memo(({
   //    FORM STATE
   //==================================================================================================================
   const [formData, setFormData] = useState({
-    code: '#001',
+    code: '',
     name: '',
     designation: '',
     productInterest: '',
@@ -46,16 +46,16 @@ export const AddLeadDrawer = memo(({
     email: '',
     phone: '',
     priority: '',
-    stage: 'New',
+    stage: '',
     companyName: '',
     industry: '',
-    employeeScale: '0 - 50',
+    employeeScale: '',
     website: '',
-    address: 'Kaivanna Complex, 304 - 306 & 701, Chimanlal Girdharlal Rd, Panchavati Society, Ambawadi, Ahmedabad',
-    country: 'India',
-    state: 'Gujarat',
-    city: 'Ahmedabad',
-    postalCode: '380009',
+    address: '',
+    country: '',
+    state: '',
+    city: '',
+    postalCode: '',
   });
 
   const [documents, setDocuments] = useState(MOCK_DOCUMENTS);
@@ -86,7 +86,7 @@ export const AddLeadDrawer = memo(({
       setDocuments(MOCK_DOCUMENTS);
     } else {
       setFormData({
-        code: '#001',
+        code: '',
         name: '',
         designation: '',
         productInterest: '',
@@ -94,16 +94,16 @@ export const AddLeadDrawer = memo(({
         email: '',
         phone: '',
         priority: '',
-        stage: 'New',
+        stage: '',
         companyName: '',
         industry: '',
-        employeeScale: '0 - 50',
+        employeeScale: '',
         website: '',
-        address: 'Kaivanna Complex, 304 - 306 & 701, Chimanlal Girdharlal Rd, Panchavati Society, Ambawadi, Ahmedabad',
-        country: 'India',
-        state: 'Gujarat',
-        city: 'Ahmedabad',
-        postalCode: '380009',
+        address: '',
+        country: '',
+        state: '',
+        city: '',
+        postalCode: '',
       });
       setDocuments([]);
     }
@@ -187,7 +187,7 @@ export const AddLeadDrawer = memo(({
             <button
               type="button"
               onClick={handleSubmit}
-              className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold px-6 py-2.5 rounded-lg transition-all shadow-xs cursor-pointer active:scale-95"
+              className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
             >
               Save Lead
             </button>
@@ -298,7 +298,7 @@ export const AddLeadDrawer = memo(({
             SECTION: Organization Details
         ================================================================================================================ */}
         <div className="pt-2">
-          <h3 className="text-[13px] font-bold text-[#101828] tracking-tight">
+          <h3 className="text-[13px] font-bold text-black-90 tracking-tight">
             Organization Details
           </h3>
         </div>

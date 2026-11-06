@@ -4,7 +4,8 @@
 //==================================================================================================================
 import React, { useState, useMemo, memo } from 'react';
 import { ChevronDown, Upload } from 'lucide-react';
-import { StatCard } from '../../../components/common/StatCard';
+import { TableFilterSelect } from '../../../components/Table/TableFilterSelect';
+import { StatCard } from '../../../components/cards/StatCard';
 import { BarChart } from '../../../components/common/BarChart';
 import { LeadOverviewCard } from './components/LeadOverviewCard';
 import { BdePerformanceTable } from './components/BdePerformanceTable';
@@ -40,7 +41,7 @@ export const SalesDashboard = memo(() => {
       {/* ==============================================================================================================
           1. DASHBOARD PAGE HEADER (Image 2)
       ============================================================================================================== */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 select-none">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 ">
         <div className="flex flex-col">
           <h1 className="text-xl sm:text-2xl font-bold text-primary tracking-tight leading-tight">
             Dashboard
@@ -57,7 +58,7 @@ export const SalesDashboard = memo(() => {
             <button
               type="button"
               onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
-              className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-lg border border-stroke text-xs sm:text-sm font-semibold text-black-90 bg-white-100 hover:bg-gray/50 transition-colors cursor-pointer shadow-3xs"
+              className="h-8 inline-flex items-center gap-2 px-3 sm:px-3.5 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-xs font-semibold text-black-90 hover:bg-gray/80 transition-colors cursor-pointer"
             >
               <span>{timeFilter}</span>
               <ChevronDown
@@ -69,7 +70,11 @@ export const SalesDashboard = memo(() => {
             </button>
 
             {isFilterDropdownOpen && (
-              <div className="absolute right-0 mt-1.5 w-36 bg-white-100 border border-stroke rounded-xl shadow-lg py-1 z-30">
+              <div
+                data-ui-style="dropdown-menu"
+                data-ui-width="trigger"
+                className="absolute top-full left-0 right-0 w-full min-w-full mt-1 bg-gray border-none rounded-none p-0 z-30 shadow-none animate-in fade-in zoom-in-95 duration-100"
+              >
                 {FILTER_OPTIONS.map((option) => (
                   <button
                     key={option}
@@ -78,13 +83,13 @@ export const SalesDashboard = memo(() => {
                       setTimeFilter(option);
                       setIsFilterDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                    className={`w-full text-left px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer rounded-none ${
                       timeFilter === option
                         ? 'bg-primary/10 text-primary font-semibold'
-                        : 'text-black-90 hover:bg-gray'
+                        : 'text-black-90 hover:bg-white-100'
                     }`}
                   >
-                    {option}
+                    <span className="truncate whitespace-nowrap">{option}</span>
                   </button>
                 ))}
               </div>
@@ -95,7 +100,7 @@ export const SalesDashboard = memo(() => {
           <button
             type="button"
             onClick={() => console.log('Export telemetry report')}
-            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-secondary text-white-100 hover:bg-secondary/90 transition-all duration-200 text-xs sm:text-sm font-semibold cursor-pointer shadow-xs active:scale-[0.98]"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-secondary text-white-100 hover:bg-secondary/90 transition-all duration-200 text-xs sm:text-sm font-semibold cursor-pointer  active:scale-[0.98]"
           >
             <Upload size={15} />
             <span>Export</span>
@@ -137,27 +142,32 @@ export const SalesDashboard = memo(() => {
             </span>
           )}
           headerRight={
-            <div className="flex items-center gap-2 select-none">
+            <div className="flex items-center gap-2">
               {/* Monthly / Yearly Toggle Pill */}
-              <div className="inline-flex items-center p-0.5 rounded-lg border border-stroke bg-gray">
+              <div
+                data-ui-style="joined-control"
+                className="flex items-center bg-gray rounded-[7px] p-[3px] border-b-2 border-stroke/80"
+              >
                 <button
                   type="button"
+                  data-ui-style="filter-tab"
                   onClick={() => setRevenuePeriod('monthly')}
-                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+                  className={`px-3 py-1 rounded-[5px] text-xs font-bold transition-colors cursor-pointer ${
                     revenuePeriod === 'monthly'
-                      ? 'bg-primary text-white-100 shadow-3xs'
-                      : 'text-black-90/70 hover:text-black-90'
+                      ? 'bg-primary text-white-100'
+                      : 'font-medium text-black-90 hover:text-black-90'
                   }`}
                 >
                   Monthly
                 </button>
                 <button
                   type="button"
+                  data-ui-style="filter-tab"
                   onClick={() => setRevenuePeriod('yearly')}
-                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+                  className={`px-3 py-1 rounded-[5px] text-xs font-bold transition-colors cursor-pointer ${
                     revenuePeriod === 'yearly'
-                      ? 'bg-primary text-white-100 shadow-3xs'
-                      : 'text-black-90/70 hover:text-black-90'
+                      ? 'bg-primary text-white-100'
+                      : 'font-medium text-black-90 hover:text-black-90'
                   }`}
                 >
                   Yearly
@@ -165,15 +175,17 @@ export const SalesDashboard = memo(() => {
               </div>
 
               {/* Year Select Dropdown */}
-              <div className="relative">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-stroke text-xs font-semibold text-black-90 bg-white-100 hover:bg-gray/40 transition-colors cursor-pointer"
-                >
-                  <span>{selectedYear}</span>
-                  <ChevronDown size={13} className="text-black-90/60" />
-                </button>
-              </div>
+              <TableFilterSelect
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                options={[
+                  { value: '2025', label: '2025' },
+                  { value: '2024', label: '2024' },
+                ]}
+                showAllOption={false}
+                placeholder="2025"
+                selectClassName="h-8"
+              />
             </div>
           }
         />

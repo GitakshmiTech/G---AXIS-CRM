@@ -16,11 +16,11 @@ import {
   Mail,
   ArrowLeft,
 } from 'lucide-react';
-import { TableContainer } from '../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../components/common/DataTable';
-import { Pagination } from '../../../components/common/Pagination';
-import { ViewBtn } from '../../../components/common/buttons/ViewBtn';
+import { TableContainer } from '../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../components/Table/DataTable';
+import { Pagination } from '../../../components/inputs/Pagination';
+import { ViewBtn } from '../../../components/buttons/ViewBtn';
 
 //==================================================================================================================
 //    MOCK TELEMETRY DATA
@@ -297,7 +297,7 @@ export const ReportAnalytics = memo(() => {
           const Icon = row.icon;
           return (
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-full bg-gray text-secondary flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-secondary flex items-center justify-center shrink-0">
                 <Icon size={14} />
               </div>
               <span className="font-semibold text-black-90 text-xs sm:text-sm whitespace-nowrap">
@@ -364,7 +364,7 @@ export const ReportAnalytics = memo(() => {
           {STATS_DATA.map((item) => (
             <div
               key={item.id}
-              className="bg-white-100 rounded-xl border border-stroke p-4 flex flex-col justify-between shadow-2xs"
+              className="bg-white-100 rounded-xl border-b-2 border-stroke/80 p-4 flex flex-col justify-between "
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-semibold text-black-90/60 truncate">
@@ -476,7 +476,7 @@ export const ReportAnalytics = memo(() => {
                 emptyMessage="No lead source data found."
               />
               {/* Aggregated Total Row matching Image 2 */}
-              <div className="bg-[#F8F9FC] border-t border-stroke px-4 py-3.5 flex items-center justify-between text-xs sm:text-sm font-bold text-black-90">
+              <div className="bg-gray border-t border-stroke px-4 py-3.5 flex items-center justify-between text-xs sm:text-sm font-bold text-black-90">
                 <span className="w-1/4">Aggregated Total (6 Channels)</span>
                 <span className="text-center w-24">3375</span>
                 <span className="text-center w-24">1315</span>

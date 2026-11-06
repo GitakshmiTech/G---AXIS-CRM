@@ -4,7 +4,7 @@
 //==================================================================================================================
 import React, { memo } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { ViewBtn } from '../../../../components/common/buttons/ViewBtn';
+import { ViewBtn } from '../../../../components/buttons/ViewBtn';
 import { SALES_BDE_PERFORMANCE_DATA } from '../../../../constants/salesDashboardConstants';
 
 //==================================================================================================================
@@ -13,17 +13,17 @@ import { SALES_BDE_PERFORMANCE_DATA } from '../../../../constants/salesDashboard
 //==================================================================================================================
 export const BdePerformanceTable = memo(({ data = SALES_BDE_PERFORMANCE_DATA }) => {
   return (
-    <div className="bg-white-100 rounded-xl border border-stroke overflow-hidden flex flex-col shadow-2xs">
+    <div className="bg-white-100 rounded-xl border-b-2 border-stroke/80 overflow-hidden flex flex-col ">
       {/* ==============================================================================================================
           Table Header Section
       ============================================================================================================== */}
-      <div className="p-4 sm:p-5 pb-3 flex justify-between items-center select-none">
+      <div className="p-4 sm:p-5 pb-3 flex justify-between items-center ">
         <h3 className="font-bold text-lg text-black-90">
           BDE Performance
         </h3>
         <button
           type="button"
-          className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg border border-stroke text-xs sm:text-sm font-semibold text-primary hover:bg-gray/60 transition-colors cursor-pointer select-none"
+          className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-[7px] border-b-2 border-stroke/80 bg-gray text-xs sm:text-sm font-semibold text-primary hover:bg-gray/80 transition-colors cursor-pointer "
         >
           <span>Team Roaster</span>
           <ChevronRight size={14} className="text-primary flex-shrink-0" />
@@ -78,7 +78,7 @@ export const BdePerformanceTable = memo(({ data = SALES_BDE_PERFORMANCE_DATA }) 
                     <img
                       src={item.avatar}
                       alt={item.name}
-                      className="w-8 h-8 rounded-full object-cover border border-stroke"
+                      className="w-8 h-8 rounded-full object-cover border-none"
                     />
                     <span className="text-sm font-bold text-black-90">
                       {item.name}

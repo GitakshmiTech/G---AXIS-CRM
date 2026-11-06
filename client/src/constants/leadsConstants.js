@@ -31,7 +31,7 @@ export const LEAD_SOURCES = [
 ];
 
 export const PRODUCT_INTEREST_OPTIONS = [
-  { value: '', label: 'Select Product' },
+  
   { value: 'CRM Suite', label: 'CRM Suite' },
   { value: 'ERP Suite', label: 'ERP Suite' },
   { value: 'HRMS Suite', label: 'HRMS Suite' },
@@ -40,7 +40,7 @@ export const PRODUCT_INTEREST_OPTIONS = [
 ];
 
 export const INDUSTRY_OPTIONS = [
-  { value: '', label: 'Select Industry Type' },
+  
   { value: 'Information Technology', label: 'Information Technology' },
   { value: 'Finance & Banking', label: 'Finance & Banking' },
   { value: 'Manufacturing', label: 'Manufacturing' },
@@ -99,7 +99,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -124,7 +124,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -149,7 +149,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -174,7 +174,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -199,7 +199,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -224,7 +224,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -249,7 +249,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -274,7 +274,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -299,7 +299,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -324,7 +324,7 @@ export const INITIAL_LEADS_DATA = [
     state: 'Gujarat',
     city: 'Ahmedabad',
     postalCode: '380009',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
 ];

@@ -4,10 +4,10 @@
 //==================================================================================================================
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { TableContainer } from '../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../components/common/DataTable';
-import { Pagination } from '../../../components/common/Pagination';
+import { TableContainer } from '../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../components/Table/DataTable';
+import { Pagination } from '../../../components/inputs/Pagination';
 import {
   INITIAL_ADMIN_STAFF_DATA,
   STAFF_ROLE_OPTIONS,
@@ -149,8 +149,8 @@ export const StaffManagement = () => {
       className: 'pr-4',
       render: (row) => (
         <span
-          className={`w-[92px] h-[24px] rounded-[7px] text-xs font-semibold whitespace-nowrap inline-flex items-center justify-center select-none ${row.status === 'Active'
-              ? 'bg-[#019F68]/10 text-success'
+          className={`w-[92px] h-[24px] rounded-[7px] text-xs font-semibold whitespace-nowrap inline-flex items-center justify-center  ${row.status === 'Active'
+              ? 'bg-success/10 text-success'
               : 'bg-gray text-black-90'
             }`}
         >

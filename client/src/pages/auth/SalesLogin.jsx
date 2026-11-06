@@ -4,7 +4,7 @@
 //==================================================================================================================
 import React from 'react';
 import { AuthLayout } from '../../layouts/AuthLayout';
-import { LoginForm } from '../../components/common/auth/LoginForm';
+import { LoginForm } from '../../components/auth/LoginForm';
 
 //==================================================================================================================
 //    SALES LOGIN PAGE COMPONENT

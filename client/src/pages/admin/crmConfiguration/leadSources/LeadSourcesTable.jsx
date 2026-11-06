@@ -16,11 +16,11 @@ import {
   PenLine,
   Megaphone,
 } from 'lucide-react';
-import { TableContainer } from '../../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../../components/common/DataTable';
-import { Pagination } from '../../../../components/common/Pagination';
-import { EditBtn } from '../../../../components/common/buttons/EditBtn';
+import { TableContainer } from '../../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../../components/Table/DataTable';
+import { Pagination } from '../../../../components/inputs/Pagination';
+import { EditBtn } from '../../../../components/buttons/EditBtn';
 import { AddLeadSourceDrawer } from './AddLeadSourceDrawer';
 import { INITIAL_LEAD_SOURCES } from '../../../../constants/crmConfigurationConstants';
 
@@ -160,9 +160,9 @@ export const LeadSourcesTable = () => {
       render: (row) => (
         <div className="flex items-center justify-center">
           <span
-            className={`w-[112px] h-[23px] rounded-[4px] text-xs font-semibold whitespace-nowrap inline-flex items-center justify-center select-none ${
+            className={`w-[112px] h-[23px] rounded-[4px] text-xs font-semibold whitespace-nowrap inline-flex items-center justify-center  ${
               row.status === 'Active'
-                ? 'bg-[#019F68]/10 text-success'
+                ? 'bg-success/10 text-success'
                 : 'bg-gray text-black-90'
             }`}
           >

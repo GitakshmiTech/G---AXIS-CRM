@@ -9,12 +9,12 @@ import {
   Clock,
 } from 'lucide-react';
 import whatsappIcon from '../../../assets/icons/Group.png';
-import { TableContainer } from '../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../components/common/DataTable';
-import { Pagination } from '../../../components/common/Pagination';
-import { ViewBtn } from '../../../components/common/buttons/ViewBtn';
-import { EditBtn } from '../../../components/common/buttons/EditBtn';
+import { TableContainer } from '../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../components/Table/DataTable';
+import { Pagination } from '../../../components/inputs/Pagination';
+import { ViewBtn } from '../../../components/buttons/ViewBtn';
+import { EditBtn } from '../../../components/buttons/EditBtn';
 import { AddLeadDrawer } from './AddLeadDrawer';
 import { LeadActivityDrawer } from './LeadActivityDrawer';
 import { LeadCommentsDrawer } from './LeadCommentsDrawer';
@@ -233,7 +233,7 @@ export const LeadManagement = () => {
       label: 'Stage',
       sortable: true,
       render: (row) => (
-        <span className="w-[112px] h-[24px] inline-flex items-center justify-center px-3 py-[2px] rounded-[7px] text-xs font-semibold bg-gray text-black-90 select-none">
+        <span className="w-[112px] h-[24px] inline-flex items-center justify-center px-3 py-[2px] rounded-[7px] text-xs font-semibold bg-gray text-black-90 ">
           {row.stage || 'Proposal'}
         </span>
       ),
@@ -252,7 +252,7 @@ export const LeadManagement = () => {
 
         return (
           <span
-            className={`w-[112px] h-[24px] inline-flex items-center justify-center px-3 py-[2px] rounded-[7px] text-xs font-semibold select-none ${badgeColor}`}
+            className={`w-[112px] h-[24px] inline-flex items-center justify-center px-3 py-[2px] rounded-[7px] text-xs font-semibold  ${badgeColor}`}
           >
             {row.priority || 'Low'}
           </span>
@@ -270,14 +270,14 @@ export const LeadManagement = () => {
             href={`https://wa.me/${(row?.phone || '').replace(/[^0-9]/g, '')}`}
             target="_blank"
             rel="noreferrer"
-            className="w-8 h-8 rounded-full bg-gray flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
             title="Chat on WhatsApp"
           >
             <img src={whatsappIcon} alt="WhatsApp" className="w-4 h-4 object-contain" />
           </a>
           <a
             href={`mailto:${row?.email || 'lead@enterprise.com'}`}
-            className="w-8 h-8 rounded-full bg-[#F3F5FA] flex items-center justify-center text-primary hover:bg-gray transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
             title="Send Email"
           >
             <Mail size={16} strokeWidth={2} />
@@ -310,7 +310,7 @@ export const LeadManagement = () => {
             type="button"
             onClick={() => handleOpenComments(row)}
             title="Comments"
-            className="w-8 h-8 rounded-full bg-gray flex items-center justify-center text-primary hover:bg-gray/90 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer"
           >
             <MessageSquare size={14} />
           </button>
@@ -318,7 +318,7 @@ export const LeadManagement = () => {
             type="button"
             onClick={() => handleOpenActivity(row)}
             title="Activity log"
-            className="w-8 h-8 rounded-full bg-gray flex items-center justify-center text-primary hover:bg-gray/90 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer"
           >
             <Clock size={14} />
           </button>
