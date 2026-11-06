@@ -12,7 +12,7 @@ import { SALES_LEAD_OVERVIEW_DATA } from '../../../../constants/salesDashboardCo
 export const LeadOverviewCard = memo(({ data = SALES_LEAD_OVERVIEW_DATA, className = '' }) => {
   return (
     <div
-      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border border-stroke flex flex-col justify-between shadow-2xs h-full ${className}`}
+      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border-b-2 border-stroke/80 flex flex-col justify-between  h-full ${className}`}
     >
       {/* ==============================================================================================================
           Card Header
@@ -27,7 +27,7 @@ export const LeadOverviewCard = memo(({ data = SALES_LEAD_OVERVIEW_DATA, classNa
           </p>
         </div>
 
-        <span className="px-3 py-1 rounded-lg border border-stroke text-xs font-semibold text-black-90 bg-gray/40 select-none">
+        <span className="px-3 py-1 rounded-[7px] border-b-2 border-stroke/80 text-xs font-semibold text-black-90 bg-gray">
           {data.totalBadge}
         </span>
       </div>
@@ -51,7 +51,7 @@ export const LeadOverviewCard = memo(({ data = SALES_LEAD_OVERVIEW_DATA, classNa
       ============================================================================================================== */}
       <div className="flex flex-col w-full mt-2">
         {/* Table Subheaders */}
-        <div className="flex items-center justify-between pb-2 border-b border-stroke/50 text-[11px] font-semibold text-black-90/50 uppercase tracking-wider select-none">
+        <div className="flex items-center justify-between pb-2 border-b border-stroke/50 text-[11px] font-semibold text-black-90/50 uppercase tracking-wider ">
           <span>Pipeline Inflow</span>
           <span>Conversion / Drop</span>
         </div>
@@ -76,7 +76,7 @@ export const LeadOverviewCard = memo(({ data = SALES_LEAD_OVERVIEW_DATA, classNa
 
               {/* Right: Count Badge & Percentage */}
               <div className="flex items-center gap-3 shrink-0">
-                <span className="px-3 py-0.5 min-w-[42px] text-center rounded-md border border-stroke/80 text-xs font-bold text-primary bg-white-100 shadow-3xs">
+                <span className="px-3 py-0.5 min-w-[42px] text-center rounded-[7px] border-b-2 border-stroke/80 text-xs font-bold text-primary bg-gray">
                   {stage.count}
                 </span>
                 <span className="text-xs font-semibold text-black-90/70 w-12 text-right">

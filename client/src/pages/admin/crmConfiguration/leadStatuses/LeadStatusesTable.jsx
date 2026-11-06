@@ -4,12 +4,12 @@
 //==================================================================================================================
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { TableContainer } from '../../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../../components/common/DataTable';
-import { Pagination } from '../../../../components/common/Pagination';
-import { EditBtn } from '../../../../components/common/buttons/EditBtn';
-import { LeadStatusStarIcon } from '../../../../components/common/icons/LeadStatusStarIcon';
+import { TableContainer } from '../../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../../components/Table/DataTable';
+import { Pagination } from '../../../../components/inputs/Pagination';
+import { EditBtn } from '../../../../components/buttons/EditBtn';
+import { LeadStatusStarIcon } from '../../../../components/icons/LeadStatusStarIcon';
 import { AddLeadStatusDrawer } from './AddLeadStatusDrawer';
 import { INITIAL_LEAD_STATUSES } from '../../../../constants/crmConfigurationConstants';
 
@@ -130,9 +130,9 @@ export const LeadStatusesTable = () => {
       render: (row) => (
         <div className="flex items-center justify-center">
           <span
-            className={`w-[112px] h-[23px] rounded-[4px] text-xs font-semibold whitespace-nowrap inline-flex items-center justify-center select-none ${
+            className={`w-[112px] h-[23px] rounded-[4px] text-xs font-semibold whitespace-nowrap inline-flex items-center justify-center  ${
               row.status === 'Active'
-                ? 'bg-[#019F68]/10 text-success'
+                ? 'bg-success/10 text-success'
                 : 'bg-gray text-black-90'
             }`}
           >
@@ -162,6 +162,10 @@ export const LeadStatusesTable = () => {
             searchPlaceholder="Search here..."
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
+            onResetFilters={() => {
+              setSearchQuery('');
+              setCurrentPage(1);
+            }}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             onExport={handleExport}

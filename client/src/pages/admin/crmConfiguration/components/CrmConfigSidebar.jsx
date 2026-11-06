@@ -30,7 +30,7 @@ const CATEGORY_ICON_MAP = {
 
 export const CrmConfigSidebar = memo(({ activeCategory, onSelectCategory }) => {
   return (
-    <div className="w-full lg:w-[220px] bg-white-100 rounded-xl border border-stroke p-3 sm:p-3.5 shadow-2xs shrink-0 flex flex-col gap-1 self-start">
+    <div className="w-full lg:w-[220px] bg-white-100 rounded-xl border-b-2 border-stroke/80 p-3 sm:p-3.5 shrink-0 flex flex-col gap-1 self-start">
       {CONFIGURATION_CATEGORIES.map((cat) => {
         const IconComp = CATEGORY_ICON_MAP[cat.icon] || Filter;
         const isActive = activeCategory === cat.id;

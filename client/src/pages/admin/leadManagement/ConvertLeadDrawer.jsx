@@ -5,10 +5,10 @@
 
 import React, { useState, memo, useCallback } from 'react';
 import { Calendar } from 'lucide-react';
-import { Drawer } from '../../../components/common/Drawer';
-import { LeadSummaryCard } from '../../../components/common/LeadSummaryCard';
-import { DropdownInput } from '../../../components/common/input common/DropdownInput/DropdownInput';
-import { BackButton } from '../../../components/common/buttons/BackButton';
+import { Drawer } from '../../../components/sidebar/Drawer';
+import { LeadSummaryCard } from '../../../components/cards/LeadSummaryCard';
+import { DropdownInput } from '../../../components/inputs/DropdownInput';
+import { BackButton } from '../../../components/buttons/BackButton';
 import { PRODUCT_INTEREST_OPTIONS } from '../../../constants/leadsConstants';
 
 //==================================================================================================================
@@ -61,7 +61,7 @@ export const ConvertLeadDrawer = memo(({
           <button
             type="button"
             onClick={handleSubmit}
-            className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all shadow-xs cursor-pointer active:scale-95"
+            className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
           >
             Confirm & Convert Lead
           </button>
@@ -86,7 +86,7 @@ export const ConvertLeadDrawer = memo(({
         ================================================================================================================ */}
         <LeadSummaryCard
           avatar="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=80&h=80&fit=crop&crop=faces"
-          avatarClassName="rounded-xl"
+          avatarClassName="rounded-full"
           title="Company Name"
           subtitle="Industry Type"
           subline="0-50 Employees"
@@ -111,8 +111,8 @@ export const ConvertLeadDrawer = memo(({
               <label className="text-xs font-semibold text-black-90">
                 Deal Amount
               </label>
-              <div className="w-full h-[40px] px-3 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg flex items-center gap-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
-                <span className="text-xs font-bold text-primary select-none">
+              <div className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center gap-2 transition-all">
+                <span className="text-xs font-bold text-primary ">
                   ₹
                 </span>
                 <input
@@ -137,7 +137,7 @@ export const ConvertLeadDrawer = memo(({
                 value={dealData.stage}
                 onChange={handleChange}
                 placeholder="2. Stage 2"
-                className="w-full h-[40px] px-3 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none transition-all"
               />
             </div>
           </div>
@@ -149,7 +149,7 @@ export const ConvertLeadDrawer = memo(({
               <label className="text-xs font-semibold text-black-90">
                 Expected Start Date
               </label>
-              <div className="w-full h-[40px] px-3 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg flex items-center justify-between focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+              <div className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center justify-between transition-all">
                 <input
                   type="text"
                   name="startDate"
@@ -158,7 +158,7 @@ export const ConvertLeadDrawer = memo(({
                   placeholder="DD/MM/YYYY"
                   className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
                 />
-                <Calendar size={16} className="text-primary shrink-0 select-none cursor-pointer" />
+                <Calendar size={16} className="text-primary shrink-0  cursor-pointer" />
               </div>
             </div>
 
@@ -167,7 +167,7 @@ export const ConvertLeadDrawer = memo(({
               <label className="text-xs font-semibold text-black-90">
                 Expected Close Date
               </label>
-              <div className="w-full h-[40px] px-3 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg flex items-center justify-between focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+              <div className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center justify-between transition-all">
                 <input
                   type="text"
                   name="closeDate"
@@ -176,7 +176,7 @@ export const ConvertLeadDrawer = memo(({
                   placeholder="DD/MM/YYYY"
                   className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
                 />
-                <Calendar size={16} className="text-primary shrink-0 select-none cursor-pointer" />
+                <Calendar size={16} className="text-primary shrink-0  cursor-pointer" />
               </div>
             </div>
           </div>
@@ -202,7 +202,7 @@ export const ConvertLeadDrawer = memo(({
                 value={dealData.assignedBde}
                 onChange={handleChange}
                 placeholder="Johnson Doe"
-                className="w-full h-[40px] px-3 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none transition-all"
               />
             </div>
           </div>

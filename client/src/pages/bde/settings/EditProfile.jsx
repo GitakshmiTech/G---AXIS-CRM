@@ -6,9 +6,9 @@
 
 import React, { memo, useState, useCallback } from 'react';
 import { ContactAvatarPlaceholder } from '../../../components/common/ContactAvatarPlaceholder';
-import { TextInput } from '../../../components/common/input common/TextInput/TextInput';
-import { PhoneNumber } from '../../../components/common/input common/PhoneNumber/PhoneNumber';
-import { DropdownInput } from '../../../components/common/input common/DropdownInput/DropdownInput';
+import { TextInput } from '../../../components/inputs/TextInput';
+import { PhoneNumber } from '../../../components/inputs/PhoneNumber';
+import { DropdownInput } from '../../../components/inputs/DropdownInput';
 
 //==================================================================================================================
 //    MAIN EDIT PROFILE COMPONENT
@@ -33,7 +33,7 @@ export const EditProfile = memo(() => {
       ============================================================================================================== */}
       <form
         onSubmit={handleSave}
-        className="bg-white-100 rounded-2xl border border-stroke p-6 sm:p-8 flex flex-col gap-5 sm:gap-6 shadow-2xs"
+        className="bg-white-100 rounded-2xl border-b-2 border-stroke/80 p-6 sm:p-8 flex flex-col gap-5 sm:gap-6 "
       >
         <h2 className="text-base sm:text-lg font-bold text-black-90">Personal Information</h2>
 
@@ -45,7 +45,7 @@ export const EditProfile = memo(() => {
           <div className="flex items-center gap-2.5">
             <button
               type="button"
-              className="px-4 py-2 bg-primary hover:bg-primary/95 text-white-100 text-xs font-semibold rounded-lg shadow-sm cursor-pointer transition-all active:scale-[0.98]"
+              className="px-4 py-2 bg-primary hover:bg-primary/95 text-white-100 text-xs font-semibold rounded-lg  cursor-pointer transition-all active:scale-[0.98]"
             >
               Upload Profile
             </button>
@@ -123,7 +123,7 @@ export const EditProfile = memo(() => {
         <div className="flex justify-end pt-2">
           <button
             type="submit"
-            className="bg-primary hover:bg-primary/95 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+            className="bg-primary hover:bg-primary/95 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg  transition-all active:scale-[0.98] cursor-pointer"
           >
             Save Details
           </button>

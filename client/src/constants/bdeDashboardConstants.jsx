@@ -165,7 +165,7 @@ export const BDE_LAST_5_LEADS_DATA = [
     companyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100&h=100&fit=crop&crop=face',
     stage: 'Proposal',
     priority: 'Low',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -177,7 +177,7 @@ export const BDE_LAST_5_LEADS_DATA = [
     companyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100&h=100&fit=crop&crop=face',
     stage: 'Proposal',
     priority: 'Low',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -189,7 +189,7 @@ export const BDE_LAST_5_LEADS_DATA = [
     companyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100&h=100&fit=crop&crop=face',
     stage: 'Proposal',
     priority: 'Low',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -201,7 +201,7 @@ export const BDE_LAST_5_LEADS_DATA = [
     companyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100&h=100&fit=crop&crop=face',
     stage: 'Proposal',
     priority: 'Low',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
   {
@@ -213,7 +213,7 @@ export const BDE_LAST_5_LEADS_DATA = [
     companyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100&h=100&fit=crop&crop=face',
     stage: 'Proposal',
     priority: 'Low',
-    createdDate: '14 May 2025',
+    createdDate: '14/05/2025',
     createdTime: '08:45 AM',
   },
 ];

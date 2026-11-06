@@ -11,7 +11,7 @@ export const ContactAvatarPlaceholder = memo(({
 }) => {
   return (
     <div
-      className={`rounded-full border border-stroke bg-gray flex items-center justify-center shrink-0 overflow-hidden select-none ${size} ${className}`.trim()}
+      className={`rounded-full border border-stroke bg-gray flex items-center justify-center shrink-0 overflow-hidden  ${size} ${className}`.trim()}
     >
       <svg
         viewBox="0 0 64 64"

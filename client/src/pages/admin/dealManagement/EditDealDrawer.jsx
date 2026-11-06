@@ -5,10 +5,10 @@
 
 import React, { useState, useEffect, memo, useCallback } from 'react';
 import { Calendar } from 'lucide-react';
-import { Drawer } from '../../../components/common/Drawer';
-import { TextInput } from '../../../components/common/input common/TextInput/TextInput';
-import { DropdownInput } from '../../../components/common/input common/DropdownInput/DropdownInput';
-import { BackButton } from '../../../components/common/buttons/BackButton';
+import { Drawer } from '../../../components/sidebar/Drawer';
+import { TextInput } from '../../../components/inputs/TextInput';
+import { DropdownInput } from '../../../components/inputs/DropdownInput';
+import { BackButton } from '../../../components/buttons/BackButton';
 import { DEAL_PRODUCT_OPTIONS } from '../../../constants/dealsConstants';
 
 //==================================================================================================================
@@ -78,7 +78,7 @@ export const EditDealDrawer = memo(({
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all shadow-xs cursor-pointer active:scale-95"
+              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
             >
               Save Details
             </button>
@@ -108,11 +108,11 @@ export const EditDealDrawer = memo(({
         {/* Row 2: Deal Amount & Product Interest */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div className="flex flex-col gap-1 w-full">
-            <label className="text-xs font-semibold text-[#101828]">
+            <label className="text-xs font-semibold text-black-90">
               Deal Amount
             </label>
-            <div className="w-full h-[40px] px-3 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg flex items-center gap-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
-              <span className="text-xs font-bold text-primary select-none">
+            <div className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center gap-2 transition-all">
+              <span className="text-xs font-bold text-primary ">
                 ₹
               </span>
               <input
@@ -121,7 +121,7 @@ export const EditDealDrawer = memo(({
                 value={formData.dealAmount}
                 onChange={handleChange}
                 placeholder="Enter Deal Amount"
-                className="w-full h-full bg-transparent text-xs text-[#101828] placeholder:text-[#475467] font-normal focus:outline-none"
+                className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
               />
             </div>
           </div>
@@ -139,36 +139,36 @@ export const EditDealDrawer = memo(({
         {/* Row 3: Expected Start Date & Expected Close Date */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div className="flex flex-col gap-1 w-full">
-            <label className="text-xs font-semibold text-[#101828]">
+            <label className="text-xs font-semibold text-black-90">
               Expected Start Date
             </label>
-            <div className="w-full h-[40px] px-3 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg flex items-center justify-between focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+            <div className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center justify-between transition-all">
               <input
                 type="text"
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
                 placeholder="DD/MM/YYYY"
-                className="w-full h-full bg-transparent text-xs text-[#101828] placeholder:text-[#475467] font-normal focus:outline-none"
+                className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
               />
-              <Calendar size={16} className="text-primary shrink-0 select-none cursor-pointer" />
+              <Calendar size={16} className="text-primary shrink-0  cursor-pointer" />
             </div>
           </div>
 
           <div className="flex flex-col gap-1 w-full">
-            <label className="text-xs font-semibold text-[#101828]">
+            <label className="text-xs font-semibold text-black-90">
               Expected Close Date
             </label>
-            <div className="w-full h-[40px] px-3 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg flex items-center justify-between focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+            <div className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center justify-between transition-all">
               <input
                 type="text"
                 name="closeDate"
                 value={formData.closeDate}
                 onChange={handleChange}
                 placeholder="DD/MM/YYYY"
-                className="w-full h-full bg-transparent text-xs text-[#101828] placeholder:text-[#475467] font-normal focus:outline-none"
+                className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
               />
-              <Calendar size={16} className="text-primary shrink-0 select-none cursor-pointer" />
+              <Calendar size={16} className="text-primary shrink-0  cursor-pointer" />
             </div>
           </div>
         </div>

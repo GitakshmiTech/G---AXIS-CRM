@@ -5,8 +5,8 @@
 //==================================================================================================================
 
 import React, { memo, useState, useCallback } from 'react';
-import { PasswordInput } from '../../../components/common/input common/passwordInput/PasswordInput';
-import { DropdownInput } from '../../../components/common/input common/DropdownInput/DropdownInput';
+import { PasswordInput } from '../../../components/inputs/PasswordInput';
+import { DropdownInput } from '../../../components/inputs/DropdownInput';
 
 //==================================================================================================================
 //    MAIN SETTINGS COMPONENT
@@ -26,7 +26,7 @@ export const BdeSettings = memo(() => {
       {/* ==============================================================================================================
           CARD 1: APPEARANCE
       ============================================================================================================== */}
-      <div className="bg-white-100 rounded-2xl border border-stroke p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+      <div className="bg-white-100 rounded-2xl border-b-2 border-stroke/80 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ">
         <div className="flex flex-col">
           <h2 className="text-sm sm:text-base font-bold text-black-90">Appearance</h2>
           <p className="text-xs text-black-90/55 font-medium mt-1">
@@ -38,7 +38,7 @@ export const BdeSettings = memo(() => {
             options={['System Default', 'Light Mode', 'Dark Mode']}
             defaultValue="System Default"
             containerClassName="w-full"
-            selectClassName="w-full h-[40px] px-3.5 pr-8 bg-[#F8F9FC] border border-[#D0D5DD] rounded-lg text-xs text-[#101828] font-normal focus:outline-none cursor-pointer flex items-center justify-between"
+            selectClassName="w-full h-[40px] px-3.5 pr-8 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 font-normal focus:outline-none cursor-pointer flex items-center justify-between"
           />
         </div>
       </div>
@@ -46,7 +46,7 @@ export const BdeSettings = memo(() => {
       {/* ==============================================================================================================
           CARD 2: NOTIFICATION SETTINGS
       ============================================================================================================== */}
-      <div className="bg-white-100 rounded-2xl border border-stroke p-5 sm:p-6 flex items-center justify-between gap-4 shadow-2xs">
+      <div className="bg-white-100 rounded-2xl border-b-2 border-stroke/80 p-5 sm:p-6 flex items-center justify-between gap-4 ">
         <div className="flex flex-col">
           <h2 className="text-sm sm:text-base font-bold text-black-90">Notification Settings</h2>
           <p className="text-xs text-black-90/55 font-medium mt-1">
@@ -64,7 +64,7 @@ export const BdeSettings = memo(() => {
         >
           <span
             aria-hidden="true"
-            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white-100 shadow-sm ring-0 transition duration-200 ease-in-out ${
+            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white-100  ring-0 transition duration-200 ease-in-out ${
               notificationsEnabled ? 'translate-x-5' : 'translate-x-0'
             }`}
           />
@@ -74,7 +74,7 @@ export const BdeSettings = memo(() => {
       {/* ==============================================================================================================
           CARD 3: SECURITY & AUTHENTICATION
       ============================================================================================================== */}
-      <div className="bg-white-100 rounded-2xl border border-stroke p-5 sm:p-6 flex flex-col gap-4 shadow-2xs">
+      <div className="bg-white-100 rounded-2xl border-b-2 border-stroke/80 p-5 sm:p-6 flex flex-col gap-4 ">
         <h2 className="text-sm sm:text-base font-bold text-black-90">Security & Authentication</h2>
         <div className="flex flex-col gap-3.5">
           <PasswordInput
@@ -96,7 +96,7 @@ export const BdeSettings = memo(() => {
         <div className="flex justify-end pt-1">
           <button
             type="button"
-            className="bg-primary hover:bg-primary/95 text-white-100 font-semibold text-xs px-6 py-2.5 rounded-lg shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+            className="bg-primary hover:bg-primary/95 text-white-100 font-semibold text-xs px-6 py-2.5 rounded-lg  transition-all active:scale-[0.98] cursor-pointer"
           >
             Update Password
           </button>
@@ -106,7 +106,7 @@ export const BdeSettings = memo(() => {
       {/* ==============================================================================================================
           CARD 4: SYSTEM REGIONAL SETTINGS
       ============================================================================================================== */}
-      <div className="bg-white-100 rounded-2xl border border-stroke p-5 sm:p-6 flex flex-col gap-4 shadow-2xs">
+      <div className="bg-white-100 rounded-2xl border-b-2 border-stroke/80 p-5 sm:p-6 flex flex-col gap-4 ">
         <h2 className="text-sm sm:text-base font-bold text-black-90">System Regional Settings</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <DropdownInput
@@ -125,12 +125,12 @@ export const BdeSettings = memo(() => {
       {/* ==============================================================================================================
           CARD 5: ACTIVE SESSIONS
       ============================================================================================================== */}
-      <div className="bg-white-100 rounded-2xl border border-stroke p-5 sm:p-6 flex flex-col gap-4 shadow-2xs">
+      <div className="bg-white-100 rounded-2xl border-b-2 border-stroke/80 p-5 sm:p-6 flex flex-col gap-4 ">
         <h2 className="text-sm sm:text-base font-bold text-black-90">Active Sessions</h2>
         <div className="flex flex-col gap-3">
           
           {/* Chrome Session */}
-          <div className="rounded-xl border border-stroke p-3.5 sm:p-4 flex items-center justify-between gap-4 bg-white-100">
+          <div className="rounded-[7px] border-b-2 border-stroke/80 p-3.5 sm:p-4 flex items-center justify-between gap-4 bg-white-100">
             <div className="flex flex-col">
               <div className="flex items-center gap-2.5 flex-wrap">
                 <span className="text-xs sm:text-sm font-bold text-black-90">
@@ -154,7 +154,7 @@ export const BdeSettings = memo(() => {
           </div>
 
           {/* Firefox Session */}
-          <div className="rounded-xl border border-stroke p-3.5 sm:p-4 flex items-center justify-between gap-4 bg-white-100">
+          <div className="rounded-[7px] border-b-2 border-stroke/80 p-3.5 sm:p-4 flex items-center justify-between gap-4 bg-white-100">
             <div className="flex flex-col">
               <span className="text-xs sm:text-sm font-bold text-black-90">
                 Firefox on Delhi, IN

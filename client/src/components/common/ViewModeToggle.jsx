@@ -14,14 +14,16 @@ export const ViewModeToggle = memo(({
 }) => {
   return (
     <div
-      className={`inline-flex items-center bg-gray p-0.5 rounded-lg border border-stroke shrink-0 ${className}`.trim()}
+      data-ui-style="joined-control"
+      className={`h-8 inline-flex items-center bg-gray p-0.5 rounded-[7px] border-b-2 border-stroke/80 shrink-0 ${className}`.trim()}
     >
       <button
         type="button"
+        data-ui-style="filter-tab"
         onClick={() => onViewModeChange && onViewModeChange('list')}
-        className={`p-1.5 rounded-md transition-all cursor-pointer ${
+        className={`h-full px-2 rounded-[5px] transition-all cursor-pointer flex items-center justify-center ${
           viewMode === 'list'
-            ? 'bg-primary text-white-100 shadow-2xs'
+            ? 'bg-primary text-white-100'
             : 'text-black-90/60 hover:text-black-90'
         }`}
         title="List view"
@@ -32,10 +34,11 @@ export const ViewModeToggle = memo(({
 
       <button
         type="button"
+        data-ui-style="filter-tab"
         onClick={() => onViewModeChange && onViewModeChange('grid')}
-        className={`p-1.5 rounded-md transition-all cursor-pointer ${
+        className={`h-full px-2 rounded-[5px] transition-all cursor-pointer flex items-center justify-center ${
           viewMode === 'grid'
-            ? 'bg-primary text-white-100 shadow-2xs'
+            ? 'bg-primary text-white-100'
             : 'text-black-90/60 hover:text-black-90'
         }`}
         title="Grid view"

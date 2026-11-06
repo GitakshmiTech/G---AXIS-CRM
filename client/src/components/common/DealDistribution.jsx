@@ -30,12 +30,12 @@ export const DealDistribution = React.memo(({
 
   return (
     <div
-      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border border-stroke flex flex-col justify-between shadow-2xs h-full ${className}`}
+      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border-b-2 border-stroke/80 flex flex-col justify-between  h-full ${className}`}
     >
       {/* ==================================================================================================================
           CARD HEADER & STAGE SUMMARY BADGE
       ================================================================================================================== */}
-      <div className="flex items-start justify-between pb-3 border-b border-stroke/60 select-none">
+      <div className="flex items-start justify-between pb-3 border-b border-stroke/60 ">
         <div>
           <h3 className="font-bold text-lg text-black-90">{title}</h3>
           {subtitle && (
@@ -48,7 +48,7 @@ export const DealDistribution = React.memo(({
         {headerRight ? (
           headerRight
         ) : badge ? (
-          <div className="px-3 py-1 border border-stroke rounded-lg text-xs font-semibold text-black-90/70 bg-white-100 shadow-2xs">
+          <div className="px-3 py-1 border-b-2 border-stroke/80 rounded-[7px] text-xs font-semibold text-black-90 bg-gray ">
             {badge}
           </div>
         ) : null}
@@ -75,13 +75,13 @@ export const DealDistribution = React.memo(({
           return (
             <div key={item.id ?? idx} className="flex flex-col gap-1.5">
               {/* Stage Ranking, Stage Name & Metric Value Badge */}
-              <div className="flex items-center justify-between text-xs sm:text-sm select-none">
+              <div className="flex items-center justify-between text-xs sm:text-sm ">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-primary">{itemIndex}</span>
                   <span className="font-bold text-black-90">{displayTitle}</span>
                 </div>
                 {item.value && (
-                  <div className="px-2 py-0.5 border border-stroke/80 rounded text-xs font-bold text-primary bg-white-100 shadow-2xs">
+                  <div className="px-2 py-0.5 border border-stroke/80 rounded text-xs font-bold text-primary bg-white-100 ">
                     {item.value}
                   </div>
                 )}

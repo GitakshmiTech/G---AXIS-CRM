@@ -71,12 +71,12 @@ export const LeadStatusBreakdown = memo(({
 
   return (
     <div
-      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border border-stroke flex flex-col justify-between shadow-2xs h-full ${className}`}
+      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border-b-2 border-stroke/80 flex flex-col justify-between  h-full ${className}`}
     >
       {/* ==============================================================================================================
           CARD HEADER & DISTRIBUTION BADGE (Image 1 / 4)
       ============================================================================================================== */}
-      <div className="flex items-start justify-between pb-3 border-b border-stroke/60 select-none">
+      <div className="flex items-start justify-between pb-3 border-b border-stroke/60 ">
         <div>
           <h3 className="font-bold text-lg text-black-90">{title}</h3>
           {subtitle && (
@@ -89,7 +89,7 @@ export const LeadStatusBreakdown = memo(({
         {badge && (
           <button
             type="button"
-            className="inline-flex items-center px-3.5 py-1.5 border border-stroke rounded-lg text-xs sm:text-[13px] font-medium text-black-90 bg-gray/40 hover:bg-gray transition-colors shadow-3xs cursor-pointer select-none"
+            className="inline-flex items-center px-3.5 py-1.5 border-b-2 border-stroke/80 rounded-[7px] text-xs sm:text-[13px] font-medium text-black-90 bg-gray hover:bg-gray transition-colors cursor-pointer "
           >
             {badge}
           </button>
@@ -152,7 +152,7 @@ export const LeadStatusBreakdown = memo(({
           </svg>
 
           {/* Center Lead Count and Description (Stable, smooth cross-fading typography) */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none select-none px-4">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none  px-4">
             <span className="text-2xl sm:text-[28px] font-black text-black-90 tracking-tight leading-none transition-all duration-200">
               {activeDetail ? activeDetail.count : data.totalCount || '14,820'}
             </span>
@@ -178,8 +178,8 @@ export const LeadStatusBreakdown = memo(({
                 key={item.id}
                 onMouseEnter={() => setHoveredSegment(item.id)}
                 onMouseLeave={() => setHoveredSegment(null)}
-                className={`flex items-center justify-between text-xs sm:text-sm py-1 px-1.5 rounded-lg transition-colors duration-150 cursor-pointer select-none ${
-                  isHovered ? 'bg-gray/80 shadow-3xs' : 'hover:bg-gray/40'
+                className={`flex items-center justify-between text-xs sm:text-sm py-1 px-1.5 rounded-lg transition-colors duration-150 cursor-pointer  ${
+                  isHovered ? 'bg-gray/80 ' : 'hover:bg-gray/40'
                 }`}
               >
                 {/* Category Dot & Label */}

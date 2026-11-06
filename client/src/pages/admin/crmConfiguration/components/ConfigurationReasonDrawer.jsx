@@ -4,12 +4,12 @@
 // ==================================================================================================================
 
 import React, { memo, useCallback, useEffect, useState } from 'react';
-import { Drawer } from '../../../../components/common/Drawer';
-import { DropdownInput } from '../../../../components/common/input common/DropdownInput/DropdownInput';
-import { IdInput } from '../../../../components/common/input common/IdInput/IdInput';
-import { StatusRadioInput } from '../../../../components/common/input common/StatusRadioInput/StatusRadioInput';
-import { BackButton } from '../../../../components/common/buttons/BackButton';
-import { DeleteButton } from '../../../../components/common/buttons/DeleteButton';
+import { Drawer } from '../../../../components/sidebar/Drawer';
+import { DropdownInput } from '../../../../components/inputs/DropdownInput';
+import { IdInput } from '../../../../components/inputs/IdInput';
+import { StatusRadioInput } from '../../../../components/inputs/StatusRadioInput';
+import { BackButton } from '../../../../components/buttons/BackButton';
+import { DeleteButton } from '../../../../components/buttons/DeleteButton';
 
 export const ConfigurationReasonDrawer = memo(({ isOpen, onClose, onSave, onDelete, initialData, config }) => {
   const [formData, setFormData] = useState({ code: '#001', name: '', relatedValue: '', status: 'Active' });
@@ -45,7 +45,7 @@ export const ConfigurationReasonDrawer = memo(({ isOpen, onClose, onSave, onDele
           <BackButton onClick={onClose} label="Back" />
           <div className="flex items-center gap-2.5">
             <DeleteButton onClick={() => isEdit && onDelete(initialData)} label={`Delete ${config.deleteLabel}`} />
-            <button type="submit" form="configuration-reason-form" className="h-[44px] px-6 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-sm font-semibold transition-colors shadow-2xs cursor-pointer active:scale-95">Save Details</button>
+            <button type="submit" form="configuration-reason-form" className="h-[44px] px-6 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-sm font-semibold transition-colors  cursor-pointer active:scale-95">Save Details</button>
           </div>
         </div>
       )}

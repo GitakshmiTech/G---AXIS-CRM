@@ -43,7 +43,7 @@ export const BarChart = React.memo(({
 
   return (
     <div
-      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border border-stroke flex flex-col justify-between shadow-2xs h-full ${className}`}
+      className={`bg-white-100 rounded-xl p-4 sm:p-5 2xl:p-6 border-b-2 border-stroke/80 flex flex-col justify-between  h-full ${className}`}
     >
       {/* Chart Header & Action/Filter Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 2xl:mb-6 gap-3">
@@ -77,7 +77,7 @@ export const BarChart = React.memo(({
           {/* Chart Content Area */}
           <div className="flex h-full w-full relative z-10">
             {/* Y-Axis Indicator Column */}
-            <div className="w-14 sm:w-16 h-full flex flex-col justify-between text-[10px] sm:text-[11px] font-medium pr-1 select-none flex-shrink-0 sticky left-0 bg-white-100 z-20">
+            <div className="w-14 sm:w-16 h-full flex flex-col justify-between text-[10px] sm:text-[11px] font-medium pr-1  flex-shrink-0 sticky left-0 bg-white-100 z-20">
               {yAxisTiers.map((tier) => (
                 <div key={tier} className="flex items-center">
                   {renderYAxisTier ? (
@@ -126,7 +126,7 @@ export const BarChart = React.memo(({
 
                     {/* Vertical Column Bar */}
                     <div
-                      className={`w-full ${barWidthClass} rounded-full cursor-pointer shadow-xs ${barColor}`}
+                      className={`w-full ${barWidthClass} rounded-full cursor-pointer  ${barColor}`}
                       style={{
                         height: isAnimated ? `${barHeightPct}%` : '0%',
                         transition:
@@ -136,7 +136,7 @@ export const BarChart = React.memo(({
                     />
 
                     {/* Bottom Label Container */}
-                    <div className="absolute -bottom-9 2xl:-bottom-10 flex items-center justify-center whitespace-nowrap select-none">
+                    <div className="absolute -bottom-9 2xl:-bottom-10 flex items-center justify-center whitespace-nowrap ">
                       {renderBottomLabel ? (
                         renderBottomLabel(item, index)
                       ) : item.icon ? (

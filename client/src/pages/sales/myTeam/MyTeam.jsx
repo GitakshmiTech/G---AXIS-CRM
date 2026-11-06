@@ -3,11 +3,11 @@
 //    React primitives, common data table shell, toolbar, pagination, and view drawer
 //==================================================================================================================
 import React, { useState, useMemo, useCallback } from 'react';
-import { TableContainer } from '../../../components/common/TableContainer';
-import { DataTableToolbar } from '../../../components/common/DataTableToolbar';
-import { DataTable } from '../../../components/common/DataTable';
-import { Pagination } from '../../../components/common/Pagination';
-import { ViewBtn } from '../../../components/common/buttons/ViewBtn';
+import { TableContainer } from '../../../components/Table/TableContainer';
+import { DataTableToolbar } from '../../../components/Table/DataTableToolbar';
+import { DataTable } from '../../../components/Table/DataTable';
+import { Pagination } from '../../../components/inputs/Pagination';
+import { ViewBtn } from '../../../components/buttons/ViewBtn';
 import { ViewMemberDrawer } from './ViewMemberDrawer';
 import {
   INITIAL_SALES_TEAM_DATA,
@@ -133,7 +133,7 @@ export const MyTeam = () => {
       label: 'Status',
       render: (row) => (
         <span
-          className={`w-[154px] h-[24px] inline-flex items-center justify-center px-4 py-[2px] rounded-[7px] text-xs font-semibold select-none ${
+          className={`w-[154px] h-[24px] inline-flex items-center justify-center px-4 py-[2px] rounded-[7px] text-xs font-semibold  ${
             row.status === 'Active'
               ? 'bg-success/10 text-success'
               : 'bg-gray text-black-90/60'
@@ -192,7 +192,7 @@ export const MyTeam = () => {
         pagination={
           <Pagination
             currentPage={currentPage}
-            totalEntries={180}
+            totalEntries={filteredMembers.length}
             pageSize={pageSize}
             onPageChange={setCurrentPage}
             className="pt-0 border-t-0"
