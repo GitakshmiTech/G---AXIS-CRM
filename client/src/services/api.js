@@ -11,9 +11,12 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
  * @returns {Promise<any>}
  */
 export const apiClient = async (endpoint, options = {}) => {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
   const defaultHeaders = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
   const config = {

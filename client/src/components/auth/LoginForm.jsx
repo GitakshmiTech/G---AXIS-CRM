@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import EmailInput from '../inputs/EmailInput';
 import PasswordInput from '../inputs/PasswordInput';
 import Button from '../buttons/Button';
+import { loginUser } from '../../services/authService';
 
 //==================================================================================================================
 //    REUSABLE LOGIN FORM COMPONENT
@@ -38,11 +39,12 @@ export const LoginForm = memo(({
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   //==================================================================================================================
   //    Handle Form Submit
   //==================================================================================================================
-  const handleSubmit = useCallback((e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setError('');
 
@@ -64,9 +66,16 @@ export const LoginForm = memo(({
       return;
     }
 
-    console.log(`${role.toUpperCase()} Login:`, { email: trimmedEmail, password: trimmedPassword, rememberMe });
-    navigate(resolvedDashboardPath);
-  }, [email, password, rememberMe, role, onLogin, navigate, resolvedDashboardPath]);
+    try {
+      setIsLoading(true);
+      await loginUser({ email: trimmedEmail, password: trimmedPassword, rememberMe });
+      navigate(resolvedDashboardPath);
+    } catch (err) {
+      setError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [email, password, rememberMe, onLogin, navigate, resolvedDashboardPath]);
 
   return (
     <div className="flex flex-col pt-[40px] pb-[72px] px-[48px] gap-[30px] w-full">
@@ -134,8 +143,8 @@ export const LoginForm = memo(({
           </label>
         </div>
 
-        <Button type="submit">
-          Sign in
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Signing in...' : 'Sign in'}
         </Button>
       </form>
     </div>

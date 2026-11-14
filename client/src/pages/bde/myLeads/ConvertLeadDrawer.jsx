@@ -3,12 +3,13 @@
 //    Slide-over drawer for converting a qualified lead into a closed deal with deal details
 //==================================================================================================================
 
-import React, { useState, memo, useCallback } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { Calendar } from 'lucide-react';
 import { Drawer } from '../../../components/sidebar/Drawer';
 import { LeadSummaryCard } from '../../../components/cards/LeadSummaryCard';
 import { DropdownInput } from '../../../components/inputs/DropdownInput';
 import { BackButton } from '../../../components/buttons/BackButton';
+import { fetchLeadOptions } from '../../../services/leadsService';
 import { PRODUCT_INTEREST_OPTIONS } from '../../../constants/leadsConstants';
 
 //==================================================================================================================
@@ -22,12 +23,56 @@ export const ConvertLeadDrawer = memo(({
 }) => {
   const [dealData, setDealData] = useState({
     amount: '',
-    stage: '2. Stage 2',
+    stage: 'Qualification',
     startDate: '',
     closeDate: '',
     productInterest: lead?.productInterest || '',
-    assignedBde: 'Johnson Doe',
+    assignedBde: 'Sarah Jenkins',
   });
+
+  // Dynamic Master Options from GET /api/masters/lead-options
+  const [masterOptions, setMasterOptions] = useState({
+    products: PRODUCT_INTEREST_OPTIONS,
+    dealStages: [
+      { value: 'Qualification', label: '1. Qualification' },
+      { value: 'Discovery', label: '2. Discovery' },
+      { value: 'Demo', label: '3. Demo' },
+      { value: 'Proposal', label: '4. Proposal' },
+      { value: 'Negotiation', label: '5. Negotiation' },
+    ],
+    staffMembers: [
+      { value: 'Sarah Jenkins', label: 'Sarah Jenkins' },
+      { value: 'Marcus Vance', label: 'Marcus Vance' },
+      { value: 'Alex Rivera', label: 'Alex Rivera' },
+      { value: 'Arthur Pendelton', label: 'Arthur Pendelton' },
+    ],
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadMasterOptions = async () => {
+      try {
+        const data = await fetchLeadOptions();
+        if (data && isMounted) {
+          setMasterOptions({
+            products: (data.products || []).map((p) => ({ value: p.name, label: p.name })),
+            dealStages: (data.dealStages || []).map((ds) => ({ value: ds.name, label: `${ds.order}. ${ds.name}` })),
+            staffMembers: (data.staffMembers || []).map((st) => ({ value: st.name, label: st.name })),
+          });
+        }
+      } catch (err) {
+        console.warn('Using fallback options for ConvertLeadDrawer:', err);
+      }
+    };
+
+    if (isOpen) {
+      loadMasterOptions();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -131,19 +176,14 @@ export const ConvertLeadDrawer = memo(({
             </div>
 
             {/* Deal Stage */}
-            <div className="flex flex-col gap-1 w-full">
-              <label className="text-xs font-semibold text-black-90">
-                Deal Stage
-              </label>
-              <input
-                type="text"
-                name="stage"
-                value={dealData.stage}
-                onChange={handleChange}
-                placeholder="2. Stage 2"
-                className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none transition-all"
-              />
-            </div>
+            <DropdownInput
+              label="Deal Stage"
+              name="stage"
+              placeholder="Select Deal Stage"
+              options={masterOptions.dealStages}
+              value={dealData.stage}
+              onChange={(e) => handleDropdownChange('stage', e.target.value)}
+            />
           </div>
 
           {/* Row 2: Expected Start Date & Expected Close Date */}
@@ -191,24 +231,19 @@ export const ConvertLeadDrawer = memo(({
               label="Product Interest"
               name="productInterest"
               placeholder="Select Product"
-              options={PRODUCT_INTEREST_OPTIONS}
+              options={masterOptions.products}
               value={dealData.productInterest}
               onChange={(e) => handleDropdownChange('productInterest', e.target.value)}
             />
 
-            <div className="flex flex-col gap-1 w-full">
-              <label className="text-xs font-semibold text-black-90">
-                Assigned BDE
-              </label>
-              <input
-                type="text"
-                name="assignedBde"
-                value={dealData.assignedBde}
-                onChange={handleChange}
-                placeholder="Johnson Doe"
-                className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none transition-all"
-              />
-            </div>
+            <DropdownInput
+              label="Assigned BDE"
+              name="assignedBde"
+              placeholder="Select Assigned BDE"
+              options={masterOptions.staffMembers}
+              value={dealData.assignedBde}
+              onChange={(e) => handleDropdownChange('assignedBde', e.target.value)}
+            />
           </div>
         </div>
       </form>

@@ -15,6 +15,47 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 ## Changelog & Security Updates
 
+### [13/11/2026] Dynamic Master Dropdowns Integration (`GET /api/masters/lead-options`)
+- **Centralized Masters API Service (`client/src/services/mastersService.js` & `leadsService.js`)**:
+  - Implemented `fetchLeadOptions` calling `GET /api/masters/lead-options`.
+  - Re-exported `fetchLeadOptions` from `leadsService.js` for modular service access (Rule 5).
+- **Dynamic Dropdown Options in Add/Edit Lead Drawers (`AddLeadDrawer.jsx`)**:
+  - Replaced static dropdown constants with real-time options fetched from database for:
+    - Product Interests (`products`)
+    - Lead Sources (`sources`)
+    - Priority Levels (`priorities`)
+    - Pipeline Stages (`statuses`)
+    - Industries (`industries`)
+    - Employee Scales (`employeeScales`)
+  - Integrated across all 3 portals: BDE (`bde/myLeads`), Admin (`admin/leadManagement`), and Sales (`sales/leadManagement`).
+  - Added resilient fallback to local constants if backend is temporarily unreachable.
+- **Dynamic Lead Conversion Options (`ConvertLeadDrawer.jsx`)**:
+  - Connected Deal Stage and Assigned BDE inputs to dynamic `DropdownInput` components fed by live database `dealStages` and `staffMembers`.
+- **Dynamic Table Toolbar Filters (`MyLeads.jsx`)**:
+  - Connected Stage, Priority, and Source filters in `DataTableToolbar` to live master options from `fetchLeadOptions()`.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.83s with 0 errors.
+
+### [13/11/2026] Role-Based Authentication & Automatic Bearer Token Attachment
+- **Centralized Authentication Service (`client/src/services/authService.js`)**:
+  - Implemented `loginUser`, `getCurrentUser`, `fetchProfile`, `fetchStaffDirectory`, and `logoutUser`.
+  - Automatically persists JWT token and user profile into `localStorage` / `sessionStorage`.
+- **Automatic Bearer Token Interceptor (`client/src/services/api.js`)**:
+  - Updated `apiClient` to extract `token` from `localStorage`/`sessionStorage` and automatically inject `Authorization: Bearer <token>` in the request header.
+- **Login Component Live Auth Integration (`client/src/components/auth/LoginForm.jsx`)**:
+  - Connected form submission to live `loginUser` API endpoint with loading feedback (`Signing in...`) and inline error alerts on invalid credentials.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 2.63s with 0 errors.
+
+### [12/11/2026] Backend API Integration for Leads Workspace (fetchLeads & createLead)
+- **Centralized Leads Service Integration (`client/src/services/leadsService.js`)**:
+  - Implemented `fetchLeads`, `createLead`, `updateLead`, `convertLead`, and `checkDuplicateLead` using the centralized `apiClient`.
+  - Configured `VITE_API_BASE_URL=http://localhost:5000/api` in `client/.env`.
+- **Live Data Binding in BDE MyLeads (`client/src/pages/bde/myLeads/MyLeads.jsx`)**:
+  - Wired live data fetching on component mount via `useEffect` with proper cleanup to prevent memory leaks (Rule 12).
+  - Integrated `handleSaveLead` to call `createLead(formData)` for new prospects and `updateLead` for editing, persisting new records directly into MySQL database (`leads` table) with auto-generated collision-free IDs (`LD-00000X`).
+  - Integrated `handleConfirmConvert` to trigger `convertLead`, creating Account, Contact, and Deal in a single atomic transaction.
+  - Added non-blocking loader and error state indicators inside `DataTable` empty message.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.36s with 0 errors.
+
 ### [06/11/2026] Dynamic Table Pagination & Project-Wide Reset Filter Button Integration
 - **100% Dynamic Pagination Standardized Across All CRM Table Pages**:
   - In [`Pagination.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/Pagination.jsx), removed hardcoded default `totalEntries=180` and implemented dynamic entry calculation (`currentCount` strictly reflects actual entries rendered on current page based on `(currentPage - 1) * pageSize + 1` to `min(currentPage * pageSize, totalEntries)`). Added automated out-of-bounds page correction when filtering reduces total pages below the active page index.

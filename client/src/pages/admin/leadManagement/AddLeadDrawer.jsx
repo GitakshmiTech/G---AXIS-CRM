@@ -12,6 +12,7 @@ import { PhoneNumber } from '../../../components/inputs/PhoneNumber';
 import { BackButton } from '../../../components/buttons/BackButton';
 import { DocumentCard } from '../../../components/cards/DocumentCard';
 import { UploadDropzone } from '../../../components/inputs/UploadDropzone';
+import { fetchLeadOptions } from '../../../services/leadsService';
 import {
   PRODUCT_INTEREST_OPTIONS,
   INDUSTRY_OPTIONS,
@@ -59,6 +60,46 @@ export const AddLeadDrawer = memo(({
   });
 
   const [documents, setDocuments] = useState(MOCK_DOCUMENTS);
+
+  // Dynamic Master Options from GET /api/masters/lead-options
+  const [masterOptions, setMasterOptions] = useState({
+    stages: LEAD_STAGES.filter((s) => s.value !== 'All'),
+    sources: LEAD_SOURCES.filter((s) => s.value !== 'All'),
+    industries: INDUSTRY_OPTIONS,
+    products: PRODUCT_INTEREST_OPTIONS,
+    priorities: LEAD_PRIORITIES.filter((p) => p.value !== 'All'),
+    employeeScales: EMPLOYEE_SCALE_OPTIONS,
+  });
+
+  // Fetch dynamic lead options when drawer opens
+  useEffect(() => {
+    let isMounted = true;
+    const loadMasterOptions = async () => {
+      try {
+        const data = await fetchLeadOptions();
+        if (data && isMounted) {
+          setMasterOptions({
+            stages: (data.statuses || []).map((s) => ({ value: s.name, label: s.name })),
+            sources: (data.sources || []).map((src) => ({ value: src.name, label: src.name })),
+            industries: (data.industries || []).map((ind) => ({ value: ind.name, label: ind.name })),
+            products: (data.products || []).map((p) => ({ value: p.name, label: p.name })),
+            priorities: (data.priorities || []).map((p) => ({ value: p, label: p })),
+            employeeScales: (data.employeeScales || []).map((es) => ({ value: es, label: es })),
+          });
+        }
+      } catch (err) {
+        console.warn('Using fallback constants for lead options:', err);
+      }
+    };
+
+    if (isOpen) {
+      loadMasterOptions();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
 
   // Populate data when editing or viewing
   useEffect(() => {
@@ -236,7 +277,7 @@ export const AddLeadDrawer = memo(({
             label="Product Interest"
             name="productInterest"
             placeholder="Select Product"
-            options={PRODUCT_INTEREST_OPTIONS}
+            options={masterOptions.products}
             value={formData.productInterest}
             onChange={(e) => handleDropdownChange('productInterest', e.target.value)}
           />
@@ -244,7 +285,7 @@ export const AddLeadDrawer = memo(({
             label="Lead Source"
             name="leadSource"
             placeholder="Select Lead Source"
-            options={LEAD_SOURCES.filter((s) => s.value !== 'All')}
+            options={masterOptions.sources}
             value={formData.leadSource}
             onChange={(e) => handleDropdownChange('leadSource', e.target.value)}
           />
@@ -280,7 +321,7 @@ export const AddLeadDrawer = memo(({
             label="Priority"
             name="priority"
             placeholder="Select Priority"
-            options={LEAD_PRIORITIES.filter((p) => p.value !== 'All')}
+            options={masterOptions.priorities}
             value={formData.priority}
             onChange={(e) => handleDropdownChange('priority', e.target.value)}
           />
@@ -288,7 +329,7 @@ export const AddLeadDrawer = memo(({
             label="Lead Stage"
             name="stage"
             placeholder="New (Default)"
-            options={LEAD_STAGES.filter((s) => s.value !== 'All')}
+            options={masterOptions.stages}
             value={formData.stage}
             onChange={(e) => handleDropdownChange('stage', e.target.value)}
           />
@@ -318,7 +359,7 @@ export const AddLeadDrawer = memo(({
             label="Industry Type"
             name="industry"
             placeholder="Select Industry Type"
-            options={INDUSTRY_OPTIONS}
+            options={masterOptions.industries}
             value={formData.industry}
             onChange={(e) => handleDropdownChange('industry', e.target.value)}
           />
@@ -332,7 +373,7 @@ export const AddLeadDrawer = memo(({
             label="Employee Scale"
             name="employeeScale"
             placeholder="0 - 50"
-            options={EMPLOYEE_SCALE_OPTIONS}
+            options={masterOptions.employeeScales}
             value={formData.employeeScale}
             onChange={(e) => handleDropdownChange('employeeScale', e.target.value)}
           />

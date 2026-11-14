@@ -3,7 +3,7 @@
 //    Enterprise leads workspace with interactive DataTable, toolbar filters, pagination, and multi-mode drawers
 //==================================================================================================================
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   ChevronDown,
   Eye,
@@ -12,6 +12,7 @@ import {
   Clock,
   Mail,
   MessageCircle,
+  Loader2,
 } from 'lucide-react';
 
 import { TableContainer } from '../../../components/Table/TableContainer';
@@ -26,6 +27,13 @@ import { LeadActivityDrawer } from './LeadActivityDrawer';
 import { LeadCommentsDrawer } from './LeadCommentsDrawer';
 import { ConvertLeadDrawer } from './ConvertLeadDrawer';
 import {
+  fetchLeads,
+  createLead,
+  updateLead,
+  convertLead,
+  fetchLeadOptions,
+} from '../../../services/leadsService';
+import {
   INITIAL_LEADS_DATA,
   LEAD_STAGES,
   LEAD_PRIORITIES,
@@ -36,7 +44,9 @@ export const MyLeads = () => {
   //==================================================================================================================
   //    STATE MANAGEMENT
   //==================================================================================================================
-  const [leads, setLeads] = useState(INITIAL_LEADS_DATA);
+  const [leads, setLeads] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [stageFilter, setStageFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
@@ -44,6 +54,13 @@ export const MyLeads = () => {
   const [viewMode, setViewMode] = useState('list');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
+
+  // Dynamic filter options loaded from GET /api/masters/lead-options
+  const [filterOptions, setFilterOptions] = useState({
+    stages: LEAD_STAGES,
+    priorities: LEAD_PRIORITIES,
+    sources: LEAD_SOURCES,
+  });
 
   // Drawer States
   const [isAddOrEditOpen, setIsAddOrEditOpen] = useState(false);
@@ -53,6 +70,53 @@ export const MyLeads = () => {
   const [isActivityOpen, setIsActivityOpen] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [isConvertOpen, setIsConvertOpen] = useState(false);
+
+  //==================================================================================================================
+  //    DATA FETCHING (RULE 12)
+  //==================================================================================================================
+  const loadLeadsData = useCallback(async () => {
+    setIsLoading(true);
+    setApiError(null);
+    try {
+      const data = await fetchLeads({
+        limit: 100,
+      });
+      if (data?.leads) {
+        setLeads(data.leads);
+      }
+    } catch (err) {
+      console.error('Failed to fetch leads from API:', err);
+      setApiError(err.message || 'Failed to connect to backend server');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    loadLeadsData();
+
+    // Fetch dynamic options from GET /api/masters/lead-options
+    const loadFilterOptions = async () => {
+      try {
+        const data = await fetchLeadOptions();
+        if (data && isMounted) {
+          setFilterOptions({
+            stages: [{ value: 'All', label: 'All' }, ...(data.statuses || []).map((s) => ({ value: s.name, label: s.name }))],
+            sources: [{ value: 'All', label: 'All' }, ...(data.sources || []).map((src) => ({ value: src.name, label: src.name }))],
+            priorities: [{ value: 'All', label: 'All' }, ...(data.priorities || []).map((p) => ({ value: p, label: p }))],
+          });
+        }
+      } catch (err) {
+        console.warn('Using default constants for lead filters:', err);
+      }
+    };
+    loadFilterOptions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [loadLeadsData]);
 
   //==================================================================================================================
   //    DRAWER TRIGGER HANDLERS
@@ -93,27 +157,23 @@ export const MyLeads = () => {
     setSelectedLead(null);
   }, []);
 
-  const handleSaveLead = useCallback((formData) => {
-    if (drawerMode === 'edit' && selectedLead) {
-      setLeads((prev) =>
-        prev.map((item) =>
-          item.id === selectedLead.id ? { ...item, ...formData } : item
-        )
-      );
-    } else {
-      const newLead = {
-        id: `lead-${Date.now()}`,
-        code: `#${String(leads.length + 1).padStart(3, '0')}`,
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
-        companyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=80&h=80&fit=crop&crop=faces',
-        createdDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-        createdTime: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-        ...formData,
-      };
-      setLeads((prev) => [newLead, ...prev]);
+  const handleSaveLead = useCallback(async (formData) => {
+    try {
+      if (drawerMode === 'edit' && selectedLead) {
+        const updated = await updateLead(selectedLead.id, formData);
+        setLeads((prev) =>
+          prev.map((item) => (item.id === selectedLead.id ? { ...item, ...updated } : item))
+        );
+      } else {
+        const created = await createLead(formData);
+        setLeads((prev) => [created, ...prev]);
+      }
+      handleCloseAllDrawers();
+    } catch (error) {
+      console.error('Failed to save lead:', error);
+      alert(error.message || 'Failed to save lead. Please verify required fields or potential duplicate.');
     }
-    handleCloseAllDrawers();
-  }, [drawerMode, selectedLead, leads.length, handleCloseAllDrawers]);
+  }, [drawerMode, selectedLead, handleCloseAllDrawers]);
 
   const handleDeactivateLead = useCallback(() => {
     if (selectedLead) {
@@ -131,17 +191,23 @@ export const MyLeads = () => {
     setIsConvertOpen(true);
   }, []);
 
-  const handleConfirmConvert = useCallback((dealData) => {
+  const handleConfirmConvert = useCallback(async (dealData) => {
     if (selectedLead) {
-      setLeads((prev) =>
-        prev.map((item) =>
-          item.id === selectedLead.id
-            ? { ...item, stage: 'Won', dealAmount: dealData?.amount || item.dealAmount }
-            : item
-        )
-      );
+      try {
+        const result = await convertLead(selectedLead.id, dealData);
+        setLeads((prev) =>
+          prev.map((item) =>
+            item.id === selectedLead.id
+              ? { ...item, stage: 'Won', dealAmount: dealData?.amount || item.dealAmount }
+              : item
+          )
+        );
+        handleCloseAllDrawers();
+      } catch (error) {
+        console.error('Failed to convert lead:', error);
+        alert(error.message || 'Failed to convert lead');
+      }
     }
-    handleCloseAllDrawers();
   }, [selectedLead, handleCloseAllDrawers]);
 
   //==================================================================================================================
@@ -360,19 +426,19 @@ export const MyLeads = () => {
                 id: 'stage-filter',
                 value: stageFilter,
                 onChange: setStageFilter,
-                options: LEAD_STAGES,
+                options: filterOptions.stages,
               },
               {
                 id: 'priority-filter',
                 value: priorityFilter,
                 onChange: setPriorityFilter,
-                options: LEAD_PRIORITIES,
+                options: filterOptions.priorities,
               },
               {
                 id: 'source-filter',
                 value: sourceFilter,
                 onChange: setSourceFilter,
-                options: LEAD_SOURCES,
+                options: filterOptions.sources,
               },
             ]}
             onResetFilters={handleResetFilters}
@@ -398,7 +464,13 @@ export const MyLeads = () => {
           columns={columns}
           data={paginatedLeads}
           rowKey="id"
-          emptyMessage="No leads found matching the current search criteria."
+          emptyMessage={
+            isLoading
+              ? 'Loading leads from database...'
+              : apiError
+              ? `Unable to connect to backend: ${apiError}`
+              : 'No leads found matching the current search criteria.'
+          }
         />
       </TableContainer>
 
