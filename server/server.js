@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const serverConfig = require("./config/server.config");
-const leadsRoutes = require("./modules/leads/leads.routes");
+const crmLeadsRoutes = require("./modules/crm/leads/leads.routes");
 const { apiLimiter } = require("./middlewares/rateLimiter.middleware");
 const { connectDatabase } = require("./database/connection");
 const corsMiddleware = require("./middlewares/cors.middleware");
@@ -27,11 +27,9 @@ app.get(`${serverConfig.API_PREFIX}/health`, (req, res) => {
   });
 });
 
-// Leads API
-app.use(
-  `${serverConfig.API_PREFIX}/leads`,
-  leadsRoutes
-);
+// CRM Leads API
+app.use(`${serverConfig.API_PREFIX}/crm/leads`, crmLeadsRoutes);
+app.use(`${serverConfig.API_PREFIX}/leads`, crmLeadsRoutes);
 // Start server
 const startServer = async () => {
     try {
