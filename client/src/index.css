@@ -127,3 +127,25 @@
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
+
+/* ================================================================================================================== */
+/*    Strict Non-Selectable Placeholders Rule (Rule 18) */
+/* ================================================================================================================== */
+input::placeholder,
+textarea::placeholder,
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder,
+input::-moz-placeholder,
+textarea::-moz-placeholder,
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+input:placeholder-shown::selection,
+textarea:placeholder-shown::selection {
+  background-color: transparent !important;
+}

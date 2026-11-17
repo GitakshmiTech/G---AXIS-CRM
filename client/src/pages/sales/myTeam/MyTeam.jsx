@@ -95,7 +95,7 @@ export const MyTeam = () => {
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover border border-stroke shrink-0"
+            className="w-8 h-8 rounded-full object-cover border-none shrink-0"
           />
           <span className="font-bold text-black-90 text-sm truncate">
             {row.name}

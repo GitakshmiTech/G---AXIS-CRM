@@ -210,7 +210,7 @@ export const MyLeads = () => {
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover border border-stroke"
+            className="w-8 h-8 rounded-full object-cover border-none"
           />
           <span className="font-medium text-black-90 whitespace-nowrap">
             {row.name}
@@ -229,7 +229,7 @@ export const MyLeads = () => {
           <img
             src={row.companyLogo}
             alt={row.companyName}
-            className="w-7 h-7 rounded-full object-cover border border-stroke shrink-0"
+            className="w-7 h-7 rounded-full object-cover border-none shrink-0"
           />
           <span className="font-medium text-black-90 whitespace-nowrap">
             {row.companyName}

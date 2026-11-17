@@ -40,7 +40,7 @@ export const DropdownInput = memo(({
   className = '',
   containerClassName = 'flex flex-col gap-1 w-full',
   labelClassName = 'text-xs font-semibold text-black-90',
-  selectClassName = 'w-full h-[40px] px-3 pr-8 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 font-normal focus:outline-none cursor-pointer transition-all disabled:bg-gray disabled:cursor-not-allowed',
+  selectClassName = 'w-full h-[40px] px-3 pr-8 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:select-none font-normal focus:outline-none cursor-pointer transition-all disabled:bg-gray disabled:cursor-not-allowed',
   chevronClassName = 'w-4 h-4 text-primary',
   showChevron,
   children,

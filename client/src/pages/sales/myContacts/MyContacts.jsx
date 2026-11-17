@@ -28,17 +28,20 @@ export const MyContacts = () => {
   // Drawer state
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState(null);
+  const [drawerMode, setDrawerMode] = useState('edit');
 
   //==================================================================================================================
   //    DRAWER TRIGGER HANDLERS
   //==================================================================================================================
   const handleOpenEdit = useCallback((contact) => {
     setSelectedContact(contact);
+    setDrawerMode('edit');
     setIsEditOpen(true);
   }, []);
 
   const handleOpenView = useCallback((contact) => {
     setSelectedContact(contact);
+    setDrawerMode('view');
     setIsEditOpen(true);
   }, []);
 
@@ -99,7 +102,7 @@ export const MyContacts = () => {
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover border border-stroke shrink-0"
+            className="w-8 h-8 rounded-full object-cover border-none shrink-0"
           />
           <div className="flex flex-col min-w-0">
             <span className="font-semibold text-black-90 whitespace-nowrap">
@@ -122,7 +125,7 @@ export const MyContacts = () => {
           <img
             src={row.companyLogo}
             alt={row.companyName}
-            className="w-7 h-7 rounded-full object-cover border border-stroke shrink-0"
+            className="w-7 h-7 rounded-full object-cover border-none shrink-0"
           />
           <div className="flex flex-col min-w-0">
             <span className="font-semibold text-black-90 whitespace-nowrap">
@@ -234,12 +237,13 @@ export const MyContacts = () => {
         />
       </TableContainer>
 
-      {/* Slide-over Edit Contact Details Drawer (Image 5) */}
+      {/* Slide-over Edit / View Contact Details Drawer */}
       <EditContactDrawer
         isOpen={isEditOpen}
         onClose={handleCloseDrawer}
         onSave={handleSaveContact}
         initialData={selectedContact}
+        mode={drawerMode}
       />
     </div>
   );

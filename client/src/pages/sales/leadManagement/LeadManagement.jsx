@@ -203,7 +203,7 @@ export const LeadManagement = () => {
           <img
             src={row.leadAvatar || row.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face'}
             alt={row.leadName || row.name}
-            className="w-8 h-8 rounded-full object-cover border border-stroke shrink-0"
+            className="w-8 h-8 rounded-full object-cover border-none shrink-0"
           />
           <span className="font-bold text-black-90 text-sm truncate">
             {row.leadName || row.name}
@@ -220,7 +220,7 @@ export const LeadManagement = () => {
           <img
             src={row.companyLogo || 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=100&h=100&fit=crop'}
             alt={row.companyName}
-            className="w-7 h-7 rounded-full object-cover border border-stroke shrink-0"
+            className="w-7 h-7 rounded-full object-cover border-none shrink-0"
           />
           <span className="text-sm font-semibold text-black-90 truncate">
             {row.companyName}

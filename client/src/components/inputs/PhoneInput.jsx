@@ -208,7 +208,7 @@ export const PhoneInput = memo(({
           title={`Country: ${selectedCountry.name} (${selectedCountry.dial})`}
         >
           <FlagImage code={selectedCountry.code} size={20} />
-          <ChevronDown size={14} className="text-[#2E90FA] shrink-0" strokeWidth={2.5} />
+          <ChevronDown size={14} className="text-primary shrink-0" strokeWidth={2.5} />
         </button>
 
         <span className="text-[#D0D5DD] pr-2.5  font-light">|</span>
@@ -247,7 +247,7 @@ export const PhoneInput = memo(({
         onChange={handleInputChange}
         required={required}
         disabled={disabled}
-        className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/80 font-normal focus:outline-none min-w-0"
+        className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/80 placeholder:select-none font-normal focus:outline-none min-w-0"
       />
     </div>
   );

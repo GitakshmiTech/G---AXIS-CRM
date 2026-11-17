@@ -46,7 +46,7 @@ export const AdminDashboard = memo(() => {
   }, [revenueTab]);
 
   return (
-    <div className="w-full flex flex-col gap-4 sm:gap-5 pb-2 sm:pb-0">
+    <div className="w-full flex flex-col gap-4 sm:gap-3 pb-2 sm:pb-0">
       {/* ==============================================================================================================
           1. DASHBOARD PAGE HEADER (Image 1 & Image 3)
       ============================================================================================================== */}
@@ -67,7 +67,7 @@ export const AdminDashboard = memo(() => {
             <button
               type="button"
               onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
-              className="h-8 inline-flex items-center gap-2 px-3 sm:px-3.5 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-xs font-semibold text-black-90 hover:bg-gray/80 transition-colors cursor-pointer"
+              className="h-8 inline-flex items-center gap-2 px-3 sm:px-3.5 rounded-[7px] bg-white-100 border-b-2 border-stroke/80 text-xs font-semibold text-black-90 hover:bg-white-100/90 transition-colors cursor-pointer"
             >
               <span>{timeFilter}</span>
               <ChevronDown
@@ -82,7 +82,7 @@ export const AdminDashboard = memo(() => {
               <div
                 data-ui-style="dropdown-menu"
                 data-ui-width="trigger"
-                className="absolute top-full left-0 right-0 w-full min-w-full mt-1 bg-gray border-none rounded-none p-0 z-30 shadow-none animate-in fade-in zoom-in-95 duration-100"
+                className="absolute top-full left-0 right-0 w-full min-w-full mt-1 bg-white-100 border border-stroke rounded-[7px] p-0 z-30 shadow-none animate-in fade-in zoom-in-95 duration-100"
               >
                 {FILTER_OPTIONS.map((option) => (
                   <button
@@ -95,7 +95,7 @@ export const AdminDashboard = memo(() => {
                     className={`w-full text-left px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer rounded-none ${
                       timeFilter === option
                         ? 'text-primary bg-primary/10 font-bold'
-                        : 'text-black-90 hover:bg-white-100'
+                        : 'text-black-90 hover:bg-gray/50'
                     }`}
                   >
                     <span className="truncate whitespace-nowrap">{option}</span>
@@ -107,9 +107,10 @@ export const AdminDashboard = memo(() => {
 
           {/* Export Action Button */}
           <ExportButton
+            variant="white"
             title="Export Overview"
             aria-label="Export Overview"
-            className="h-[38px] w-[38px]"
+            className="h-8 w-8"
           />
         </div>
       </div>

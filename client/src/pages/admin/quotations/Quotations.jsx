@@ -4,7 +4,7 @@
 //==================================================================================================================
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { Plus, ChevronDown } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { TableContainer } from '../../../components/Table/TableContainer';
 import { DataTableToolbar } from '../../../components/Table/DataTableToolbar';
 import { DataTable } from '../../../components/Table/DataTable';
@@ -266,14 +266,8 @@ export const Quotations = () => {
             }}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
-            onExport={() => alert('Exporting Quotations Data...')}
             actionButton={{
-              label: (
-                <div className="flex items-center gap-1">
-                  <span>Create Quotation</span>
-                  <ChevronDown size={14} className="text-white-100" />
-                </div>
-              ),
+              label: 'Create Quotation',
               icon: <Plus size={15} />,
               onClick: handleOpenCreate,
             }}

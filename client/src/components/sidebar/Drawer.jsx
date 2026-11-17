@@ -70,7 +70,7 @@ export const Drawer = ({
         {/*==================================================================================================================
             //    Drawer Header
             // ==================================================================================================================*/}
-        <div className={`flex ${resolvedSubtitle ? 'items-start' : 'items-center'} justify-between ${headerClassName || 'p-5'} border-b border-stroke flex-shrink-0 bg-white-100 ${seamlessHeader ? 'border-b-0' : ''}`}>
+        <div className={`flex ${resolvedSubtitle ? 'items-start' : 'items-center'} justify-between ${headerClassName || 'px-6 py-2'} border-b border-stroke flex-shrink-0 bg-white-100 ${seamlessHeader ? 'border-b-0' : ''}`}>
           <div>
             <h2 className="text-[17px] font-bold text-black-90 tracking-tight">
               {title}
@@ -112,7 +112,7 @@ export const Drawer = ({
         {footer ? (
           footer
         ) : hasDefaultFooter ? (
-          <div className="px-6 py-4 bg-white-100 sticky bottom-0 z-20 flex justify-between items-center shrink-0">
+          <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex justify-between items-center shrink-0">
             {onBack ? (
               <BackButton
                 onClick={onBack}
@@ -127,7 +127,7 @@ export const Drawer = ({
                 type={formId ? 'submit' : 'button'}
                 form={formId}
                 onClick={formId ? undefined : onSave}
-                className="bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
+                className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
               >
                 {saveText}
               </button>

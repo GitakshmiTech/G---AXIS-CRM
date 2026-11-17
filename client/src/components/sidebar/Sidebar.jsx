@@ -178,7 +178,7 @@ const CollapsedSidebarView = ({
           data-preserve-radius
           className="absolute inset-0 m-auto w-9 h-9 rounded-full bg-gray border border-stroke flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200"
         >
-          <ChevronsRight size={18} className="text-black-90" />
+          <ChevronsRight size={18} className="text-primary" />
         </div>
       </button>
     </div>
@@ -319,7 +319,7 @@ const SidebarInner = ({ role }) => {
             <button
               type="button"
               data-preserve-radius
-              className="w-8 h-8 shrink-0 rounded-full border border-stroke bg-gray flex items-center justify-center text-black-90 hover:bg-stroke/40 transition-all cursor-pointer"
+              className="w-8 h-8 shrink-0 rounded-full border border-stroke bg-gray flex items-center justify-center text-primary hover:bg-gray/80 hover:transition-all cursor-pointer"
               onClick={() => {
                 if (isMobileOpen) {
                   closeMobile();
@@ -330,7 +330,7 @@ const SidebarInner = ({ role }) => {
               title={isMobileOpen ? 'Close Navigation' : 'Collapse Sidebar'}
               aria-label="Close or collapse sidebar"
             >
-              <ChevronsLeft size={16} />
+              <ChevronsLeft size={16} className="text-primary" />
             </button>
           </div>
 

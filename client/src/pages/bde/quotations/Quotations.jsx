@@ -55,6 +55,7 @@ export const Quotations = () => {
 
   // Drawer state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerMode, setDrawerMode] = useState('create');
   const [selectedQuotation, setSelectedQuotation] = useState(null);
 
   //==================================================================================================================
@@ -62,16 +63,19 @@ export const Quotations = () => {
   //==================================================================================================================
   const handleOpenCreate = useCallback(() => {
     setSelectedQuotation(null);
+    setDrawerMode('create');
     setIsDrawerOpen(true);
   }, []);
 
   const handleOpenEdit = useCallback((quote) => {
     setSelectedQuotation(quote);
+    setDrawerMode('edit');
     setIsDrawerOpen(true);
   }, []);
 
   const handleOpenView = useCallback((quote) => {
     setSelectedQuotation(quote);
+    setDrawerMode('view');
     setIsDrawerOpen(true);
   }, []);
 
@@ -268,14 +272,8 @@ export const Quotations = () => {
             }}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
-            onExport={() => alert('Exporting Quotations Data...')}
             actionButton={{
-              label: (
-                <div className="flex items-center gap-1">
-                  <span>Create Quotation</span>
-                  <ChevronDown size={14} className="text-white-100" />
-                </div>
-              ),
+              label: 'Create Quotation',
               icon: <Plus size={15} />,
               onClick: handleOpenCreate,
             }}
@@ -299,12 +297,13 @@ export const Quotations = () => {
         />
       </TableContainer>
 
-      {/* Slide-over Create / Edit Quotation Drawer (Images 4 & 5) */}
+      {/* Slide-over Create / Edit / View Quotation Drawer */}
       <CreateQuotationDrawer
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
         onSave={handleSaveQuotation}
         initialData={selectedQuotation}
+        mode={drawerMode}
       />
     </div>
   );

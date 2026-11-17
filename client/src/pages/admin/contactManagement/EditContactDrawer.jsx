@@ -22,6 +22,7 @@ export const EditContactDrawer = memo(({
   initialData = null,
   mode = 'edit', // 'view' | 'edit'
 }) => {
+  const isView = mode === 'view';
   const [formData, setFormData] = useState({
     firstName: 'Johnson',
     lastName: 'Doe',
@@ -94,16 +95,16 @@ export const EditContactDrawer = memo(({
       title={mode === 'view' ? 'View Contact' : 'Edit Contact'}
       subtitle="Create and qualify a new enterprise prospect. Real-time deduplication verification is active across customer records."
       width="w-full sm:w-[700px]"
-      headerClassName="p-5 pb-2"
-      bodyClassName="px-6 pt-1 pb-5"
+      headerClassName="px-6 py-2"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-6 py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex justify-between items-center shrink-0">
+        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex justify-between items-center shrink-0">
           <BackButton onClick={onClose} label="Back" />
           {mode !== 'view' && (
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
+              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
             >
               Save Details
             </button>
@@ -115,7 +116,7 @@ export const EditContactDrawer = memo(({
         {/* Top Profile Image Upload Section (Same as BDE) */}
         <div className="flex items-center gap-4">
           {formData.uploadedAvatar ? (
-            <div className="w-[76px] h-[76px] rounded-full border border-stroke overflow-hidden shrink-0">
+            <div className="w-[76px] h-[76px] rounded-full border-none overflow-hidden shrink-0">
               <img
                 src={formData.uploadedAvatar}
                 alt="Profile"
@@ -153,6 +154,7 @@ export const EditContactDrawer = memo(({
             placeholder="Enter First Name"
             value={formData.firstName}
             onChange={handleChange}
+            disabled={isView}
           />
           <TextInput
             label="Last Name"
@@ -160,6 +162,7 @@ export const EditContactDrawer = memo(({
             placeholder="Enter Last Name"
             value={formData.lastName}
             onChange={handleChange}
+            disabled={isView}
           />
         </div>
 
@@ -171,6 +174,7 @@ export const EditContactDrawer = memo(({
             placeholder="Enter Designation Name"
             value={formData.designation}
             onChange={handleChange}
+            disabled={isView}
           />
           <DropdownInput
             label="Lead Source"
@@ -179,6 +183,7 @@ export const EditContactDrawer = memo(({
             options={LEAD_SOURCES}
             value={formData.leadSource}
             onChange={(e) => handleDropdownChange('leadSource', e.target.value)}
+            disabled={isView}
           />
         </div>
 
@@ -191,6 +196,7 @@ export const EditContactDrawer = memo(({
             placeholder="Enter Email Address"
             value={formData.email}
             onChange={handleChange}
+            disabled={isView}
           />
           <PhoneNumber
             label="Contact Number"
@@ -198,6 +204,7 @@ export const EditContactDrawer = memo(({
             placeholder="98765 43210"
             value={formData.phone}
             onChange={handleChange}
+            disabled={isView}
           />
         </div>
 
@@ -209,6 +216,7 @@ export const EditContactDrawer = memo(({
             placeholder="Enter Company Name"
             value={formData.companyName}
             onChange={handleChange}
+            disabled={isView}
           />
           <TextInput
             label="Assigned BDE"
@@ -216,6 +224,7 @@ export const EditContactDrawer = memo(({
             placeholder="Johnson Doe"
             value={formData.assignedBde}
             onChange={handleChange}
+            disabled={isView}
           />
         </div>
       </form>

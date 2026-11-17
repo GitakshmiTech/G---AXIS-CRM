@@ -55,22 +55,22 @@ export const LeadCommentsDrawer = memo(({
       title="Lead Comments"
       subtitle="Create and qualify a new enterprise prospect. Real-time deduplication verification is active across customer records."
       width="w-full sm:w-[560px]"
-      bodyClassName="px-6 py-5"
+      bodyClassName="px-6 py-2"
       footer={
         <form
           onSubmit={handleAddComment}
-          className="px-3 sm:px-6 py-2.5 sm:py-3.5 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex items-center gap-2 sm:gap-3 shrink-0"
+          className="px-3 sm:px-6 py-2.5 sm:py-3.5 bg-white-100 sticky bottom-0 z-20 flex items-center gap-2 sm:gap-3 shrink-0"
         >
           <input
             type="text"
             placeholder="Add comment here"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            className="flex-1 min-w-0 h-[38px] sm:h-[40px] px-3 sm:px-3.5 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none transition-all"
+            className="flex-1 min-w-0 h-[34px] sm:h-[36px] px-3 sm:px-3.5 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none transition-all"
           />
           <button
             type="submit"
-            className="px-4 sm:px-5 h-[38px] sm:h-[40px] bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold rounded-lg shrink-0 transition-colors cursor-pointer flex items-center justify-center"
+            className="px-4 sm:px-5 h-[34px] sm:h-[36px] bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold rounded-[7px] border-b-2 border-black-90/20 shrink-0 transition-colors cursor-pointer flex items-center justify-center"
           >
             Submit
           </button>

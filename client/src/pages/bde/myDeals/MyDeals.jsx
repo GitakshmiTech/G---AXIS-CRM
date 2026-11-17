@@ -33,17 +33,20 @@ export const MyDeals = () => {
   // Drawer state
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState(null);
+  const [drawerMode, setDrawerMode] = useState('edit');
 
   //==================================================================================================================
   //    DRAWER TRIGGER HANDLERS
   //==================================================================================================================
   const handleOpenEdit = useCallback((deal) => {
     setSelectedDeal(deal);
+    setDrawerMode('edit');
     setIsEditOpen(true);
   }, []);
 
   const handleOpenView = useCallback((deal) => {
     setSelectedDeal(deal);
+    setDrawerMode('view');
     setIsEditOpen(true);
   }, []);
 
@@ -273,12 +276,13 @@ export const MyDeals = () => {
         />
       </TableContainer>
 
-      {/* Slide-over Edit Deal Details Drawer (Image 2) */}
+      {/* Slide-over Edit / View Deal Details Drawer */}
       <EditDealDrawer
         isOpen={isEditOpen}
         onClose={handleCloseDrawer}
         onSave={handleSaveDeal}
         initialData={selectedDeal}
+        mode={drawerMode}
       />
     </div>
   );

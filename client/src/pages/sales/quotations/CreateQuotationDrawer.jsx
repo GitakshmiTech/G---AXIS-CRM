@@ -23,7 +23,11 @@ export const CreateQuotationDrawer = memo(({
   onClose,
   onSave,
   initialData = null,
+  mode = 'create',
 }) => {
+  const isViewMode = mode === 'view';
+  const isEditMode = mode === 'edit';
+
   const [formData, setFormData] = useState({
     selectDeal: '',
     closeDate: '',
@@ -69,35 +73,40 @@ export const CreateQuotationDrawer = memo(({
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title="Create Quotation"
-      subtitle="Configuring high-velocity commercial package & revenue allocation for fiscal closing Q4."
+      title={isViewMode ? 'View Quotation' : isEditMode ? 'Edit Quotation' : 'Create Quotation'}
+      subtitle={isViewMode ? 'View commercial package & revenue allocation for fiscal closing.' : 'Configuring high-velocity commercial package & revenue allocation for fiscal closing Q4.'}
       width="w-full sm:w-[560px]"
-      bodyClassName="px-6 py-5"
+      headerClassName="px-6 py-2"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-6 py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
           <BackButton onClick={onClose} label="Back" />
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleSubmit('Draft')}
-              className="px-3.5 py-2.5 rounded-lg border border-stroke bg-white-100 text-black-90 text-xs font-semibold hover:bg-gray transition-all cursor-pointer active:scale-95 "
-            >
-              Save as Draft
-            </button>
+            {!isViewMode && (
+              <button
+                type="button"
+                onClick={() => handleSubmit('Draft')}
+                className="px-3.5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-stroke/80 bg-gray hover:bg-gray/80 text-black-90 text-xs font-semibold transition-all cursor-pointer active:scale-95"
+              >
+                Save as Draft
+              </button>
+            )}
             <button
               type="button"
               onClick={() => alert('Exporting Quotation PDF...')}
-              className="px-3.5 py-2.5 rounded-lg bg-secondary hover:bg-secondary/90 text-white-100 text-xs font-semibold transition-all cursor-pointer active:scale-95 "
+              className="px-3.5 py-1.5 sm:py-2 rounded-[7px] bg-secondary hover:bg-secondary/90 text-white-100 text-xs font-semibold border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
             >
               Export PDF
             </button>
-            <button
-              type="button"
-              onClick={() => handleSubmit('Pending Approval')}
-              className="px-3.5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold transition-all cursor-pointer active:scale-95 "
-            >
-              Send for VP Approval
-            </button>
+            {!isViewMode && (
+              <button
+                type="button"
+                onClick={() => handleSubmit('Pending Approval')}
+                className="px-3.5 py-1.5 sm:py-2 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
+              >
+                Send for VP Approval
+              </button>
+            )}
           </div>
         </div>
       }
@@ -112,22 +121,24 @@ export const CreateQuotationDrawer = memo(({
             options={DEAL_DROPDOWN_OPTIONS}
             value={formData.selectDeal}
             onChange={(e) => handleDropdownChange('selectDeal', e.target.value)}
+            disabled={isViewMode}
           />
 
           <div className="flex flex-col gap-1 w-full">
             <label className="text-xs font-semibold text-black-90">
               Expected Close Date
             </label>
-            <div className="w-full h-[40px] px-3 bg-gray border border-stroke rounded-lg flex items-center justify-between focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+            <div className={`w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center justify-between ${isViewMode ? 'opacity-80' : ''} transition-all`}>
               <input
                 type="text"
                 name="closeDate"
                 value={formData.closeDate}
                 onChange={handleChange}
                 placeholder="DD/MM/YYYY"
-                className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
+                disabled={isViewMode}
+                className={`w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none ${isViewMode ? 'cursor-not-allowed' : ''}`}
               />
-              <Calendar size={16} className="text-primary shrink-0  cursor-pointer" />
+              <Calendar size={16} className={`text-primary shrink-0 ${isViewMode ? 'cursor-not-allowed' : 'cursor-pointer'}`} />
             </div>
           </div>
         </div>
@@ -140,6 +151,7 @@ export const CreateQuotationDrawer = memo(({
             placeholder="HyperScale Systems"
             value={formData.linkedCompany}
             onChange={handleChange}
+            disabled={isViewMode}
           />
           <TextInput
             label="Assigned BDE"
@@ -157,7 +169,7 @@ export const CreateQuotationDrawer = memo(({
             <label className="text-xs font-semibold text-black-90">
               Deal Amount
             </label>
-            <div className="w-full h-[40px] px-3 bg-gray border border-stroke rounded-lg flex items-center gap-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+            <div className={`w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center gap-2 ${isViewMode ? 'opacity-80' : ''} transition-all`}>
               <span className="text-xs font-semibold text-primary ">₹</span>
               <input
                 type="text"
@@ -165,7 +177,8 @@ export const CreateQuotationDrawer = memo(({
                 value={formData.dealAmount}
                 onChange={handleChange}
                 placeholder="Enter Deal Amount"
-                className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
+                disabled={isViewMode}
+                className={`w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none ${isViewMode ? 'cursor-not-allowed' : ''}`}
               />
             </div>
           </div>
@@ -177,6 +190,7 @@ export const CreateQuotationDrawer = memo(({
             options={QUOTATION_PRODUCT_OPTIONS.filter((o) => o.value !== 'All')}
             value={formData.productInterest}
             onChange={(e) => handleDropdownChange('productInterest', e.target.value)}
+            disabled={isViewMode}
           />
         </div>
 
@@ -188,6 +202,7 @@ export const CreateQuotationDrawer = memo(({
           rows={3}
           value={formData.bdeNotes}
           onChange={handleChange}
+          disabled={isViewMode}
         />
 
         {/* Section: Products & Plan Allocation */}
@@ -197,7 +212,7 @@ export const CreateQuotationDrawer = memo(({
           </h3>
 
           {/* Product Card 1 */}
-          <div className="flex items-center justify-between p-3.5 bg-white-100 border border-stroke rounded-xl hover:border-primary/40 transition-colors ">
+          <div className="flex items-center justify-between p-3.5 bg-white-100 border-b-2 border-stroke/80 rounded-[7px] hover:border-primary/40 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 rounded-lg bg-[#EBF3FF] flex items-center justify-center text-secondary shrink-0">
                 <Layers size={18} />
@@ -207,7 +222,7 @@ export const CreateQuotationDrawer = memo(({
                   <span className="text-xs font-bold text-black-90">
                     Enterprise Cloud Data Mesh Suite v4.2
                   </span>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-gray text-black-90/70 rounded font-medium border border-stroke">
+                  <span className="text-[10px] px-1.5 py-0.5 bg-gray text-black-90/70 rounded-[4px] font-medium border-b-2 border-stroke/80">
                     SKU-CLD-998
                   </span>
                 </div>
@@ -225,7 +240,7 @@ export const CreateQuotationDrawer = memo(({
           </div>
 
           {/* Product Card 2 */}
-          <div className="flex items-center justify-between p-3.5 bg-white-100 border border-stroke rounded-xl hover:border-primary/40 transition-colors ">
+          <div className="flex items-center justify-between p-3.5 bg-white-100 border-b-2 border-stroke/80 rounded-[7px] hover:border-primary/40 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 rounded-lg bg-[#EBF3FF] flex items-center justify-center text-secondary shrink-0">
                 <Layers size={18} />
@@ -235,7 +250,7 @@ export const CreateQuotationDrawer = memo(({
                   <span className="text-xs font-bold text-black-90">
                     Enterprise Cloud Data Mesh Suite v4.2
                   </span>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-gray text-black-90/70 rounded font-medium border border-stroke">
+                  <span className="text-[10px] px-1.5 py-0.5 bg-gray text-black-90/70 rounded-[4px] font-medium border-b-2 border-stroke/80">
                     SKU-CLD-998
                   </span>
                 </div>
@@ -279,7 +294,7 @@ export const CreateQuotationDrawer = memo(({
           </div>
 
           {/* Grand Total Box */}
-          <div className="flex items-center justify-between p-3.5 bg-gray border border-stroke rounded-xl mt-1">
+          <div className="flex items-center justify-between p-3.5 bg-gray border-b-2 border-stroke/80 rounded-[7px] mt-1">
             <span className="text-xs font-bold text-black-90 tracking-wider">
               GRAND TOTAL
             </span>

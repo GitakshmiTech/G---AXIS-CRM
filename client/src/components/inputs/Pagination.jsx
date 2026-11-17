@@ -65,7 +65,7 @@ export const Pagination = ({
           onClick={() => onPageChange && onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
           title='previous'
-          className="w-7 h-7 rounded-lg bg-gray border border-stroke flex items-center justify-center hover:bg-gray/80 transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+          className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
           aria-label="Previous page"
         >
           <ChevronLeft size={14} />
@@ -91,10 +91,10 @@ export const Pagination = ({
               key={`page-${page}`}
               type="button"
               onClick={() => onPageChange && onPageChange(page)}
-              className={`w-7 h-7 rounded-lg font-bold flex items-center justify-center transition-colors cursor-pointer ${
+              className={`w-7 h-7 rounded-[7px] font-bold flex items-center justify-center transition-colors cursor-pointer border-b-2 ${
                 isActive
-                  ? 'bg-primary text-white-100 '
-                  : 'bg-gray border border-stroke hover:bg-gray/80 text-black-90'
+                  ? 'bg-primary text-white-100 border-black-90/20'
+                  : 'bg-gray border-stroke/80 hover:bg-gray/80 text-black-90'
               }`}
               aria-current={isActive ? 'page' : undefined}
             >
@@ -109,7 +109,7 @@ export const Pagination = ({
           onClick={() => onPageChange && onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
           title='next'
-          className="w-7 h-7 rounded-lg bg-gray border border-stroke flex items-center justify-center hover:bg-gray/80 transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+          className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
           aria-label="Next page"
         >
           <ChevronRight size={14} />

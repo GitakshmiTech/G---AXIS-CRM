@@ -96,7 +96,7 @@ export const LoginForm = memo(({
             setError('');
           }}
           required
-          inputClassName="w-full h-[40px] px-3 py-2 pr-10 bg-gray border-b-2 border-stroke/80 rounded-[7px] focus:outline-none text-sm font-medium placeholder:text-black-90/50"
+          inputClassName="w-full h-[40px] px-3 py-2 pr-10 bg-gray border-b-2 border-stroke/80 rounded-[7px] focus:outline-none text-sm font-medium placeholder:text-black-90/50 placeholder:select-none"
         />
 
         <PasswordInput
@@ -109,7 +109,7 @@ export const LoginForm = memo(({
           }}
           forgotPasswordLink={resolvedForgotPasswordPath}
           forgotPasswordState={{ from: role }}
-          inputClassName="w-full h-[40px] px-3 py-2 pr-10 bg-gray border-b-2 border-stroke/80 rounded-[7px] focus:outline-none text-sm font-medium placeholder:text-black-90/50"
+          inputClassName="w-full h-[40px] px-3 py-2 pr-10 bg-gray border-b-2 border-stroke/80 rounded-[7px] focus:outline-none text-sm font-medium placeholder:text-black-90/50 placeholder:select-none"
         />
 
         {error && (
