@@ -6,16 +6,35 @@ When working on this project, all agents must adhere to the following rules:
 2. **Do Not Impact Existing Code**: Avoid modifying existing code whenever possible.
 3. **Ask for Permission to Modify**: If a task requires modifying or impacting existing code, you MUST ask the user for explicit permission before making any changes. Do not proceed with the modification until the user has granted permission.
 4. **Use Reusable Components**: Architect the code to use reusable components wherever possible.
-5. **Maintain Directory Structure 100% (Strict Architecture)**: You MUST keep and respect the existing file and folder structure. It is strictly organized for a scalable ERP system. For both `client` (frontend) and `server` (backend), maintain strict separation of concerns:
-   - Hardcoded data, dummy data, and mock arrays go to `constants/`
-   - API calls and backend interactions go to `services/`
-   - Reusable complex state logic goes to `hooks/`
-   - Helper functions go to `utils/`
-   - Route definitions go to `routes/` (and MUST use `React.lazy()`)
-   - Context APIs and Providers MUST go to `context/` (DO NOT place context inside components).
-   - UI Components go to `components/` and Pages go to `pages/`. Do NOT write monolithic components. Break them down:
-     - Global, multi-panel reusable UI components, base shells, and shared drawers (e.g. `Drawer.jsx`, `CalendarView.jsx`, `AddLeaveDrawer.jsx`, `NotificationDrawer.jsx`, `AuditLogDetailsDrawer.jsx`) go to `components/common/`. Universal inputs go to `components/inputs/`, buttons to `components/buttons/`, and tables to `components/Table/`.
-     - Page-exclusive drawers, views, and cards that strictly serve only a single admin page (e.g. `AddShiftDrawer.jsx`, `AddRosterDrawer.jsx`, `AddEmployeeDrawer.jsx`, OrgTree components `OrgTreeToolbar.jsx`/`OrgTreeNode.jsx`/`OrgTreeCard.jsx`, and Dashboard cards `DashboardKpiCards.jsx`/`RevenueChartCard.jsx`/`LeadOverviewCard.jsx`/`BdePerformanceCard.jsx`) MUST be colocated directly inside their respective page folder (`pages/Admin/...`) alongside their parent page component.
+5. **Maintain Directory Structure 100% (Strict Clean & Scalable CRM Architecture)**: You MUST strictly maintain and respect the established file and folder architecture:
+   - **`constants/`**: Hardcoded data, dummy data, lookup tables, and mock arrays.
+   - **`services/`**: API calls, endpoint integrations, and backend communication.
+   - **`hooks/`**: Reusable complex stateful logic and custom React hooks.
+   - **`utils/`**: Helper functions, formatters (dates, currency, numbers), validation, and export handlers.
+   - **`routes/`**: Route definitions using `React.lazy()` for code splitting.
+   - **`context/`**: Context APIs and Providers (never place context inside UI components).
+   - **`pages/` (100% Flat Architecture)**: Every page MUST be a single, flat entry point directly inside `pages/` (e.g. `Dashboard.jsx`, `Leads.jsx`, `Clients.jsx`, `Contacts.jsx`, `Deals.jsx`, `Quotations.jsx`, `StaffManagement.jsx`, `CrmConfiguration.jsx`, `Settings.jsx`, `Login.jsx`). **Strictly NO subfolders** inside `pages/` (never create `pages/Admin/`, `pages/Sales/`, or `pages/Bde/`).
+   - **`components/common/` (Global Reusable UI Shells)**: Universal, multi-panel reusable UI components organized strictly into dedicated subfolders:
+     - `avatar/`: Reusable avatar and stakeholder stacks (`AvatarStack.jsx`, `ContactAvatarPlaceholder.jsx`).
+     - `buttons/`: Global buttons (`Button.jsx`, `BackButton.jsx`, `DeleteButton.jsx`, `EditBtn.jsx`, `ViewBtn.jsx`, `ExportButton.jsx`, `ResetFilterButton.jsx`, `ViewModeToggle.jsx`).
+     - `cards/`: Metric and stat cards (`StatCard.jsx`).
+     - `charts/`: Visual analytics charts (`BarChart.jsx`).
+     - `header/`: Main navigation headers (`TopHeader.jsx`, `MobilePageHeader.jsx`).
+     - `icons/`: SVG icon primitives (`EditIcon.jsx`, `ViewIcon.jsx`, `ExportIcon.jsx`, `ImportIcon.jsx`, `LogoutIcon.jsx`, `SearchIcon.jsx`).
+     - `inputs/`: Universal form controls (`TextInput.jsx`, `PasswordInput.jsx`, `DropdownInput.jsx`, `PhoneInput.jsx`, `PhoneNumber.jsx`, `IdInput.jsx`, `StatusRadioInput.jsx`, `GlobalSearch.jsx`, `UploadDropzone.jsx`).
+     - `modals/`: Universal modal dialogues and confirmations.
+     - `sidebar/`: Dynamic application navigation sidebars (`DynamicSidebar.jsx`, `SidebarNav.jsx`).
+     - `Table/`: Global data table containers and filters (`DataTable.jsx`, `TableContainer.jsx`, `DataTableToolbar.jsx`, `TableFilterSelect.jsx`, `Pagination.jsx`).
+   - **`components/modules/` (Domain-Specific / Non-Reusable Components)**: Page-exclusive drawers, modals, summary cards, and widgets MUST be placed in their respective domain module folder:
+     - `components/modules/dashboard/`: Individual widgets and cards (`LeadStatusBreakdown.jsx`, `LeadOverviewCard.jsx`, `BdePerformanceTable.jsx`, `DealDistribution.jsx`, `Last5LeadsTable.jsx`, `LeadStageDistributionCard.jsx`, `LeadSourcePerformance.jsx`, `ExecutiveActivityCard.jsx`, `SystemHealthCard.jsx`).
+     - `components/modules/leads/`: Lead-specific drawers and cards (`AddLeadDrawer.jsx`, `ConvertLeadDrawer.jsx`, `LeadActivityDrawer.jsx`, `LeadCommentsDrawer.jsx`, `ActivityCard.jsx`, `DocumentCard.jsx`, `LeadSummaryCard.jsx`).
+     - `components/modules/deals/`: Deal-specific drawers (`EditDealDrawer.jsx`).
+     - `components/modules/clients/`: Client-specific drawers (`EditClientDrawer.jsx`).
+     - `components/modules/contacts/`: Contact-specific drawers (`EditContactDrawer.jsx`).
+     - `components/modules/quotations/`: Quotation drawers and inputs (`CreateQuotationDrawer.jsx`, `TextAreaInput.jsx`).
+     - `components/modules/configuration/`: CRM taxonomies and category tables (`leadSources/`, `dealStages/`, `industryTier/`, `leadStatuses/`, `lostReasons/`, `activityModalities/`).
+     - `components/modules/team/`: Sales team drawers (`ViewMemberDrawer.jsx`).
+     - `components/modules/auth/`: Authentication forms (`LoginForm.jsx`, `ForgotPasswordForm.jsx`, `NewPasswordForm.jsx`).
 6. **Common Design Tokens (Frontend)**: For the frontend, NEVER hardcode random hex colors, font weights, or custom typography styles inline. ALWAYS use the project's predefined common design tokens (e.g., Tailwind configuration) and global styles to ensure 100% consistency across the app.
 7. **Add Comments**: Add clear and descriptive comments to each function and piece of logic.
 8. **Write Understandable Code**: Write code that is clean, readable, and easy for everyone to understand.
@@ -48,10 +67,16 @@ When working on this project, all agents must adhere to the following rules:
 21. **Dropdown List Surface Rule**: Every dropdown option list must use square corners and zero left/right padding on the panel; option rows use 4px left/right padding in all states. Hovered or selected option highlights must remain square-cornered (border-radius: 0; no rounded corners). Mark option-list containers with `data-ui-style="dropdown-menu"`; do not apply that marker to an entire date/time picker when only its option sublists need the rule.
 22. **Strict Project-wide Date Format Rule (DD/MM/YYYY)**: Across the entire application (including tables, form inputs, date filters, drawers, cards, and tooltips), dates MUST strictly follow the `DD/MM/YYYY` format (day/month/year). No MM/DD/YYYY or alternative date formats are permitted in UI display values. Date pickers and date input components must never render an in-input clear ('x') button; date selection must remain clean, persistent, and consistent.
 23. **Strict Clean Empty Form Inputs Rule (No Pre-filled Defaults)**: Across the entire application, all form inputs in 'Add / Create' drawers, dialogs, and pages MUST strictly initialize empty (`''`), displaying ONLY their clean `placeholder`. Form inputs must NEVER be pre-filled with default dummy values such as `'0'`, `0`, or placeholder text as actual values. The user must always see clean, non-selectable placeholders until they intentionally type or select their own value.
-
----
-
-24. **Strict Circular & Borderless Profile Photos Rule**: Across the entire project (including tables, directories, drawers, detail cards, headers, form upload previews, and grid cards), all profile photos, user avatars, employee images, and company/organization logos MUST ALWAYS be rendered in a fully circular shape (`rounded-full` with `overflow-hidden`) and MUST NEVER have any surrounding border (`border-none` / zero border). Any square or rounded-corner avatar (`rounded-lg`, `rounded-md`, `rounded-xl`, etc.) or surrounding border (`border border-stroke`, `border`, etc.) on profile/avatar containers is strictly prohibited.
+24. **Strict Circular & Borderless Profile Photos Rule**: Across the entire project (including tables, directories, drawers, detail cards, headers, form upload previews, and grid cards), all profile photos, user avatars, placeholder avatars, employee images, and company/organization logos MUST ALWAYS be rendered in a fully circular shape (`rounded-full` with `overflow-hidden`) and MUST NEVER have any surrounding border (`border-none` / zero border). Any square or rounded-corner avatar (`rounded-lg`, `rounded-md`, `rounded-xl`, etc.) or surrounding border (`border border-stroke`, `border`, etc.) on profile/avatar containers is strictly prohibited (with the sole exception of overlapping visual cutout borders inside multi-avatar clusters like `AvatarStack`).
+25. **Unified Single-Page Architecture & Role-Conditioned Rendering (Zero Duplicate Wrapper Code)**:
+    - Every domain page that is accessible across multiple roles (such as `Dashboard`, `Leads`, `Deals`, `Clients`, `Contacts`, `Quotations`) MUST exist as **exactly ONE single page file** inside `pages/` (e.g. `pages/Dashboard.jsx`).
+    - **Never Create Duplicate Wrapper View Files**: Creating duplicate role-specific page wrapper files (e.g. `AdminDashboardView.jsx`, `SalesDashboardView.jsx`, `BdeDashboardView.jsx`, `AdminLeadsView.jsx`, etc.) is strictly prohibited.
+    - **Single Header & Common Metrics**: Universal headers, title banners, timeframe selectors, export buttons, and universal KPI metric rows (`StatCard`) must be rendered ONCE at the top level of the page.
+    - **Modular Widget Imports**: All child widgets, cards, and sub-tables must be individually imported from `components/modules/<module-name>/` and conditionally mounted inside the single page based on `state.auth.role`.
+26. **Unified Clean Routing & Role-Adaptive Navigation (Zero Role URL Prefixes)**:
+    - All routes in `routes/AppRoutes.jsx` MUST be clean and un-prefixed (e.g. `/dashboard`, `/leads`, `/deals`, `/clients`, `/quotations`). Never expose role-prefixed URLs like `/admin/dashboard`, `/sales/leads`, or `/bde/deals`.
+    - Single unified authentication entry point at `/login`.
+    - Navigation menus, sidebars, and permitted actions must adapt dynamically at runtime based on the authenticated user's role without requiring separate router trees or duplicated layouts.
 
 ---
 
