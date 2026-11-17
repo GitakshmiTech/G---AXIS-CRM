@@ -1,154 +1,196 @@
-//==================================================================================================================
-//    React & Router Imports
-//==================================================================================================================
+//===========================================================================================
+//    React, Redux & Router Imports
+//===========================================================================================
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { USER_ROLES } from '../constants/authConstants';
 
-//==================================================================================================================
-//    Lazy-Loaded Route Components (Code Splitting)
-//==================================================================================================================
-const BdeLogin = lazy(() => import('../pages/auth/BdeLogin'));
-const SalesLogin = lazy(() => import('../pages/auth/SalesLogin'));
-const AdminLogin = lazy(() => import('../pages/auth/AdminLogin'));
-const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'));
-const NewPassword = lazy(() => import('../pages/auth/NewPassword'));
-const BdeLayout = lazy(() => import('../layouts/BdeLayout'));
-const SalesLayout = lazy(() => import('../layouts/SalesLayout'));
+//===========================================================================================
+//    Lazy-Loaded Shell Layouts
+//===========================================================================================
 const AdminLayout = lazy(() => import('../layouts/AdminLayout'));
-const AdminDashboard = lazy(() => import('../pages/admin/dashboard/AdminDashboard'));
-const AdminLeadManagement = lazy(() => import('../pages/admin/leadManagement/LeadManagement'));
-const AdminClientManagement = lazy(() => import('../pages/admin/clientManagement/ClientManagement'));
-const AdminContactManagement = lazy(() => import('../pages/admin/contactManagement/ContactManagement'));
-const AdminDealManagement = lazy(() => import('../pages/admin/dealManagement/DealManagement'));
-const AdminQuotations = lazy(() => import('../pages/admin/quotations/Quotations'));
-const AdminStaffManagement = lazy(() => import('../pages/admin/staffManagement/StaffManagement'));
-const AdminCrmConfiguration = lazy(() => import('../pages/admin/crmConfiguration/CrmConfiguration'));
-const SalesDashboard = lazy(() => import('../pages/sales/dashboard/SalesDashboard'));
-const MyTeam = lazy(() => import('../pages/sales/myTeam/MyTeam'));
-const LeadManagement = lazy(() => import('../pages/sales/leadManagement/LeadManagement'));
-const SalesMyClients = lazy(() => import('../pages/sales/myClients/MyClients'));
-const SalesMyContacts = lazy(() => import('../pages/sales/myContacts/MyContacts'));
-const SalesMyDeals = lazy(() => import('../pages/sales/myDeals/MyDeals'));
-const SalesQuotations = lazy(() => import('../pages/sales/quotations/Quotations'));
-const ReportAnalytics = lazy(() => import('../pages/sales/analytics/ReportAnalytics'));
-const SalesSettings = lazy(() => import('../pages/sales/settings/SalesSettings'));
-const SalesEditProfile = lazy(() => import('../pages/sales/settings/SalesEditProfile'));
-const BdeDashboard = lazy(() => import('../pages/bde/dashboard/BdeDashboard'));
-const MyLeads = lazy(() => import('../pages/bde/myLeads/MyLeads'));
-const MyClients = lazy(() => import('../pages/bde/myClients/MyClients'));
-const MyContacts = lazy(() => import('../pages/bde/myContacts/MyContacts'));
-const MyDeals = lazy(() => import('../pages/bde/myDeals/MyDeals'));
-const Quotations = lazy(() => import('../pages/bde/quotations/Quotations'));
-const BdeSettings = lazy(() => import('../pages/bde/settings/BdeSettings'));
-const EditProfile = lazy(() => import('../pages/bde/settings/EditProfile'));
+const SalesLayout = lazy(() => import('../layouts/SalesLayout'));
+const BdeLayout = lazy(() => import('../layouts/BdeLayout'));
 
-//==================================================================================================================
-//    Route Loading Spinner
-//==================================================================================================================
+//===========================================================================================
+//    Lazy-Loaded Unified Authentication & Direct Page Components (100% Flat in pages/)
+//===========================================================================================
+const Login = lazy(() => import('../pages/Login'));
+
+// Unified Domain Pages
+const Dashboard = lazy(() => import('../pages/Dashboard'));
+const Leads = lazy(() => import('../pages/Leads'));
+const Clients = lazy(() => import('../pages/Clients'));
+const Contacts = lazy(() => import('../pages/Contacts'));
+const Deals = lazy(() => import('../pages/Deals'));
+const Quotations = lazy(() => import('../pages/Quotations'));
+const Settings = lazy(() => import('../pages/Settings'));
+const EditProfile = lazy(() => import('../pages/EditProfile'));
+
+// Role-Exclusive Pages
+const StaffManagement = lazy(() => import('../pages/StaffManagement'));
+const CrmConfiguration = lazy(() => import('../pages/CrmConfiguration'));
+const Integrations = lazy(() => import('../pages/Integrations'));
+const Notifications = lazy(() => import('../pages/Notifications'));
+const MyTeam = lazy(() => import('../pages/MyTeam'));
+const ReportAnalytics = lazy(() => import('../pages/ReportAnalytics'));
+
+//===========================================================================================
+//    Spinners & Fallback Loaders
+//===========================================================================================
 const RouteLoader = () => (
   <div className="flex items-center justify-center min-h-screen w-full bg-white-100">
     <div className="w-10 h-10 border-4 border-stroke border-t-primary rounded-full animate-spin" />
   </div>
 );
 
-//==================================================================================================================
-//    Application Routes
-//==================================================================================================================
+const ViewLoader = () => (
+  <div className="flex items-center justify-center min-h-[400px] w-full">
+    <div className="w-8 h-8 border-4 border-stroke border-t-primary rounded-full animate-spin" />
+  </div>
+);
+
+//===========================================================================================
+//    PROTECTED ROUTE GUARD COMPONENT
+//===========================================================================================
+export const ProtectedRoute = ({ allowedRoles = null }) => {
+  const location = useLocation();
+  const { isAuthenticated, role } = useSelector((state) => state.auth);
+
+  // If not authenticated, redirect to unified login
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If allowedRoles is specified, ensure user has appropriate clearance
+  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Outlet />;
+};
+
+//===========================================================================================
+//    DYNAMIC ROLE-BASED LAYOUT SHELL RESOLVER
+//===========================================================================================
+export const DynamicLayout = () => {
+  const role = useSelector((state) => state.auth?.role);
+
+  return (
+    <Suspense fallback={<ViewLoader />}>
+      {role === USER_ROLES.ADMIN && <AdminLayout />}
+      {role === USER_ROLES.SALES && <SalesLayout />}
+      {role !== USER_ROLES.ADMIN && role !== USER_ROLES.SALES && <BdeLayout />}
+    </Suspense>
+  );
+};
+
+//===========================================================================================
+//    APPLICATION ROUTES COMPONENT (100% CLEAN URLS & UNIFIED ROUTER)
+//===========================================================================================
 export const AppRoutes = () => {
   return (
     <Suspense fallback={<RouteLoader />}>
       <Routes>
-        {/* Public BDE Authentication Routes */}
-        <Route path="/bde/login" element={<BdeLogin />} />
-        <Route path="/bde/forgot-password" element={<ForgotPassword role="bde" />} />
-        <Route path="/bde/new-password" element={<NewPassword role="bde" />} />
-        <Route path="/bde/reset-password" element={<NewPassword role="bde" />} />
+        {/* ============================================================================================================
+            1. Unified Single Authentication Routes (All routed to Login)
+        ============================================================================================================ */}
+        <Route path="/login" element={<Login mode="login" />} />
+        <Route path="/forgot-password" element={<Login mode="forgot" />} />
+        <Route path="/new-password" element={<Login mode="new-password" />} />
+        <Route path="/reset-password" element={<Login mode="new-password" />} />
 
-        {/* Public Sales Authentication Routes */}
-        <Route path="/sales/login" element={<SalesLogin />} />
-        <Route path="/sales/forgot-password" element={<ForgotPassword role="sales" />} />
-        <Route path="/sales/new-password" element={<NewPassword role="sales" />} />
-        <Route path="/sales/reset-password" element={<NewPassword role="sales" />} />
+        {/* ============================================================================================================
+            2. Protected Main Application Routes (100% Clean URLs - No Role Prefixes)
+        ============================================================================================================ */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DynamicLayout />}>
+            {/* Index / Root redirects to /dashboard */}
+            <Route index element={<Navigate to="/dashboard" replace />} />
 
-        {/* Public Super Admin Authentication Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/forgot-password" element={<ForgotPassword role="admin" />} />
-        <Route path="/admin/new-password" element={<NewPassword role="admin" />} />
-        <Route path="/admin/reset-password" element={<NewPassword role="admin" />} />
+            {/* Common Unified Clean Routes (Role-aware conditional rendering) */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/leads" element={<Leads />} />
+            <Route path="/clients" element={<Clients />} />
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/deals" element={<Deals />} />
+            <Route path="/quotations" element={<Quotations />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/profile" element={<EditProfile />} />
 
-        {/* Super Admin Direct Aliases */}
-        <Route path="/super-admin/login" element={<AdminLogin />} />
-        <Route path="/super-admin/forgot-password" element={<ForgotPassword role="admin" />} />
-        <Route path="/super-admin/new-password" element={<NewPassword role="admin" />} />
-        {/* Protected Super Admin Dashboard & Layout Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="leads" element={<AdminLeadManagement />} />
-          <Route path="clients" element={<AdminClientManagement />} />
-          <Route path="contacts" element={<AdminContactManagement />} />
-          <Route path="deals" element={<AdminDealManagement />} />
-          <Route path="quotations" element={<AdminQuotations />} />
-          <Route path="staff" element={<AdminStaffManagement />} />
-          <Route path="config" element={<AdminCrmConfiguration />} />
-          <Route path="configuration" element={<AdminCrmConfiguration />} />
+            {/* Admin-Exclusive Clean Routes */}
+            <Route path="/staff" element={<StaffManagement />} />
+            <Route path="/configuration" element={<CrmConfiguration />} />
+            <Route path="/config" element={<Navigate to="/configuration" replace />} />
+            <Route path="/integrations" element={<Integrations />} />
+            <Route path="/notifications" element={<Notifications />} />
+
+            {/* Sales-Exclusive Clean Routes */}
+            <Route path="/team" element={<MyTeam />} />
+            <Route path="/analytics" element={<ReportAnalytics />} />
+            <Route path="/reports" element={<Navigate to="/analytics" replace />} />
+          </Route>
         </Route>
 
-        {/* Protected Sales Dashboard & Layout Routes */}
-        <Route path="/sales" element={<SalesLayout />}>
-          <Route path="dashboard" element={<SalesDashboard />} />
-          <Route path="team" element={<MyTeam />} />
-          <Route path="leads" element={<LeadManagement />} />
-          <Route path="clients" element={<SalesMyClients />} />
-          <Route path="contacts" element={<SalesMyContacts />} />
-          <Route path="deals" element={<SalesMyDeals />} />
-          <Route path="quotations" element={<SalesQuotations />} />
-          <Route path="analytics" element={<ReportAnalytics />} />
-          <Route path="settings" element={<SalesSettings />} />
-          <Route path="profile" element={<SalesEditProfile />} />
-        </Route>
+        {/* ============================================================================================================
+            3. Backward-Compatibility Redirects (Legacy Role URLs redirect to Clean URLs)
+        ============================================================================================================ */}
+        {/* Legacy Login Redirects */}
+        <Route path="/bde/login" element={<Navigate to="/login" replace />} />
+        <Route path="/sales/login" element={<Navigate to="/login" replace />} />
+        <Route path="/admin/login" element={<Navigate to="/login" replace />} />
+        <Route path="/super-admin/login" element={<Navigate to="/login" replace />} />
+        <Route path="/bde-login" element={<Navigate to="/login" replace />} />
+        <Route path="/sales-login" element={<Navigate to="/login" replace />} />
+        <Route path="/admin-login" element={<Navigate to="/login" replace />} />
+        <Route path="/superadmin-login" element={<Navigate to="/login" replace />} />
 
-        {/* Protected BDE Dashboard & Layout Routes */}
-        <Route path="/bde" element={<BdeLayout />}>
-          <Route path="dashboard" element={<BdeDashboard />} />
-          <Route path="leads" element={<MyLeads />} />
-          <Route path="clients" element={<MyClients />} />
-          <Route path="contacts" element={<MyContacts />} />
-          <Route path="deals" element={<MyDeals />} />
-          <Route path="quotations" element={<Quotations />} />
-          <Route path="settings" element={<BdeSettings />} />
-          <Route path="profile" element={<EditProfile />} />
-        </Route>
+        {/* Legacy Dashboard & Module Redirects */}
+        <Route path="/bde" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/bde/dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/bde/leads" element={<Navigate to="/leads" replace />} />
+        <Route path="/bde/clients" element={<Navigate to="/clients" replace />} />
+        <Route path="/bde/contacts" element={<Navigate to="/contacts" replace />} />
+        <Route path="/bde/deals" element={<Navigate to="/deals" replace />} />
+        <Route path="/bde/quotations" element={<Navigate to="/quotations" replace />} />
+        <Route path="/bde/settings" element={<Navigate to="/settings" replace />} />
+        <Route path="/bde/profile" element={<Navigate to="/profile" replace />} />
+        <Route path="/bde/forgot-password" element={<Navigate to="/forgot-password" replace />} />
+        <Route path="/bde/new-password" element={<Navigate to="/new-password" replace />} />
 
-        {/* Direct Navigation & Aliases */}
-        <Route path="/" element={<Navigate to="/bde/login" replace />} />
-        <Route path="/login" element={<Navigate to="/bde/login" replace />} />
-        <Route path="/bde-login" element={<Navigate to="/bde/login" replace />} />
-        <Route path="/sales-login" element={<Navigate to="/sales/login" replace />} />
-        <Route path="/super-admin" element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="/super-admin/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="/admin-login" element={<Navigate to="/admin/login" replace />} />
-        <Route path="/superadmin-login" element={<Navigate to="/admin/login" replace />} />
-        <Route path="/dashboard" element={<Navigate to="/bde/dashboard" replace />} />
-        <Route path="/leads" element={<Navigate to="/bde/leads" replace />} />
-        <Route path="/clients" element={<Navigate to="/bde/clients" replace />} />
-        <Route path="/contacts" element={<Navigate to="/bde/contacts" replace />} />
-        <Route path="/deals" element={<Navigate to="/bde/deals" replace />} />
-        <Route path="/quotations" element={<Navigate to="/bde/quotations" replace />} />
-        <Route path="/settings" element={<Navigate to="/bde/settings" replace />} />
-        <Route path="/profile" element={<Navigate to="/bde/profile" replace />} />
-        <Route path="/forgot-password" element={<Navigate to="/bde/forgot-password" replace />} />
-        <Route path="/new-password" element={<Navigate to="/bde/new-password" replace />} />
-        <Route path="/reset-password" element={<Navigate to="/bde/new-password" replace />} />
+        <Route path="/sales" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/sales/dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/sales/team" element={<Navigate to="/team" replace />} />
+        <Route path="/sales/leads" element={<Navigate to="/leads" replace />} />
+        <Route path="/sales/clients" element={<Navigate to="/clients" replace />} />
+        <Route path="/sales/contacts" element={<Navigate to="/contacts" replace />} />
+        <Route path="/sales/deals" element={<Navigate to="/deals" replace />} />
+        <Route path="/sales/quotations" element={<Navigate to="/quotations" replace />} />
+        <Route path="/sales/settings" element={<Navigate to="/settings" replace />} />
+        <Route path="/sales/profile" element={<Navigate to="/profile" replace />} />
+        <Route path="/sales/forgot-password" element={<Navigate to="/forgot-password" replace />} />
+        <Route path="/sales/new-password" element={<Navigate to="/new-password" replace />} />
 
-        {/* Fallback Route */}
-        <Route path="*" element={<Navigate to="/bde/login" replace />} />
+        <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/admin/dashboard" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/admin/leads" element={<Navigate to="/leads" replace />} />
+        <Route path="/admin/clients" element={<Navigate to="/clients" replace />} />
+        <Route path="/admin/contacts" element={<Navigate to="/contacts" replace />} />
+        <Route path="/admin/deals" element={<Navigate to="/deals" replace />} />
+        <Route path="/admin/quotations" element={<Navigate to="/quotations" replace />} />
+        <Route path="/admin/staff" element={<Navigate to="/staff" replace />} />
+        <Route path="/admin/configuration" element={<Navigate to="/configuration" replace />} />
+        <Route path="/admin/settings" element={<Navigate to="/settings" replace />} />
+        <Route path="/admin/profile" element={<Navigate to="/profile" replace />} />
+        <Route path="/admin/forgot-password" element={<Navigate to="/forgot-password" replace />} />
+        <Route path="/admin/new-password" element={<Navigate to="/new-password" replace />} />
+
+        {/* Global Catch-All: Redirect any unknown path to /dashboard */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Suspense>
   );
 };
 
-//==================================================================================================================
-//    Default Export
-//==================================================================================================================
-export default AppRoutes;
+export default AppRoutes;

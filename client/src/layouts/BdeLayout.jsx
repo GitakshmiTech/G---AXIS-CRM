@@ -4,9 +4,9 @@
 //==================================================================================================================
 import React, { useMemo, useCallback } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { SidebarProvider, Sidebar } from '../components/sidebar/Sidebar';
-import { TopHeader } from '../components/common/TopHeader';
-import { MobilePageHeader } from '../components/common/MobilePageHeader';
+import { SidebarProvider, Sidebar } from '../components/common/sidebar/Sidebar';
+import { TopHeader } from '../components/common/header/TopHeader';
+import { MobilePageHeader } from '../components/common/header/MobilePageHeader';
 
 //==================================================================================================================
 //    BDE LAYOUT COMPONENT

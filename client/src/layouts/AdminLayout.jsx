@@ -4,9 +4,9 @@
 //==================================================================================================================
 import React, { useMemo, useCallback } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { SidebarProvider, Sidebar } from '../components/sidebar/Sidebar';
-import { TopHeader } from '../components/common/TopHeader';
-import { MobilePageHeader } from '../components/common/MobilePageHeader';
+import { SidebarProvider, Sidebar } from '../components/common/sidebar/Sidebar';
+import { TopHeader } from '../components/common/header/TopHeader';
+import { MobilePageHeader } from '../components/common/header/MobilePageHeader';
 
 //==================================================================================================================
 //    ADMIN LAYOUT COMPONENT
@@ -22,67 +22,67 @@ export const AdminLayout = () => {
 
   // Dynamic header content for sub-routes
   const headerContent = useMemo(() => {
-    if (location.pathname.startsWith('/admin/leads')) {
+    if (location.pathname.startsWith('/admin/leads') || location.pathname.startsWith('/leads')) {
       return {
         title: 'Lead Management',
         subtitle: 'Manage, qualify, and track high-value enterprise leads.',
       };
     }
-    if (location.pathname.startsWith('/admin/clients')) {
+    if (location.pathname.startsWith('/admin/clients') || location.pathname.startsWith('/clients')) {
       return {
         title: 'Client Management',
         subtitle: 'Enterprise accounts linked to your converted leads, active stakeholder contacts, and opportunity deals. Direct modifications...',
       };
     }
-    if (location.pathname.startsWith('/admin/contacts')) {
+    if (location.pathname.startsWith('/admin/contacts') || location.pathname.startsWith('/contacts')) {
       return {
         title: 'Contact Management',
         subtitle: 'Stakeholder contacts linked to your converted accounts and active deals across assigned enterprise accounts.',
       };
     }
-    if (location.pathname.startsWith('/admin/deals')) {
+    if (location.pathname.startsWith('/admin/deals') || location.pathname.startsWith('/deals')) {
       return {
         title: 'Deal Management',
         subtitle: 'Manage sales opportunities, pipeline stages, AI-driven forecast probabilities, and deal contract milestones across your assigned...',
       };
     }
-    if (location.pathname.startsWith('/admin/quotations')) {
+    if (location.pathname.startsWith('/admin/quotations') || location.pathname.startsWith('/quotations')) {
       return {
         title: 'Quotations',
         subtitle: 'Track quotation status, manage active commercial proposals, and audit lifecycle progression on related deal timelines.',
       };
     }
-    if (location.pathname.startsWith('/admin/staff')) {
+    if (location.pathname.startsWith('/admin/staff') || location.pathname.startsWith('/staff')) {
       return {
         title: 'Staff Management',
         subtitle: 'View and manage your BDE/Sales Executive team allocation and workloads.',
       };
     }
-    if (location.pathname.startsWith('/admin/config') || location.pathname.startsWith('/admin/configuration')) {
+    if (location.pathname.startsWith('/admin/config') || location.pathname.startsWith('/admin/configuration') || location.pathname.startsWith('/configuration')) {
       return {
         title: 'CRM Configuration',
         subtitle: 'Centralized CRM taxonomies, stages, classifications, and commercial parameters.',
       };
     }
-    if (location.pathname.startsWith('/admin/integrations')) {
+    if (location.pathname.startsWith('/admin/integrations') || location.pathname.startsWith('/integrations')) {
       return {
         title: 'Integration Management',
         subtitle: 'Manage third-party integrations, APIs, and webhooks.',
       };
     }
-    if (location.pathname.startsWith('/admin/analytics')) {
+    if (location.pathname.startsWith('/admin/analytics') || location.pathname.startsWith('/analytics')) {
       return {
         title: 'Reports & Analytics',
         subtitle: 'Executive operational telemetry and enterprise analytics.',
       };
     }
-    if (location.pathname.startsWith('/admin/notifications')) {
+    if (location.pathname.startsWith('/admin/notifications') || location.pathname.startsWith('/notifications')) {
       return {
         title: 'Notification Settings',
         subtitle: 'Manage system-wide alerts, push notifications, and emails.',
       };
     }
-    if (location.pathname.startsWith('/admin/settings')) {
+    if (location.pathname.startsWith('/admin/settings') || location.pathname.startsWith('/settings')) {
       return {
         title: 'Settings',
         subtitle: 'Manage super admin preferences and platform configurations.',

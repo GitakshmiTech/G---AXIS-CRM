@@ -15,6 +15,384 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 ## Changelog & Security Updates
 
+### [17/11/2026] Consolidated Router into Single `AppRoutes.jsx` File
+- **Unified Single-File Routing Architecture**:
+  - Embedded `ProtectedRoute` guard and `DynamicLayout` shell resolver directly into [`AppRoutes.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/routes/AppRoutes.jsx).
+  - Deleted redundant files `client/src/routes/DynamicRouteWrappers.jsx` and `client/src/routes/ProtectedRoute.jsx`.
+  - The [`client/src/routes/`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/routes/) directory now contains **strictly 1 file**: `AppRoutes.jsx`.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 2.73s with 0 errors.
+
+
+
+### [17/11/2026] AGENTS.md Rule 24 Fix & Full Architecture Specification Update
+- **Rule 24 Avatar Border Compliance**:
+  - Removed `border border-stroke` in [`ContactAvatarPlaceholder.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/avatar/ContactAvatarPlaceholder.jsx), setting `border-none` to achieve 100% compliance with Rule 24.
+- **Updated [`AGENTS.md`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/AGENTS.md)**:
+  - Formulated **Rule 5** to reflect the modern clean CRM folder architecture: 100% flat `pages/` with 0 subfolders, 10 subfolders in `components/common/`, and domain module folders in `components/modules/`.
+  - Added **Rule 25 (Unified Single-Page Architecture & Role-Conditioned Rendering)**: Strict prohibition of duplicate wrapper files (`AdminDashboardView`, etc.); common banners rendered once, widgets imported individually from `components/modules/<module-name>/`.
+  - Added **Rule 26 (Unified Clean Routing & Role-Adaptive Navigation)**: Clean un-prefixed URLs (`/dashboard`, `/leads`, etc.) with dynamic runtime role adaptation and unified `/login`.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.41s with 0 errors.
+
+
+
+### [17/11/2026] Unified Modular Dashboard & Eliminated Redundant Wrapper Files
+- **Zero Duplicate Code Architecture in [`Dashboard.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/Dashboard.jsx)**:
+  - Eliminated repetitive code across panels by unifying the top header banner (Title, Subtitle, Timeframe dropdown, Export button), the 4-card KPI metric grid (`StatCard`), and the universal `BarChart` into a single page component.
+  - Dynamically renders metrics and widgets according to the authenticated user's role (`role === USER_ROLES.ADMIN`, `USER_ROLES.SALES`, `USER_ROLES.BDE`).
+  - Extracted [`Last5LeadsTable.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/modules/dashboard/Last5LeadsTable.jsx) into a reusable modular dashboard subcomponent.
+  - Safely removed the 3 redundant wrapper files: `AdminDashboardView.jsx`, `SalesDashboardView.jsx`, and `BdeDashboardView.jsx`.
+  - **Strictly Zero Visual Change**: Visual layout, cards, color tokens, metrics, typography, and charts remain 100% pixel-perfect and identical to specifications.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.75s with 0 errors.
+
+
+
+### [17/11/2026] Fixed Profile Dropdown Stacking Order (Z-Index)
+- **TopHeader Stacking Context Elevation**:
+  - Added `relative z-40` to `<header>` in [`TopHeader.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/header/TopHeader.jsx).
+  - Added `relative z-50` to the profile capsule container.
+  - Ensures the profile dropdown menu ("Edit Profile", "Logout") floats above all underlying table toolbars, action buttons (`+ Add New Lead`), and grid cards without being clipped or layered behind.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.56s with 0 errors.
+
+
+### [17/11/2026] Restored Button Text Rendering Across Auth Forms
+- **Universal Button Content Prop Support**:
+  - In [`Button.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/buttons/Button.jsx), added support for `label` and `text` props (`children ?? label ?? text`).
+  - Updated [`LoginForm.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/modules/auth/LoginForm.jsx), [`ForgotPasswordForm.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/modules/auth/ForgotPasswordForm.jsx), and [`NewPasswordForm.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/modules/auth/NewPasswordForm.jsx) to pass clean child text (`Sign In`, `Send Reset Link`, `Update Password`).
+  - Resolves empty button issue on the Login page; the primary submit button now clearly displays "Sign In" in bold white text.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 2.32s with 0 errors.
+
+
+### [17/11/2026] Perfected Profile Dropdown Divider & Trigger Width Alignment
+- **Fixed Dropdown Alignment & Border Divider (Exact 1:1 Match to Figma)**:
+  - Removed `data-ui-style="dropdown-menu"` from `ProfileCapsule` in [`TopHeader.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/header/TopHeader.jsx) to prevent square-corner resets and button border resets.
+  - Aligned the dropdown menu's left and right edges with 100% precision to the trigger button (`left-0 right-0 w-full`).
+  - Added explicit dividing border `border-b border-stroke` on the `Edit Profile` button so the horizontal divider separating `Edit Profile` and `Logout` renders with 100% clarity.
+  - Standardized trigger pill with `rounded-[10px]`, `px-3`, and single-line user name with `whitespace-nowrap`.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.49s with 0 errors.
+
+
+### [17/11/2026] Matched Profile Capsule & Dropdown Menu 100% to Figma Specification
+- **Clean Single-Line Profile Pill**:
+  - Simplified the `ProfileCapsule` button in [`TopHeader.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/header/TopHeader.jsx) to display a clean single-line user name (`Johnson Doe`) next to the avatar and chevron arrow (matching the exact Figma screenshot).
+- **Aligned Divided Dropdown Menu (Figma Exact Match)**:
+  - Aligned the dropdown menu container width directly with the profile pill (`w-full min-w-[145px]`).
+  - Added full border `border border-stroke` and `rounded-[10px]` with `overflow-hidden`.
+  - Added clean horizontal dividing line `divide-y divide-stroke/80` between actions:
+    - **Edit Profile**: Blue `PenLine` icon (`text-primary`, size 16) with `Edit Profile` text.
+    - **Logout**: Red circular arrow icon (`LogoutIcon` with `Container.png`) with red `Logout` text (`text-alert`).
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.40s with 0 errors.
+
+
+### [17/11/2026] Removed Unwanted Bottom Stroke Border Under TopHeader
+- **Borderless Top Header**:
+  - Removed `border-b border-stroke` from `<header>` in [`TopHeader.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/header/TopHeader.jsx).
+  - The top header is now completely borderless and seamless, allowing the main content body's `bg-gray rounded-tl-[15px]` container to curve naturally into the header without any dividing horizontal line, exactly matching the Figma design.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.39s with 0 errors.
+
+
+### [17/11/2026] Restored Dynamic TopHeader Page-Wise Telemetry and Contextual Search
+- **Dynamic Header Content Switching**:
+  - Restored `leftContent` rendering inside [`TopHeader.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/header/TopHeader.jsx) as passed by `AdminLayout`, `BdeLayout`, and `SalesLayout`.
+  - On page views (`/leads`, `/clients`, `/contacts`, `/deals`, `/quotations`, `/staff`, `/configuration`, etc.): TopHeader now dynamically displays the bold **Page Title & Subtitle** on the left (matching Figma Image 3) without cluttered header searchbars.
+  - On Dashboard views (`/dashboard`): TopHeader displays the **Global Search Bar** (`GlobalSearch`) with proper spacing (matching Figma Image 2).
+  - Maintained 100% flat and clean folder architecture with zero visual discrepancies.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.33s with 0 errors.
+
+
+### [17/11/2026] TopHeader Fixes: Profile Capsule Styling & Hidden Desktop Sidebar Trigger
+- **Profile Capsule Styling (Rule 20 & Rule 24)**:
+  - Restored `bg-gray`, `border-b-2 border-stroke/80`, and `rounded-[7px]` on the `ProfileCapsule` trigger button in [`TopHeader.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/header/TopHeader.jsx).
+  - Maintained fully circular and borderless avatar (`rounded-full`, `data-preserve-radius`) with smooth hover state.
+- **Removed Duplicate Desktop Sidebar Trigger**:
+  - Added `className="lg:hidden"` to `<SidebarTrigger />` inside [`TopHeader.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/header/TopHeader.jsx).
+  - Eliminates the duplicate sidebar collapse button next to the search bar on desktop views, keeping it strictly on mobile screens.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.37s with 0 errors.
+
+
+### [17/11/2026] Clean Reorganization of All Common Components (0 Loose Files)
+- **Classified and Relocated Loose Common Components into Dedicated Subfolders**:
+  - `BarChart.jsx` -> [`common/charts/BarChart.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/charts/BarChart.jsx)
+  - `TopHeader.jsx`, `MobilePageHeader.jsx`, `NotificationBell.jsx` -> [`common/header/`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/header/)
+  - `LogoutConfirmationModal.jsx` -> [`common/modals/LogoutConfirmationModal.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/modals/LogoutConfirmationModal.jsx)
+  - `ContactAvatarPlaceholder.jsx`, `AvatarStack.jsx` -> [`common/avatar/`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/avatar/)
+  - `ViewModeToggle.jsx` -> [`common/buttons/ViewModeToggle.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/buttons/ViewModeToggle.jsx)
+  - `Pagination.jsx` -> [`common/Table/Pagination.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/Table/Pagination.jsx)
+- **Purity & Zero Duplication**:
+  - Cleaned up misplaced non-input components (`AvatarStack`, `NotificationBell`, `Pagination`) from `inputs/`.
+  - Added clean subfolder barrel exports (`index.js`) to `avatar/`, `buttons/`, `charts/`, `header/`, `inputs/`, `modals/`, and `Table/`.
+  - Updated centralized barrel export in [`components/common/index.js`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/index.js).
+- **Import Paths Synchronization**:
+  - Updated all dependent import paths across layouts (`AdminLayout`, `BdeLayout`, `SalesLayout`), pages (`Clients`, `Deals`, `Quotations`, `EditProfile`), and dashboard views (`AdminDashboardView`, `BdeDashboardView`, `SalesDashboardView`).
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.57s with 0 errors.
+
+
+### [17/11/2026] Sidebar Section Toggle Icons Updated to Primary Color
+- **Sidebar Collapse/Expand Chevron Styling**:
+  - In [`Sidebar.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/sidebar/Sidebar.jsx), updated the section toggle `ChevronDown` icon from `text-black-90/50` to `text-primary`.
+  - All collapsible navigation sections (such as `CORE OPERATIONS`, `GOVERNANCE`, `ANALYTICS & SYSTEM`) now prominently show their toggle indicator in the brand primary color token (`#00227E`).
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 1.54s with 0 errors.
+
+
+### [17/11/2026] Updated Rupee (₹) Symbol to Primary Color on Lead Volume Pacing Chart
+- **Y-Axis Tier Symbol Styling**:
+  - Updated the currency symbol in `renderYAxisTier` from `text-secondary` to `text-primary font-bold` across:
+    - [`AdminDashboardView.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/modules/dashboard/AdminDashboardView.jsx) (Lead Volume Pacing)
+    - [`BdeDashboardView.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/modules/dashboard/BdeDashboardView.jsx)
+    - [`SalesDashboardView.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/modules/dashboard/SalesDashboardView.jsx)
+  - The `₹` icon now displays in the brand's primary color token (`text-primary` / deep navy blue).
+- **Build Verification**: Verified production build (`npm run build`) in 1.54s with 0 errors.
+
+
+### [17/11/2026] Dedicated Blank Pages for Integrations & Notification Settings
+- **Created Dedicated Blank Pages in `pages/` (100% Flat Architecture)**:
+  - Created [`Integrations.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/Integrations.jsx) for the `/integrations` route as a clean, blank white placeholder page.
+  - Created [`Notifications.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/Notifications.jsx) for the `/notifications` route as a clean, blank white placeholder page.
+- **Updated Clean Route Bindings in `AppRoutes.jsx`**:
+  - Replaced duplicate route bindings (`/integrations -> CrmConfiguration` and `/notifications -> Settings`) with dedicated lazy-loaded components `<Integrations />` and `<Notifications />`.
+  - Preserved original [`CrmConfiguration.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/CrmConfiguration.jsx) on `/configuration` and [`Settings.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/Settings.jsx) on `/settings` with zero impact.
+- **Build Verification**: Clean production build verified with Vite (`npm.cmd --prefix client run build`) in 1.75s with 0 errors.
+
+
+### [17/11/2026] Clean Login Form: Removed Role Switcher Tabs & Auto Role Resolution from Credentials (Rule 23)
+- **Eliminated Role Switcher Tabs from Login Page**:
+  - Removed the three manual role tabs (`[BDE]`, `[Sales Manager]`, `[Super Admin]`) from [`UnifiedLogin.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/auth/UnifiedLogin.jsx).
+  - Enforced Rule #23 (Clean Empty Form Inputs): Form inputs now initialize completely empty (`email = ''`, `password = ''`), displaying only non-selectable placeholders.
+- **Automatic Role Detection on Login**:
+  - Implemented `resolveUserByCredentials` in [`authConstants.js`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/constants/authConstants.js).
+  - When the user enters their email/ID and password, the system automatically checks the user's role:
+    - Emails/IDs containing `admin` log in directly to the **Super Admin** workspace and layout.
+    - Emails/IDs containing `sales` or `manager` log in directly to the **Sales Manager** workspace and layout.
+    - Other emails/IDs log in directly to the **BDE** workspace and layout.
+  - User is immediately routed to their designated clean dashboard (`/dashboard`).
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.54s with 0 errors.
+
+### [17/11/2026] Single Login & Role-Based Unified Routing (Clean URLs) with Redux Toolkit
+- **Redux State Management Setup (`@reduxjs/toolkit` & `react-redux`)**:
+  - Created central store at [`store/index.js`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/store/index.js).
+  - Created [`store/slices/authSlice.js`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/store/slices/authSlice.js) managing `user`, `role`, `token`, and `isAuthenticated` with localStorage session persistence and actions (`loginSuccess`, `logout`, `switchRole`).
+  - Added user and role specifications in [`constants/authConstants.js`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/constants/authConstants.js) (`DEFAULT_USERS`, `USER_ROLES`).
+  - Wrapped root application with `<Provider store={store}>` in [`main.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/main.jsx).
+- **Single Unified Login Portal (`/login`)**:
+  - Implemented [`UnifiedLogin.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/auth/UnifiedLogin.jsx) as the single authentication entry point.
+  - Added 1-click role switcher tabs (`[BDE]`, `[Sales Manager]`, `[Super Admin]`) with auto demo credential pre-fill and smart domain detection.
+- **100% Clean URLs Without Role Prefixes**:
+  - Re-architected [`AppRoutes.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/routes/AppRoutes.jsx) to eliminate all `/admin/`, `/sales/`, `/bde/` prefixes from active browser URLs.
+  - Implemented dynamic view resolvers in [`DynamicRouteWrappers.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/routes/DynamicRouteWrappers.jsx) to render role-appropriate layouts and views under unified URLs:
+    - `/dashboard` -> Resolves to AdminDashboard, SalesDashboard, or BdeDashboard
+    - `/leads` -> Resolves to AdminLeadManagement, SalesLeadManagement, or BdeMyLeads
+    - `/clients` -> Resolves to AdminClientManagement, SalesMyClients, or BdeMyClients
+    - `/contacts` -> Resolves to AdminContactManagement, SalesMyContacts, or BdeMyContacts
+    - `/deals` -> Resolves to AdminDealManagement, SalesMyDeals, or BdeMyDeals
+    - `/quotations` -> Resolves to AdminQuotations, SalesQuotations, or BdeQuotations
+    - `/settings` -> Resolves to AdminCrmConfiguration, SalesSettings, or BdeSettings
+    - `/profile` -> Resolves to AdminCrmConfiguration, SalesEditProfile, or BdeEditProfile
+    - `/staff`, `/configuration` -> Admin exclusive
+    - `/team`, `/analytics` -> Sales exclusive
+  - Implemented [`ProtectedRoute.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/routes/ProtectedRoute.jsx) route guard for secure authentication.
+  - Configured backward-compatible redirects for all legacy `/bde/*`, `/sales/*`, and `/admin/*` URLs to automatically route to the corresponding clean URL.
+- **Sidebar & TopHeader Synchronization**:
+  - Updated [`SidebarNavigation.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/sidebar/SidebarNavigation.jsx) paths to clean URLs (`/dashboard`, `/leads`, `/clients`, etc.).
+  - Updated [`Sidebar.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/sidebar/Sidebar.jsx) to read role directly from Redux and highlight exact active routes.
+  - Updated [`TopHeader.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/TopHeader.jsx) profile pill to display current logged-in user details and trigger Redux `logout()`.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 2.25s with 0 errors.
+
+### [16/11/2026] Strict View-Only (Read-Only) Mode Across All Panels for ViewBtn (Rule 20 & Core UX)
+- **Universal View-Only Enforcement Across All 3 Panels (Admin, BDE, Sales)**:
+  - **Lead Management**:
+    - `AddLeadDrawer.jsx` in Admin, BDE, and Sales: When opened via View action (`mode === 'view'`), drawer title updates to "View Lead Details", all form inputs and dropdowns are `disabled`, dropzone file uploader is hidden, document deletion triggers are removed, and "Save Lead" action buttons are completely hidden.
+    - Updated `DocumentCard.jsx` to render document deletion buttons conditionally (`{onDelete && (...)}`).
+  - **Client Management**:
+    - `EditClientDrawer.jsx` in Admin, BDE, and Sales: In view mode (`mode === 'view'`), drawer title updates to "View Client Details", all inputs (name, company, email, phone, website, industry, scale, address, etc.) are `disabled`, dropzone uploader is hidden, and "Save Details" button is removed.
+  - **Contact Management**:
+    - Updated `MyContacts.jsx` (BDE & Sales) and `ContactManagement.jsx` (Admin) to pass `mode="view"` on clicking `ViewBtn`.
+    - `EditContactDrawer.jsx` across Admin, BDE, and Sales: In view mode, title updates to "View Contact", profile upload button is hidden, "Save Details" button is removed, and all inputs (`firstName`, `lastName`, `designation`, `leadSource`, `email`, `phone`, `companyName`, `assignedBde`) are `disabled`.
+  - **Deal Management**:
+    - Updated `MyDeals.jsx` (BDE & Sales) and `DealManagement.jsx` (Admin) to pass `mode="view"` on clicking `ViewBtn`.
+    - `EditDealDrawer.jsx` across Admin, BDE, and Sales: In view mode, title updates to "View Deal", "Save Details" button is removed, and all inputs (`dealName`, `stage`, `dealAmount`, `productInterest`, `startDate`, `closeDate`, `assignedBde`) are `disabled`.
+  - **Quotations**:
+    - Updated `Quotations.jsx` (BDE & Sales) to pass `mode="view"` on clicking `ViewBtn`.
+    - `CreateQuotationDrawer.jsx` across Admin, BDE, and Sales: In view mode, title is "View Quotation", "Save as Draft" and "Send for VP Approval" buttons are removed (retaining `< Back` and `Export PDF`), and all inputs (`selectDeal`, `closeDate`, `linkedCompany`, `assignedBde`, `dealAmount`, `productInterest`, `bdeNotes`) are `disabled`.
+  - **Team Management (Sales)**:
+    - `ViewMemberDrawer.jsx`: Converted to strict read-only mode — removed "Upload Profile", "Remove", and "Save Changes" buttons, disabled all fields (`code`, names, contact, designation, role, department, grade, status).
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.74s with 0 errors.
+
+### [16/11/2026] Replaced Full Borders with 2px Bottom-Only Borders in Quotation Form Inputs & Product Cards (Rule 20)
+- **Eliminated Full Perimeter Borders Across Quotation Drawer Elements**:
+  - In `CreateQuotationDrawer.jsx` (across BDE, Admin, and Sales panels):
+    - **Expected Close Date Input**: Replaced `border border-stroke rounded-lg` with `border-b-2 border-stroke/80 rounded-[7px]`.
+    - **Deal Amount Input**: Replaced `border border-stroke rounded-lg` with `border-b-2 border-stroke/80 rounded-[7px]`.
+    - **Products & Plan Allocation Cards**: Replaced full perimeter border `border border-stroke rounded-xl` with `border-b-2 border-stroke/80 rounded-[7px]`.
+    - **SKU Badges**: Replaced `border border-stroke rounded` with `border-b-2 border-stroke/80 rounded-[4px]`.
+    - **Grand Total Container**: Replaced `border border-stroke rounded-xl` / `rounded-lg` with `border-b-2 border-stroke/80 rounded-[7px]`.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.68s with 0 errors.
+
+### [16/11/2026] Standardized Pagination Controls: 2px Bottom-Only Border & 7px Radius (Rule 20)
+- **Eliminated Full Perimeter Borders on Pagination Numbers & Controls**:
+  - In [`Pagination.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/Pagination.jsx):
+    - Removed full perimeter border (`border border-stroke`) from page numbers and Previous / Next navigation buttons.
+    - Applied 2px bottom-only border (`border-b-2 border-stroke/80` on inactive number buttons and previous/next buttons; `border-b-2 border-black-90/20` on active number buttons).
+    - Standardized corner radius from `rounded-lg` to the shared `rounded-[7px]` token per Rule 20.
+    - Applied cleanly across all data tables in Admin, BDE, and Sales panels.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.47s with 0 errors.
+
+### [16/11/2026] Standardized Pagination Controls: 2px Bottom-Only Border & 7px Radius (Rule 20)
+- **Eliminated Full Perimeter Borders on Pagination Numbers & Controls**:
+  - In [`Pagination.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/Pagination.jsx):
+    - Removed full perimeter border (`border border-stroke`) from page numbers and Previous / Next navigation buttons.
+    - Applied 2px bottom-only border (`border-b-2 border-stroke/80` on inactive number buttons and previous/next buttons; `border-b-2 border-black-90/20` on active number buttons).
+    - Standardized corner radius from `rounded-lg` to the shared `rounded-[7px]` token per Rule 20.
+    - Applied cleanly across all data tables in Admin, BDE, and Sales panels.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.47s with 0 errors.
+
+### [16/11/2026] Standardized Drawer Buttons: Reduced Height, Bottom-Only 2px Border, Gray for White Buttons (Rule 20)
+- **Standardized All Drawer Action Buttons Across Admin, BDE, and Sales**:
+  - **Reduced Height Across All Drawer Buttons**:
+    - Reduced button heights from `py-2.5` / `h-[44px]` to compact `py-1.5 sm:py-2` / `h-[34px] sm:h-[36px]`, eliminating bulky button footprints.
+  - **No Full Perimeter Border (Only Bottom 2px Border - Rule 20)**:
+    - Removed all full perimeter borders (`border border-stroke`, `border border-alert`, etc.).
+    - Applied 2px bottom-only border (`border-b-2 border-stroke/80` for gray controls, `border-b-2 border-alert` for alert buttons, and `border-b-2 border-black-90/20` for primary/success/secondary buttons).
+    - Standardized all drawer buttons with the shared `rounded-[7px]` corner radius token.
+  - **White Buttons Converted to Gray (`bg-gray`)**:
+    - Converted all white action buttons in drawers to `bg-gray hover:bg-gray/80 text-black-90`:
+      - Standardized [`BackButton.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/buttons/BackButton.jsx) (`bg-gray`, `border-b-2 border-stroke/80`, `rounded-[7px]`, `py-1.5 sm:py-2`).
+      - Updated `Save as Draft` in `CreateQuotationDrawer.jsx` (Admin, BDE, Sales) (`bg-gray hover:bg-gray/80`, `border-b-2 border-stroke/80`).
+    - Colored buttons (`Save Lead`, `Convert Lead`, `Deactivate Lead`, `Export PDF`, `Send for VP Approval`, `DeleteButton`) retain their semantic colors with reduced height and 2px bottom-only borders.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.69s with 0 errors.
+
+### [16/11/2026] Reduced Header & Body Top/Bottom Padding to Max 2 (py-2) Across All Drawers
+- **Strict Drawer Padding Limitation (py-2)**:
+  - In [`Drawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/sidebar/Drawer.jsx):
+    - Updated default `headerClassName` fallback from `p-5` to `px-6 py-2` (eliminating large top/bottom gaps above title).
+    - Updated default `bodyClassName` fallback to `px-6 py-2`.
+  - Across **all 30 drawer components** (Admin, BDE, and Sales panels for Create, Edit, View, Convert, Assign, and Details):
+    - Replaced all excessive vertical padding (`py-5`, `py-4`, `pt-1 pb-5`, `pt-2 pb-6`) with `py-2` (strictly not exceeding 2).
+    - Reduced gap between drawer subtitle and first form inputs, ensuring a clean, modern, and compact layout without extra whitespace.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.48s with 0 errors.
+
+### [16/11/2026] Removed Top Stroke Border & Reduced Top/Bottom Padding in Drawer Action Footers
+- **Clean Borderless Drawer Footers**:
+  - In [`CreateQuotationDrawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/quotations/CreateQuotationDrawer.jsx) (across BDE, Admin, and Sales) and all CRM drawers ([`Drawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/sidebar/Drawer.jsx), [`AddLeadDrawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/admin/leadManagement/AddLeadDrawer.jsx), `EditClientDrawer`, `EditContactDrawer`, `EditDealDrawer`, `ConvertLeadDrawer`, etc.):
+    - Completely removed the top stroke border (`border-t border-stroke`).
+    - Reduced top and bottom padding from `py-4` to compact `py-2.5 sm:py-3`.
+    - Maintained sticky positioning and action button styling cleanly.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.52s with 0 errors.
+
+### [16/11/2026] Updated PhoneInput Country Dropdown Chevron to Primary Color (Rule 6)
+- **Standardized PhoneInput Dropdown Arrow**:
+  - In [`PhoneInput.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/PhoneInput.jsx):
+    - Replaced hardcoded inline hex color `text-[#2E90FA]` on the country selection trigger `ChevronDown` icon with the project's brand design token `text-primary`.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.61s with 0 errors.
+
+### [16/11/2026] Added Full 360-Degree Spin Animation on Reset Filter Button Click
+- **Smooth Circular Rotation for Reset Icon**:
+  - In common button component [`ResetFilterButton.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/buttons/ResetFilterButton.jsx):
+    - Added dynamic cumulative rotation state (`rotation`) with `useCallback` handler that smoothly spins the reset icon 360 degrees counter-clockwise (`setRotation(prev => prev - 360)`) on every click.
+    - Implemented hardware-accelerated CSS transition (`transition-transform duration-500 ease-in-out` and `transform: rotate(...)deg`) for butter-smooth 60fps animation.
+    - Seamlessly active across all 17 CRM table pages via `DataTableToolbar`.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.51s with 0 errors.
+
+### [16/11/2026] Enforced 100% Circular & Borderless Images Across All Tables (Rule 24)
+- **Eliminated Square Logos and Surrounding Borders**:
+  - Replaced square `rounded-lg` company logos with fully circular `rounded-full` and `border-none` across all client management tables:
+    - [`ClientManagement.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/admin/clientManagement/ClientManagement.jsx)
+    - [`MyClients.jsx` (BDE)](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/myClients/MyClients.jsx)
+    - [`MyClients.jsx` (Sales)](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/myClients/MyClients.jsx)
+  - Removed surrounding `border border-stroke` from all avatars, user photos, and assigned BDE images across tables and drawers strictly adhering to Rule 24:
+    - [`ContactManagement.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/admin/contactManagement/ContactManagement.jsx)
+    - [`MyContacts.jsx` (BDE)](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/myContacts/MyContacts.jsx)
+    - [`MyContacts.jsx` (Sales)](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/myContacts/MyContacts.jsx)
+    - [`LeadManagement.jsx` (Admin)](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/admin/leadManagement/LeadManagement.jsx)
+    - [`MyLeads.jsx` (BDE)](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/myLeads/MyLeads.jsx)
+    - [`LeadManagement.jsx` (Sales)](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/leadManagement/LeadManagement.jsx)
+    - [`ReportAnalytics.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/analytics/ReportAnalytics.jsx)
+    - [`MyTeam.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/myTeam/MyTeam.jsx)
+    - [`ViewMemberDrawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/myTeam/ViewMemberDrawer.jsx)
+    - [`EditContactDrawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/admin/contactManagement/EditContactDrawer.jsx)
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.52s with 0 errors.
+
+### [16/11/2026] Resolved Placeholder Selection Bug Across All Form & Search Inputs (Rule 18)
+- **Global & Component-Level Non-Selectable Placeholder Enforcement**:
+  - Identified reason for placeholder selection: individual input components were missing `placeholder:select-none`, and `client/src/index.css` lacked global `::placeholder` user-select reset rules, causing browsers to select placeholder pseudo-elements during `Ctrl+A` or mouse drags.
+  - Added global CSS rules in [`index.css`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/index.css):
+    - `input::placeholder, textarea::placeholder { user-select: none !important; -webkit-user-select: none !important; }`
+    - `input:placeholder-shown::selection, textarea:placeholder-shown::selection { background-color: transparent !important; }`
+  - Added `placeholder:select-none` to all standardized inputs:
+    - [`TextInput.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/TextInput.jsx)
+    - [`DropdownInput.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/DropdownInput.jsx)
+    - [`EmailInput.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/EmailInput.jsx)
+    - [`PasswordInput.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/PasswordInput.jsx)
+    - [`IdInput.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/IdInput.jsx)
+    - [`PhoneInput.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/PhoneInput.jsx)
+    - [`TextAreaInput.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/TextAreaInput.jsx)
+    - [`DataTableToolbar.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/Table/DataTableToolbar.jsx)
+    - [`GlobalSearch.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/GlobalSearch.jsx)
+    - [`LoginForm.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/auth/LoginForm.jsx)
+  - Result: Placeholders will never turn blue or be selected during page selection, while actual user-entered text, labels, buttons, and tables remain 100% selectable per Rule 18.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.63s with 0 errors.
+
+### [16/11/2026] Updated Sidebar Collapse/Expand Icon Color to Primary
+- **Sidebar Toggle Chevron Styling**:
+  - In [`Sidebar.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/sidebar/Sidebar.jsx):
+    - Changed the color of the sidebar collapse icon (`ChevronsLeft`, `<<`) and expand icon (`ChevronsRight`, `>>`) from `text-black-90` to brand primary color `text-primary`.
+    - Maintained the circular background (`rounded-full`), border (`border border-stroke`), and gray background (`bg-gray hover:bg-gray/80`) intact strictly per Rule 20.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.82s with 0 errors.
+
+### [16/11/2026] Applied White Background to Dashboard Header Controls (Date Filter & Export Button)
+- **White Background for Dashboard Action Controls**:
+  - In [`SalesDashboard.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/dashboard/SalesDashboard.jsx), [`AdminDashboard.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/admin/dashboard/AdminDashboard.jsx), and [`BdeDashboard.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/dashboard/BdeDashboard.jsx):
+    - Configured the top-right timeframe filter trigger button ("This Month" / "By Date") to use white background (`bg-white-100 hover:bg-white-100/90`) while maintaining the 2px bottom border (`border-b-2 border-stroke/80`) and 7px corner radius (`rounded-[7px]`).
+    - Configured its dropdown option menu container to use `bg-white-100`.
+    - Added `variant="white"` support in reusable [`ExportButton.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/buttons/ExportButton.jsx) so it renders with `bg-white-100 hover:bg-white-100/90` on dashboard pages while strictly maintaining the default `bg-gray` on table pages.
+    - Standardized both buttons to clean `h-8` height for symmetrical horizontal alignment.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.58s with 0 errors.
+
+### [16/11/2026] Reduced Inside Padding in BDE Dashboard Last 5 Leads Table Card
+- **Compact Padding Alignment for Last 5 Leads Table**:
+  - In [`BdeDashboard.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/dashboard/BdeDashboard.jsx) (inside `Last5LeadsTable`):
+    - Reduced card header padding from `p-2 sm:p-5 pb-3` to `px-3.5 sm:px-4 py-2.5 sm:py-3`.
+    - Reduced outer table wrapper padding from `px-4 sm:px-5 pb-4` to `px-3 sm:px-4 pb-3`.
+    - Compacted table header (`th`) cell padding from `py-2.5 px-4` to `py-2 px-3`.
+    - Compacted table body (`td`) cell padding from `py-3.5 px-4` to `py-2 px-3`.
+    - Sized avatar & company logos to `w-7 h-7` and quick contact buttons to `w-7 h-7`, standardizing with the Sales dashboard table density.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 1.52s with 0 errors.
+
+### [16/11/2026] Reduced Inside Padding in Sales Dashboard BDE Performance Table Card
+- **Compact Padding Alignment for BDE Performance Table**:
+  - In [`BdePerformanceTable.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/dashboard/components/BdePerformanceTable.jsx):
+    - Reduced card header padding from `p-4 sm:p-5 pb-3` to `px-3.5 sm:px-4 py-2.5 sm:py-3`.
+    - Reduced outer table wrapper padding from `px-4 sm:px-5 pb-4` to `px-3 sm:px-4 pb-3`.
+    - Compacted table header (`th`) cell padding from `py-2.5 px-4` to `py-2 px-3`.
+    - Compacted table body (`td`) row padding from `py-3 px-4` to `py-2 px-3`.
+    - Adjusted avatar sizing to `w-7 h-7` and cell typography to `text-xs sm:text-sm` for a sleek, compact dashboard presentation.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 2.00s with 0 errors.
+
+### [16/11/2026] Restored Import/Export Dropdown on Create Quotation Button
+- **Restored Split Dropdown for Create Quotation**:
+  - In [`admin/quotations/Quotations.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/admin/quotations/Quotations.jsx), [`bde/quotations/Quotations.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/quotations/Quotations.jsx), and [`sales/quotations/Quotations.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/quotations/Quotations.jsx):
+    - Restored `hasDropdown` support on `actionButton` while keeping the standalone export button removed.
+    - Clicking the split chevron arrow (`More actions`) on the `[ + Create Quotation | v ]` button cleanly opens the `Import Data` and `Export Data` dropdown menu, matching the user's uploaded reference screenshot.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 4.21s with 0 errors.
+
+### [16/11/2026] Removed Export Button & Down Chevron from Create Quotation Across Quotations Pages
+- **Removed Standalone Export Button & Down Chevron**:
+  - In [`admin/quotations/Quotations.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/admin/quotations/Quotations.jsx), [`bde/quotations/Quotations.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/quotations/Quotations.jsx), and [`sales/quotations/Quotations.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/quotations/Quotations.jsx):
+    - Removed `onExport` prop from `DataTableToolbar` so the standalone export icon button next to Create Quotation is completely removed.
+    - Set `hasDropdown: false` on `actionButton` and simplified label to `'Create Quotation'`, removing the split chevron down arrow (`ChevronDown`).
+    - The button is now rendered as a clean, single solid action button: `[ + Create Quotation ]`.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 3.13s with 0 errors.
+
+### [16/11/2026] Standardized Common View & Edit Action Buttons on BDE Dashboard
+- **Replaced Inline Custom Buttons with Common ViewBtn and EditBtn**:
+  - In [`BdeDashboard.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/dashboard/BdeDashboard.jsx) (inside `Last5LeadsTable`), replaced the manually implemented inline view and edit action buttons with the project's shared [`ViewBtn`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/buttons/ViewBtn.jsx) and [`EditBtn`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/buttons/EditBtn.jsx) components.
+  - Ensures 100% UI consistency across all dashboard and table action columns with the common design tokens (`w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-primary`).
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 2.85s with 0 errors.
+
+### [16/11/2026] Standardized Dashboard Export Action Button Across All Panels
+- **BDE & Sales Dashboard Export Button Alignment**:
+  - In [`BdeDashboard.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/bde/dashboard/BdeDashboard.jsx) and [`SalesDashboard.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/sales/dashboard/SalesDashboard.jsx), replaced the solid blue generic upload button (`bg-secondary text-white-100` with Lucide `Upload`) with the project's standard [`ExportButton`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/buttons/ExportButton.jsx).
+  - Matches the exact design token and curved primary blue export icon (`rounded-[7px] bg-gray border-b-2 border-stroke/80 text-primary` with `ExportIcon`) used across Admin Dashboard and all CRM table pages.
+- **Build Verification**: Verified 100% clean production build with Vite (`npm run build`) in 4.41s with 0 errors.
+
 ### [06/11/2026] Dynamic Table Pagination & Project-Wide Reset Filter Button Integration
 - **100% Dynamic Pagination Standardized Across All CRM Table Pages**:
   - In [`Pagination.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/inputs/Pagination.jsx), removed hardcoded default `totalEntries=180` and implemented dynamic entry calculation (`currentCount` strictly reflects actual entries rendered on current page based on `(currentPage - 1) * pageSize + 1` to `min(currentPage * pageSize, totalEntries)`). Added automated out-of-bounds page correction when filtering reduces total pages below the active page index.
@@ -246,3 +624,60 @@ The React Compiler is not enabled on this template because of its impact on dev 
 - **Rule 6 (Common Design Tokens)**: Migrated 221 inline hex classes to Tailwind tokens (`border-stroke`, `bg-gray`, `text-black-90`, `bg-alert-light`, `bg-primary`, etc.).
 - **Build Verification**: Verified 100% clean production build with Vite (`npm run build`).
 
+
+### [17/11/2026] Domain-Based Page Unification & Folder Structure Flattening
+- **Flattened Role Folders & Merged Duplicate Pages**:
+  - Removed deeply nested role-based subdirectories (`pages/admin/`, `pages/bde/`, `pages/sales/`) and deprecated standalone login views (`AdminLogin.jsx`, `BdeLogin.jsx`, `SalesLogin.jsx`).
+  - Created clean, unified, domain-driven page folders under `client/src/pages/`:
+    - `pages/auth/`: Single authentication with [`UnifiedLogin.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/auth/UnifiedLogin.jsx), [`ForgotPassword.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/auth/ForgotPassword.jsx), and [`NewPassword.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/auth/NewPassword.jsx).
+    - `pages/dashboard/`: Unified [`Dashboard.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/dashboard/Dashboard.jsx) with role-based view switching between `AdminDashboardView.jsx`, `SalesDashboardView.jsx`, and `BdeDashboardView.jsx` colocated in `pages/dashboard/components/`.
+    - `pages/leads/`: Unified [`Leads.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/leads/Leads.jsx) with colocated drawers (`AddLeadDrawer.jsx`, `ConvertLeadDrawer.jsx`, `LeadActivityDrawer.jsx`, `LeadCommentsDrawer.jsx`), eliminating 3 sets of duplicate drawer files.
+    - `pages/clients/`: Unified [`Clients.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/clients/Clients.jsx) with colocated [`EditClientDrawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/clients/EditClientDrawer.jsx).
+    - `pages/contacts/`: Unified [`Contacts.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/contacts/Contacts.jsx) with colocated [`EditContactDrawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/contacts/EditContactDrawer.jsx).
+    - `pages/deals/`: Unified [`Deals.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/deals/Deals.jsx) with colocated [`EditDealDrawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/deals/EditDealDrawer.jsx).
+    - `pages/quotations/`: Unified [`Quotations.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/quotations/Quotations.jsx) with colocated [`CreateQuotationDrawer.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/quotations/CreateQuotationDrawer.jsx).
+    - `pages/staff/`: Unified [`StaffManagement.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/staff/StaffManagement.jsx) for Admin workspace.
+    - `pages/configuration/`: Unified [`CrmConfiguration.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/configuration/CrmConfiguration.jsx) with its modular taxonomy components.
+    - `pages/team/`: Unified [`MyTeam.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/team/MyTeam.jsx) for Sales workspace.
+    - `pages/analytics/`: Unified [`ReportAnalytics.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/analytics/ReportAnalytics.jsx) for Sales telemetry.
+    - `pages/settings/`: Unified [`Settings.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/settings/Settings.jsx) and [`EditProfile.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/pages/settings/EditProfile.jsx).
+- **Simplified Routing**:
+  - Updated [`AppRoutes.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/routes/AppRoutes.jsx) to directly load page components using `React.lazy()` from domain folders.
+  - Streamlined [`DynamicRouteWrappers.jsx`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/routes/DynamicRouteWrappers.jsx) to serve strictly as the dynamic layout shell provider (`DynamicLayout`).
+- **Production Build**: Verified 100% clean Vite compilation (`npm run build`) in 1.78s with 0 errors.
+
+### [17/11/2026] Complete Architectural Refactoring: Flat `pages/`, Single `Login.jsx`, and Strict `components/` (`common/` & `modules/`)
+- **100% Flat `pages/` Directory (Zero Subfolders)**:
+  - Eliminated all subdirectories in `client/src/pages/`.
+  - All 13 page components are located directly in the root of `pages/`:
+    `Login.jsx`, `Dashboard.jsx`, `Leads.jsx`, `Clients.jsx`, `Contacts.jsx`, `Deals.jsx`, `Quotations.jsx`, `StaffManagement.jsx`, `CrmConfiguration.jsx`, `MyTeam.jsx`, `ReportAnalytics.jsx`, `Settings.jsx`, `EditProfile.jsx`.
+- **Single Auth Entry Page (`pages/Login.jsx`)**:
+  - Replaced multiple standalone auth pages with single `Login.jsx`, dynamically loading `LoginForm.jsx`, `ForgotPasswordForm.jsx`, and `NewPasswordForm.jsx` from `components/modules/auth/` based on current route/mode (`/login`, `/forgot-password`, `/new-password`, `/reset-password`).
+- **Strictly Two Top-Level Component Directories**:
+  - `components/common/`: Houses all universally reusable UI elements (`inputs/`, `buttons/`, `cards/`, `Table/`, `sidebar/`, `icons/`, plus top-level common widgets like `TopHeader`, `BarChart`, `LogoutConfirmationModal`, etc.).
+  - `components/modules/`: Houses all page-specific subcomponents, sectional views, and drawers (`auth/`, `dashboard/`, `leads/`, `clients/`, `contacts/`, `deals/`, `quotations/`, `configuration/`, `team/`).
+- **Single Conditional Drawer Per Module**:
+  - All module drawers adhere to the strict 1-drawer conditional pattern:
+    - **`create` (Add)**: Initializes clean empty fields (`''`) with placeholders (Rule 23); active edit state; "Save" action.
+    - **`edit` (Edit)**: Populates existing row data; active edit state; "Save Changes" action.
+    - **`view` (View)**: Populates existing row data; **all inputs disabled / read-only**; save actions hidden (Back action only).
+- **Barrel Export**: Added `components/common/index.js` for centralized import access across design system components.
+- **Production Build**: Verified 100% clean Vite compilation (`npm run build`) in 1.35s with 0 errors.
+
+### [17/11/2026] Complete Purification of `components/common/` & Module Reorganization
+- **Purified `components/common/` to Strictly 100% Reusable Elements**:
+  - Relocated all 12 single-page / single-module components from `components/common/` to their respective `components/modules/` folders:
+    - **Dashboard Module** (`components/modules/dashboard/`): `LeadSourcePerformance.jsx`, `LeadStatusBreakdown.jsx`, `DealDistribution.jsx`, `ExecutiveActivityCard.jsx`, `LeadStageDistributionCard.jsx`, `SystemHealthCard.jsx`.
+    - **Leads Module** (`components/modules/leads/`): `ActivityCard.jsx`, `DocumentCard.jsx`, `LeadSummaryCard.jsx`.
+    - **Configuration Module** (`components/modules/configuration/`): `PillSwitcher.jsx`, `LeadStatusStarIcon.jsx`.
+    - **Quotations Module** (`components/modules/quotations/`): `TextAreaInput.jsx`.
+  - Updated barrel exports in [`index.js`](file:///c:/Users/tech9/Desktop/PROJECTS/G---AXIS-CRM/client/src/components/common/index.js), `cards/index.js`, `inputs/index.js`, and `icons/index.js`.
+  - `components/common/` now strictly contains universal, multi-page controls used across the entire application:
+    - `buttons/`: `BackButton`, `Button`, `DeleteButton`, `EditBtn`, `ExportButton`, `ResetFilterButton`, `ViewBtn`
+    - `cards/`: `StatCard`
+    - `icons/`: `EditIcon`, `ExportIcon`, `ImportIcon`, `LogoutIcon`, `QuoteIcon`, `SearchIcon`, `ViewIcon`
+    - `inputs/`: `AvatarStack`, `DropdownInput`, `EmailInput`, `GlobalSearch`, `IdInput`, `NotificationBell`, `Pagination`, `PasswordInput`, `PhoneInput`, `PhoneNumber`, `StatusRadioInput`, `TableFilterSelect`, `TextInput`, `UploadDropzone`
+    - `sidebar/`: `Drawer`, `Sidebar`, `SidebarNavigation`
+    - `Table/`: `DataTable`, `DataTableToolbar`, `TableContainer`, `TableFilterSelect`
+    - Direct common widgets: `BarChart.jsx`, `ContactAvatarPlaceholder.jsx`, `LogoutConfirmationModal.jsx`, `MobilePageHeader.jsx`, `TopHeader.jsx`, `ViewModeToggle.jsx`
+- **100% Clean Production Build**: Verified with Vite compilation (`npm run build`) passing in 1.48s with 0 errors.

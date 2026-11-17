@@ -1,7 +1,7 @@
 //==================================================================================================================
 //    React & Assets Imports
 //==================================================================================================================
-import { QuoteIcon } from "../components/icons/QuoteIcon";
+import { QuoteIcon } from "../components/common/icons/QuoteIcon";
 import bgPattern from "../assets/Frame 172.png";
 import logo from "../assets/Group 4.png";
 
