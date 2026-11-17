@@ -4,9 +4,9 @@
 //==================================================================================================================
 import React, { useMemo, useCallback } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { SidebarProvider, Sidebar } from '../components/sidebar/Sidebar';
-import { TopHeader } from '../components/common/TopHeader';
-import { MobilePageHeader } from '../components/common/MobilePageHeader';
+import { SidebarProvider, Sidebar } from '../components/common/sidebar/Sidebar';
+import { TopHeader } from '../components/common/header/TopHeader';
+import { MobilePageHeader } from '../components/common/header/MobilePageHeader';
 
 //==================================================================================================================
 //    SALES LAYOUT COMPONENT
@@ -25,57 +25,57 @@ export const SalesLayout = () => {
   //    Displays Page Title & Subtitle inside TopHeader matching 1st & 3rd images
   //==================================================================================================================
   const headerContent = useMemo(() => {
-    if (location.pathname.startsWith('/sales/team')) {
+    if (location.pathname.startsWith('/sales/team') || location.pathname.startsWith('/team')) {
       return {
         title: 'My Team',
         subtitle: 'View and manage your BDE/Sales Executive team allocation and workloads.',
       };
     }
-    if (location.pathname.startsWith('/sales/leads')) {
+    if (location.pathname.startsWith('/sales/leads') || location.pathname.startsWith('/leads')) {
       return {
         title: 'Lead Management',
         subtitle: 'Manage, qualify, and track high-value enterprise leads.',
       };
     }
-    if (location.pathname.startsWith('/sales/clients')) {
+    if (location.pathname.startsWith('/sales/clients') || location.pathname.startsWith('/clients')) {
       return {
         title: 'My Clients',
         subtitle: 'Enterprise accounts linked to your converted leads, active stakeholder contacts, and opportunity deals. Direct modifications...',
       };
     }
-    if (location.pathname.startsWith('/sales/contacts')) {
+    if (location.pathname.startsWith('/sales/contacts') || location.pathname.startsWith('/contacts')) {
       return {
         title: 'My Contacts',
         subtitle: 'Stakeholder contacts linked to your converted accounts and active deals across assigned enterprise accounts.',
       };
     }
-    if (location.pathname.startsWith('/sales/deals')) {
+    if (location.pathname.startsWith('/sales/deals') || location.pathname.startsWith('/deals')) {
       return {
         title: 'My Deals',
         subtitle:
           'Manage sales opportunities, pipeline stages, AI-driven forecast probabilities, and deal contract milestones across your assigned...',
       };
     }
-    if (location.pathname.startsWith('/sales/quotations')) {
+    if (location.pathname.startsWith('/sales/quotations') || location.pathname.startsWith('/quotations')) {
       return {
         title: 'Quotations',
         subtitle:
           'Track quotation status, manage active commercial proposals, and audit lifecycle progression on related deal timelines.',
       };
     }
-    if (location.pathname.startsWith('/sales/analytics') || location.pathname.startsWith('/sales/reports')) {
+    if (location.pathname.startsWith('/sales/analytics') || location.pathname.startsWith('/sales/reports') || location.pathname.startsWith('/analytics')) {
       return {
         title: 'Report & Analytics',
         subtitle: 'In-depth team operational telemetry, pipeline conversion dynamics, and lead attribution analysis.',
       };
     }
-    if (location.pathname.startsWith('/sales/settings')) {
+    if (location.pathname.startsWith('/sales/settings') || location.pathname.startsWith('/settings')) {
       return {
         title: 'Settings',
         subtitle: 'Manage your personal account settings, security, and preferences',
       };
     }
-    if (location.pathname.startsWith('/sales/profile')) {
+    if (location.pathname.startsWith('/sales/profile') || location.pathname.startsWith('/profile')) {
       return {
         title: 'Edit Profile',
         subtitle: 'Manage your personal account settings, security, and preferences',
