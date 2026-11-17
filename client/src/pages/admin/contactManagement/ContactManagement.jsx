@@ -104,7 +104,7 @@ export const ContactManagement = () => {
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover border border-stroke shrink-0"
+            className="w-8 h-8 rounded-full object-cover border-none shrink-0"
           />
           <div className="flex flex-col min-w-0">
             <span className="font-semibold text-black-90 whitespace-nowrap">
@@ -128,7 +128,7 @@ export const ContactManagement = () => {
           <img
             src={row.companyLogo}
             alt={row.companyName}
-            className="w-7 h-7 rounded-full object-cover border border-stroke shrink-0"
+            className="w-7 h-7 rounded-full object-cover border-none shrink-0"
           />
           <div className="flex flex-col min-w-0">
             <span className="font-semibold text-black-90 whitespace-nowrap">

@@ -63,57 +63,37 @@ export const ViewMemberDrawer = memo(({
       isOpen={isOpen}
       onClose={onClose}
       title="View Member"
-      subtitle="Update Employee member details, assigned system role, and account status."
+      subtitle="View employee member details, assigned system role, and account status."
       width="w-full sm:w-[560px]"
+      headerClassName="px-6 py-2"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-6 py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex items-center justify-between w-full shrink-0">
+        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex items-center justify-between w-full shrink-0">
           <BackButton onClick={onClose} label="Back" />
-          {onSave && (
-            <button
-              type="button"
-              onClick={() => onSave(formData)}
-              className="px-5 py-2 rounded-lg bg-primary text-white-100 text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors  cursor-pointer"
-            >
-              Save Changes
-            </button>
-          )}
         </div>
       }
     >
       <div className="flex flex-col gap-5 py-2">
         {/* ==============================================================================================================
-            Member Avatar Upload Section
+            Member Avatar Section (Read-Only)
         ============================================================================================================== */}
         <div className="flex items-center gap-4 pb-2">
           <img
             src={formData.avatar}
             alt={formData.firstName}
-            className="w-16 h-16 rounded-full object-cover border border-stroke "
+            className="w-16 h-16 rounded-full object-cover border-none"
           />
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              className="px-4 py-2 rounded-lg bg-primary text-white-100 text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer "
-            >
-              Upload Profile
-            </button>
-            <button
-              type="button"
-              className="px-3.5 py-2 rounded-lg bg-alert/10 text-alert border border-alert/20 text-xs font-semibold hover:bg-alert/20 transition-colors cursor-pointer"
-            >
-              Remove
-            </button>
-          </div>
         </div>
 
         {/* ==============================================================================================================
-            Form Fields
+            Form Fields (Read-Only)
         ============================================================================================================== */}
         {/* Employee Code */}
         <IdInput
           label="Employee Code"
           name="code"
           value={formData.code}
+          disabled
         />
 
         {/* First & Last Name */}
@@ -122,11 +102,13 @@ export const ViewMemberDrawer = memo(({
             label="First Name"
             value={formData.firstName}
             onChange={(e) => handleChange('firstName', e.target.value)}
+            disabled
           />
           <TextInput
             label="Last Name"
             value={formData.lastName}
             onChange={(e) => handleChange('lastName', e.target.value)}
+            disabled
           />
         </div>
 
@@ -137,11 +119,13 @@ export const ViewMemberDrawer = memo(({
             type="email"
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
+            disabled
           />
           <PhoneNumber
             label="Contact Number"
             value={formData.phone}
             onChange={(e) => handleChange('phone', e?.target ? e.target.value : e)}
+            disabled
           />
         </div>
 
@@ -152,12 +136,14 @@ export const ViewMemberDrawer = memo(({
             value={formData.designation}
             options={['Senior Manager', 'Sales Manager', 'Sales Executive', 'Account Executive']}
             onChange={(val) => handleChange('designation', val)}
+            disabled
           />
           <DropdownInput
             label="Role"
             value={formData.role}
             options={['Choose Role', 'Sales Executive', 'Senior Sales Executive', 'Sales Manager']}
             onChange={(val) => handleChange('role', val)}
+            disabled
           />
         </div>
 
@@ -168,12 +154,14 @@ export const ViewMemberDrawer = memo(({
             value={formData.department}
             options={['HR & Admin', 'Sales & BD', 'Enterprise Sales', 'Client Acquisition']}
             onChange={(val) => handleChange('department', val)}
+            disabled
           />
           <DropdownInput
             label="Grade"
             value={formData.grade}
             options={['Trainee / Entry Level', 'Associate', 'Mid-Senior Level', 'Senior Manager']}
             onChange={(val) => handleChange('grade', val)}
+            disabled
           />
         </div>
 
@@ -183,25 +171,25 @@ export const ViewMemberDrawer = memo(({
             Status
           </label>
           <div className="flex items-center gap-6">
-            <label className="inline-flex items-center gap-2 cursor-pointer ">
+            <label className="inline-flex items-center gap-2 cursor-not-allowed opacity-80">
               <input
                 type="radio"
                 name="memberStatus"
                 value="Active"
                 checked={formData.status === 'Active'}
-                onChange={() => handleChange('status', 'Active')}
-                className="w-4 h-4 text-success accent-success focus:ring-success cursor-pointer"
+                disabled
+                className="w-4 h-4 text-success accent-success focus:ring-success cursor-not-allowed"
               />
               <span className="text-xs font-medium text-black-90">Active</span>
             </label>
-            <label className="inline-flex items-center gap-2 cursor-pointer ">
+            <label className="inline-flex items-center gap-2 cursor-not-allowed opacity-80">
               <input
                 type="radio"
                 name="memberStatus"
                 value="Inactive"
                 checked={formData.status === 'Inactive'}
-                onChange={() => handleChange('status', 'Inactive')}
-                className="w-4 h-4 text-alert accent-alert focus:ring-alert cursor-pointer"
+                disabled
+                className="w-4 h-4 text-alert accent-alert focus:ring-alert cursor-not-allowed"
               />
               <span className="text-xs font-medium text-black-90">Inactive</span>
             </label>

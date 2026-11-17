@@ -38,14 +38,14 @@ export const ConfigurationReasonDrawer = memo(({ isOpen, onClose, onSave, onDele
       title={`${isEdit ? 'Edit' : 'Add'} ${config.title}`}
       subtitle="Configure CRM classifications and activity settings"
       width="w-full sm:w-[560px]"
-      headerClassName="p-5 pb-2"
-      bodyClassName="px-5 pt-2 pb-6"
+      headerClassName="px-6 py-2"
+      bodyClassName="px-5 py-2"
       footer={(
-        <div className="px-5 py-4 bg-white-100 border-t border-stroke sticky bottom-0 flex justify-between items-center shrink-0">
+        <div className="px-5 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 flex justify-between items-center shrink-0">
           <BackButton onClick={onClose} label="Back" />
           <div className="flex items-center gap-2.5">
             <DeleteButton onClick={() => isEdit && onDelete(initialData)} label={`Delete ${config.deleteLabel}`} />
-            <button type="submit" form="configuration-reason-form" className="h-[44px] px-6 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-sm font-semibold transition-colors  cursor-pointer active:scale-95">Save Details</button>
+            <button type="submit" form="configuration-reason-form" className="h-[34px] sm:h-[36px] px-5 rounded-[7px] border-b-2 border-black-90/20 bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold transition-colors cursor-pointer active:scale-95 flex items-center justify-center">Save Details</button>
           </div>
         </div>
       )}

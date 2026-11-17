@@ -95,7 +95,7 @@ export const GlobalSearch = () => {
               <input
                 autoFocus
                 type="text"
-                className="w-full h-full bg-transparent text-[12px] sm:text-sm text-black-90 placeholder:text-black-90/40 focus:outline-none min-w-0"
+                className="w-full h-full bg-transparent text-[12px] sm:text-sm text-black-90 placeholder:text-black-90/40 placeholder:select-none focus:outline-none min-w-0"
                 placeholder="Search anything..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}

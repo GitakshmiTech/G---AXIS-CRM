@@ -204,7 +204,7 @@ export const ReportAnalytics = memo(() => {
             <img
               src={row.avatar}
               alt={row.name}
-              className="w-7 h-7 rounded-full object-cover shrink-0 border border-stroke"
+              className="w-7 h-7 rounded-full object-cover shrink-0 border-none"
             />
             <span className="font-semibold text-black-90 text-xs sm:text-sm whitespace-nowrap">
               {row.name}

@@ -4,13 +4,14 @@
 //==================================================================================================================
 import { useState, useMemo } from 'react';
 import { TableFilterSelect } from '../../../components/Table/TableFilterSelect';
-import { ChevronDown, ChevronRight, Upload, Mail } from 'lucide-react';
+import { ChevronDown, ChevronRight, Mail } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa6';
+import { ExportButton } from '../../../components/buttons/ExportButton';
 import { StatCard } from '../../../components/cards/StatCard';
 import { BarChart } from '../../../components/common/BarChart';
 import { DealDistribution } from '../../../components/common/DealDistribution';
-import { ViewIcon } from '../../../components/icons/ViewIcon';
-import { EditIcon } from '../../../components/icons/EditIcon';
+import { ViewBtn } from '../../../components/buttons/ViewBtn';
+import { EditBtn } from '../../../components/buttons/EditBtn';
 import {
   BDE_STAT_CARDS,
   BDE_REVENUE_CHART_MONTHLY,
@@ -27,11 +28,11 @@ const Last5LeadsTable = () => {
   return (
     <div className="bg-white-100 rounded-xl border-b-2 border-stroke/80 overflow-hidden flex flex-col ">
       {/* Table Header Section */}
-      <div className="p-4 sm:p-5 pb-3 flex justify-between items-center ">
-        <h3 className="font-bold text-lg text-black-90">Last 5 Leads</h3>
+      <div className="px-3.5 sm:px-4 py-2.5 sm:py-3 flex justify-between items-center">
+        <h3 className="font-bold text-base sm:text-lg text-black-90">Last 5 Leads</h3>
         <button
           type="button"
-          className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-[7px] border-b-2 border-stroke/80 bg-gray text-xs sm:text-sm font-semibold text-primary hover:bg-gray/80 transition-colors cursor-pointer "
+          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[7px] border-b-2 border-stroke/80 bg-gray text-xs sm:text-sm font-semibold text-primary hover:bg-gray/80 transition-colors cursor-pointer"
         >
           <span>View All Leads</span>
           <ChevronRight size={14} className="text-primary flex-shrink-0" />
@@ -39,35 +40,35 @@ const Last5LeadsTable = () => {
       </div>
 
       {/* Table Data Rows */}
-      <div className="overflow-x-auto w-full px-4 sm:px-5 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="overflow-x-auto w-full px-3 sm:px-4 pb-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <table className="w-full text-left border-collapse min-w-[800px] lg:min-w-0">
           <thead>
             <tr className="bg-gray">
-              <th className="py-2.5 px-4 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
+              <th className="py-2 px-3 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
                 Code
               </th>
-              <th className="py-2.5 px-4 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
+              <th className="py-2 px-3 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
                 Lead Name
               </th>
-              <th className="py-2.5 px-4 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
+              <th className="py-2 px-3 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
                 Company Name
               </th>
-              <th className="py-2.5 px-4 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
+              <th className="py-2 px-3 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
                 Stage
               </th>
-              <th className="py-2.5 px-4 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
+              <th className="py-2 px-3 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
                 Priority
               </th>
-              <th className="py-2.5 px-4 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
+              <th className="py-2 px-3 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
                 Quick Contact
               </th>
-              <th className="py-2.5 px-4 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
-                <div className="inline-flex items-center gap-1 ">
+              <th className="py-2 px-3 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
+                <div className="inline-flex items-center gap-1">
                   <span>Created Date</span>
                   <ChevronDown size={13} className="text-primary flex-shrink-0" />
                 </div>
               </th>
-              <th className="py-2.5 px-4 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
+              <th className="py-2 px-3 text-xs font-medium text-black-90 whitespace-nowrap first:rounded-l-lg last:rounded-r-lg">
                 Action
               </th>
             </tr>
@@ -80,76 +81,76 @@ const Last5LeadsTable = () => {
                 className="border-b border-stroke/60 last:border-0 hover:bg-gray/20 transition-colors"
               >
                 {/* Code */}
-                <td className="py-3.5 px-4 text-sm font-bold text-black-90 whitespace-nowrap">
+                <td className="py-2 px-3 text-xs sm:text-sm font-bold text-black-90 whitespace-nowrap">
                   {lead.code}
                 </td>
 
                 {/* Lead Name */}
-                <td className="py-3.5 px-4 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
+                <td className="py-2 px-3 whitespace-nowrap">
+                  <div className="flex items-center gap-2.5">
                     <img
                       src={lead.leadAvatar}
                       alt={lead.leadName}
-                      className="w-8 h-8 rounded-full object-cover border-none flex-shrink-0"
+                      className="w-7 h-7 rounded-full object-cover border-none flex-shrink-0"
                     />
-                    <span className="text-sm font-bold text-black-90">
+                    <span className="text-xs sm:text-sm font-bold text-black-90">
                       {lead.leadName}
                     </span>
                   </div>
                 </td>
 
                 {/* Company Name */}
-                <td className="py-3.5 px-4 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
+                <td className="py-2 px-3 whitespace-nowrap">
+                  <div className="flex items-center gap-2.5">
                     <img
                       src={lead.companyLogo}
                       alt={lead.companyName}
-                      className="w-8 h-8 rounded-full object-cover border-none flex-shrink-0"
+                      className="w-7 h-7 rounded-full object-cover border-none flex-shrink-0"
                     />
-                    <span className="text-sm font-bold text-black-90">
+                    <span className="text-xs sm:text-sm font-bold text-black-90">
                       {lead.companyName}
                     </span>
                   </div>
                 </td>
 
                 {/* Stage */}
-                <td className="py-3.5 px-4 whitespace-nowrap">
-                  <span className="inline-flex items-center justify-center w-[112px] h-[24px] px-3 py-0.5 rounded-[7px] text-xs font-semibold bg-gray text-black-90">
+                <td className="py-2 px-3 whitespace-nowrap">
+                  <span className="inline-flex items-center justify-center w-[100px] h-[22px] px-2.5 py-0.5 rounded-[7px] text-xs font-semibold bg-gray text-black-90">
                     {lead.stage}
                   </span>
                 </td>
 
                 {/* Priority */}
-                <td className="py-3.5 px-4 whitespace-nowrap">
-                  <span className="inline-flex items-center justify-center w-[112px] h-[24px] px-3 py-0.5 rounded-[7px] text-xs font-semibold bg-warning/15 text-warning">
+                <td className="py-2 px-3 whitespace-nowrap">
+                  <span className="inline-flex items-center justify-center w-[100px] h-[22px] px-2.5 py-0.5 rounded-[7px] text-xs font-semibold bg-warning/15 text-warning">
                     {lead.priority}
                   </span>
                 </td>
 
                 {/* Quick Contact */}
-                <td className="py-3.5 px-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
+                <td className="py-2 px-3 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       title="WhatsApp Contact"
                       aria-label="WhatsApp Contact"
-                      className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+                      className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
                     >
-                      <FaWhatsapp size={18} className="text-[#25D366]" />
+                      <FaWhatsapp size={15} className="text-[#25D366]" />
                     </button>
                     <button
                       type="button"
                       title="Email Contact"
                       aria-label="Email Contact"
-                      className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-primary flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+                      className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-primary flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
                     >
-                      <Mail size={16} strokeWidth={2} />
+                      <Mail size={14} strokeWidth={2} />
                     </button>
                   </div>
                 </td>
 
                 {/* Created Date */}
-                <td className="py-3.5 px-4 whitespace-nowrap">
+                <td className="py-2 px-3 whitespace-nowrap">
                   <div className="flex flex-col">
                     <span className="text-xs sm:text-sm font-semibold text-black-90">
                       {lead.createdDate}
@@ -161,24 +162,10 @@ const Last5LeadsTable = () => {
                 </td>
 
                 {/* Action */}
-                <td className="py-3.5 px-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      title="View Lead Details"
-                      aria-label="View lead details"
-                      className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-secondary flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer"
-                    >
-                      <ViewIcon className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      title="Edit Lead"
-                      aria-label="Edit lead"
-                      className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-secondary flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer"
-                    >
-                      <EditIcon className="w-3.5 h-3.5" />
-                    </button>
+                <td className="py-2 px-3 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
+                    <ViewBtn title="View Lead Details" />
+                    <EditBtn title="Edit Lead" />
                   </div>
                 </td>
               </tr>
@@ -227,21 +214,20 @@ export const BdeDashboard = () => {
           {/* Static Date Filter Button */}
           <button
             type="button"
-            className="inline-flex items-center gap-2 px-3.5 py-2 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs sm:text-sm font-medium text-black-90 hover:bg-gray transition-colors cursor-pointer"
+            className="h-8 inline-flex items-center gap-2 px-3 sm:px-3.5 bg-white-100 border-b-2 border-stroke/80 rounded-[7px] text-xs sm:text-sm font-semibold text-black-90 hover:bg-white-100/90 transition-colors cursor-pointer"
           >
             <span>By Date</span>
-            <ChevronDown size={15} className="text-black-90/60" />
+            <ChevronDown size={14} className="text-black-90/60" />
           </button>
 
           {/* Export Action Button */}
-          <button
-            type="button"
+          <ExportButton
+            variant="white"
             title="Export Overview"
             aria-label="Export Overview"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-secondary text-white-100 flex items-center justify-center hover:opacity-90 active:scale-95 transition-all  cursor-pointer"
-          >
-            <Upload size={17} strokeWidth={2.2} />
-          </button>
+            className="h-8 w-8"
+            size={16}
+          />
         </div>
       </div>
 

@@ -21,6 +21,7 @@ export const EditDealDrawer = memo(({
   initialData = null,
   mode = 'edit', // 'view' | 'edit'
 }) => {
+  const isView = mode === 'view';
   const [formData, setFormData] = useState({
     dealName: 'HyperScale Systems',
     stage: '2. Stage 2',
@@ -67,18 +68,19 @@ export const EditDealDrawer = memo(({
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={mode === 'view' ? 'View Deal' : 'Edit Deal'}
-      subtitle="Edit a new sales opportunity, assign stage, account association, and forecast value."
+      title={isView ? 'View Deal' : 'Edit Deal'}
+      subtitle={isView ? 'View sales opportunity, assigned stage, account association, and forecast value.' : 'Edit a new sales opportunity, assign stage, account association, and forecast value.'}
       width="w-full sm:w-[700px]"
-      bodyClassName="px-6 py-5"
+      headerClassName="px-6 py-2"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-6 py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex justify-between items-center shrink-0">
+        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex justify-between items-center shrink-0">
           <BackButton onClick={onClose} label="Back" />
-          {mode !== 'view' && (
+          {!isView && (
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
+              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
             >
               Save Details
             </button>
@@ -95,6 +97,7 @@ export const EditDealDrawer = memo(({
             placeholder="HyperScale Systems"
             value={formData.dealName}
             onChange={handleChange}
+            disabled={isView}
           />
           <TextInput
             label="Stage"
@@ -102,6 +105,7 @@ export const EditDealDrawer = memo(({
             placeholder="2. Stage 2"
             value={formData.stage}
             onChange={handleChange}
+            disabled={isView}
           />
         </div>
 
@@ -111,7 +115,7 @@ export const EditDealDrawer = memo(({
             <label className="text-xs font-semibold text-black-90">
               Deal Amount
             </label>
-            <div className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center gap-2 transition-all">
+            <div className={`w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center gap-2 ${isView ? 'opacity-80' : ''} transition-all`}>
               <span className="text-xs font-bold text-primary ">
                 ₹
               </span>
@@ -121,7 +125,8 @@ export const EditDealDrawer = memo(({
                 value={formData.dealAmount}
                 onChange={handleChange}
                 placeholder="Enter Deal Amount"
-                className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
+                disabled={isView}
+                className={`w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none ${isView ? 'cursor-not-allowed' : ''}`}
               />
             </div>
           </div>
@@ -133,6 +138,7 @@ export const EditDealDrawer = memo(({
             options={DEAL_PRODUCT_OPTIONS}
             value={formData.productInterest}
             onChange={(e) => handleDropdownChange('productInterest', e.target.value)}
+            disabled={isView}
           />
         </div>
 
@@ -142,16 +148,17 @@ export const EditDealDrawer = memo(({
             <label className="text-xs font-semibold text-black-90">
               Expected Start Date
             </label>
-            <div className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center justify-between transition-all">
+            <div className={`w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center justify-between ${isView ? 'opacity-80' : ''} transition-all`}>
               <input
                 type="text"
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
                 placeholder="DD/MM/YYYY"
-                className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
+                disabled={isView}
+                className={`w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none ${isView ? 'cursor-not-allowed' : ''}`}
               />
-              <Calendar size={16} className="text-primary shrink-0  cursor-pointer" />
+              <Calendar size={16} className={`text-primary shrink-0 ${isView ? 'cursor-not-allowed' : 'cursor-pointer'}`} />
             </div>
           </div>
 
@@ -159,16 +166,17 @@ export const EditDealDrawer = memo(({
             <label className="text-xs font-semibold text-black-90">
               Expected Close Date
             </label>
-            <div className="w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center justify-between transition-all">
+            <div className={`w-full h-[40px] px-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] flex items-center justify-between ${isView ? 'opacity-80' : ''} transition-all`}>
               <input
                 type="text"
                 name="closeDate"
                 value={formData.closeDate}
                 onChange={handleChange}
                 placeholder="DD/MM/YYYY"
-                className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
+                disabled={isView}
+                className={`w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none ${isView ? 'cursor-not-allowed' : ''}`}
               />
-              <Calendar size={16} className="text-primary shrink-0  cursor-pointer" />
+              <Calendar size={16} className={`text-primary shrink-0 ${isView ? 'cursor-not-allowed' : 'cursor-pointer'}`} />
             </div>
           </div>
         </div>
@@ -180,6 +188,7 @@ export const EditDealDrawer = memo(({
           placeholder="Johnson Doe"
           value={formData.assignedBde}
           onChange={handleChange}
+          disabled={isView}
         />
       </form>
     </Drawer>

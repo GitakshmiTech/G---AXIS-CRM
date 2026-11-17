@@ -47,14 +47,16 @@ export const DocumentCard = memo(({
         >
           <ImportIcon size={14} color="#2E8EFF" />
         </button>
-        <button
-          type="button"
-          onClick={() => onDelete && onDelete(id)}
-          className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-alert-light transition-colors cursor-pointer "
-          title="Delete Document"
-        >
-          <X size={15} className="text-alert" strokeWidth={2} />
-        </button>
+        {onDelete && (
+          <button
+            type="button"
+            onClick={() => onDelete(id)}
+            className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-alert-light transition-colors cursor-pointer "
+            title="Delete Document"
+          >
+            <X size={15} className="text-alert" strokeWidth={2} />
+          </button>
+        )}
       </div>
     </div>
   );

@@ -63,10 +63,10 @@ export const AddCustomerTypeDrawer = memo(({
       title={isEdit ? 'Edit Customer Type' : 'Add Customer Type'}
       subtitle="Lorem Ipsum is simply dummy text of the printing and typesetting"
       width="w-full sm:w-[700px]"
-      headerClassName="p-5 pb-2"
-      bodyClassName="px-6 pt-2 pb-6"
+      headerClassName="px-6 py-2"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-6 py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex justify-between items-center shrink-0">
+        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex justify-between items-center shrink-0">
           <BackButton onClick={onClose} label="Back" />
           <div className="flex items-center gap-2.5">
             <DeleteButton
@@ -81,7 +81,7 @@ export const AddCustomerTypeDrawer = memo(({
             <button
               type="button"
               onClick={handleSubmit}
-              className="h-[44px] px-6 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-sm font-semibold transition-colors  cursor-pointer active:scale-95 flex items-center justify-center"
+              className="h-[34px] sm:h-[36px] px-5 rounded-[7px] border-b-2 border-black-90/20 bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold transition-colors cursor-pointer active:scale-95 flex items-center justify-center"
             >
               Save Details
             </button>

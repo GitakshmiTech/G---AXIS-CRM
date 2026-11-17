@@ -186,7 +186,7 @@ export const DataTableToolbar = ({
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs font-medium text-black-90 placeholder:text-black-90/40 focus:outline-none transition-all"
+              className="w-full pl-9 pr-8 py-2 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs font-medium text-black-90 placeholder:text-black-90/40 placeholder:select-none focus:outline-none transition-all"
             />
             {searchQuery && (
               <button
@@ -251,7 +251,7 @@ export const DataTableToolbar = ({
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs font-medium text-black-90 placeholder:text-black-90/40 focus:outline-none transition-all"
+              className="w-full pl-9 pr-3 py-2 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs font-medium text-black-90 placeholder:text-black-90/40 placeholder:select-none focus:outline-none transition-all"
             />
           </div>
 

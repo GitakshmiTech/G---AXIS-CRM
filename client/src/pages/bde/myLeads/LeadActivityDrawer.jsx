@@ -24,9 +24,9 @@ export const LeadActivityDrawer = memo(({
       title="Lead Activity"
       subtitle="Create and qualify a new enterprise prospect. Real-time deduplication verification is active across customer records."
       width="w-full sm:w-[560px]"
-      bodyClassName="px-6 py-5"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-6 py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex justify-end items-center shrink-0">
+        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex justify-end items-center shrink-0">
           <BackButton onClick={onClose} label="Back" />
         </div>
       }

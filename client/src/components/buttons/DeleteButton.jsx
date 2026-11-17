@@ -18,7 +18,7 @@ export const DeleteButton = memo(({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`min-w-[143px] h-[44px] px-6 rounded-[7px] border border-alert bg-alert-light hover:bg-alert-light/80 text-alert text-sm font-bold transition-all cursor-pointer  flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${className}`.trim()}
+      className={`min-w-[120px] h-[34px] sm:h-[36px] px-4 rounded-[7px] border-b-2 border-alert bg-alert-light hover:bg-alert-light/80 text-alert text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${className}`.trim()}
       {...props}
     >
       {label}

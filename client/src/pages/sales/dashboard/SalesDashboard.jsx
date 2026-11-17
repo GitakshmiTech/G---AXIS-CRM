@@ -3,7 +3,8 @@
 //    React primitives, Lucide icons, common telemetry cards and charts
 //==================================================================================================================
 import React, { useState, useMemo, memo } from 'react';
-import { ChevronDown, Upload } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { ExportButton } from '../../../components/buttons/ExportButton';
 import { TableFilterSelect } from '../../../components/Table/TableFilterSelect';
 import { StatCard } from '../../../components/cards/StatCard';
 import { BarChart } from '../../../components/common/BarChart';
@@ -37,7 +38,7 @@ export const SalesDashboard = memo(() => {
   }, [revenuePeriod]);
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-5 pb-3 sm:pb-0">
+    <div className="flex flex-col gap-3 sm:gap-3 pb-3 sm:pb-0">
       {/* ==============================================================================================================
           1. DASHBOARD PAGE HEADER (Image 2)
       ============================================================================================================== */}
@@ -58,7 +59,7 @@ export const SalesDashboard = memo(() => {
             <button
               type="button"
               onClick={() => setIsFilterDropdownOpen((prev) => !prev)}
-              className="h-8 inline-flex items-center gap-2 px-3 sm:px-3.5 rounded-[7px] bg-gray border-b-2 border-stroke/80 text-xs font-semibold text-black-90 hover:bg-gray/80 transition-colors cursor-pointer"
+              className="h-8 inline-flex items-center gap-2 px-3 sm:px-3.5 rounded-[7px] bg-white-100 border-b-2 border-stroke/80 text-xs font-semibold text-black-90 hover:bg-white-100/90 transition-colors cursor-pointer"
             >
               <span>{timeFilter}</span>
               <ChevronDown
@@ -73,7 +74,7 @@ export const SalesDashboard = memo(() => {
               <div
                 data-ui-style="dropdown-menu"
                 data-ui-width="trigger"
-                className="absolute top-full left-0 right-0 w-full min-w-full mt-1 bg-gray border-none rounded-none p-0 z-30 shadow-none animate-in fade-in zoom-in-95 duration-100"
+                className="absolute top-full left-0 right-0 w-full min-w-full mt-1 bg-white-100 border border-stroke rounded-[7px] p-0 z-30 shadow-none animate-in fade-in zoom-in-95 duration-100"
               >
                 {FILTER_OPTIONS.map((option) => (
                   <button
@@ -86,7 +87,7 @@ export const SalesDashboard = memo(() => {
                     className={`w-full text-left px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer rounded-none ${
                       timeFilter === option
                         ? 'bg-primary/10 text-primary font-semibold'
-                        : 'text-black-90 hover:bg-white-100'
+                        : 'text-black-90 hover:bg-gray/50'
                     }`}
                   >
                     <span className="truncate whitespace-nowrap">{option}</span>
@@ -97,14 +98,14 @@ export const SalesDashboard = memo(() => {
           </div>
 
           {/* Export Action Button */}
-          <button
-            type="button"
+          <ExportButton
+            variant="white"
+            title="Export Report"
+            aria-label="Export Report"
+            className="h-8 w-8"
+            size={16}
             onClick={() => console.log('Export telemetry report')}
-            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-secondary text-white-100 hover:bg-secondary/90 transition-all duration-200 text-xs sm:text-sm font-semibold cursor-pointer  active:scale-[0.98]"
-          >
-            <Upload size={15} />
-            <span>Export</span>
-          </button>
+          />
         </div>
       </div>
 

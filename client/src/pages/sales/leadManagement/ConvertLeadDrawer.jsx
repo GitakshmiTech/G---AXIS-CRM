@@ -54,14 +54,14 @@ export const ConvertLeadDrawer = memo(({
       title="Lead Details"
       subtitle="Create and qualify a new enterprise prospect. Real-time deduplication verification is active across customer records."
       width="w-full sm:w-[560px]"
-      bodyClassName="px-6 py-5"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-6 py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex justify-between items-center shrink-0">
+        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex justify-between items-center shrink-0">
           <BackButton onClick={onClose} label="Back" />
           <button
             type="button"
             onClick={handleSubmit}
-            className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
+            className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
           >
             Confirm & Convert Lead
           </button>

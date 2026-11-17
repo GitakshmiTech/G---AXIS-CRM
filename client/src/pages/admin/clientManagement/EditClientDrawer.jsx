@@ -77,6 +77,8 @@ export const EditClientDrawer = memo(({
     if (onClose) onClose();
   }, [formData, onSave, onClose]);
 
+  const isView = mode === 'view';
+
   return (
     //==================================================================================================================
     //    DRAWER CONTAINER
@@ -84,18 +86,18 @@ export const EditClientDrawer = memo(({
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={mode === 'view' ? 'View Client' : 'Edit Client'}
+      title={isView ? 'View Client Details' : 'Edit Client'}
       subtitle="Create and qualify a new enterprise prospect. Real-time deduplication verification is active across customer records."
       width="w-full sm:w-[560px]"
-      bodyClassName="px-6 py-5"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-6 py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex justify-between items-center shrink-0">
+        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex justify-between items-center shrink-0">
           <BackButton onClick={onClose} label="Back" />
-          {mode !== 'view' && (
+          {!isView && (
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
+              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
             >
               Save Details
             </button>
@@ -105,7 +107,7 @@ export const EditClientDrawer = memo(({
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Upload Document Box (Common Component) */}
-        <UploadDropzone label="Upload Document (PNG, JPG or PDF (Max 5MB))" />
+        {!isView && <UploadDropzone label="Upload Document (PNG, JPG or PDF (Max 5MB))" />}
 
         {/* Row 1: Client Name & Industry Type */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -115,6 +117,7 @@ export const EditClientDrawer = memo(({
             placeholder="Enter Client Name"
             value={formData.name}
             onChange={handleChange}
+            disabled={isView}
           />
           <DropdownInput
             label="Industry Type"
@@ -123,6 +126,7 @@ export const EditClientDrawer = memo(({
             options={INDUSTRY_OPTIONS}
             value={formData.industryType}
             onChange={(e) => handleDropdownChange('industryType', e.target.value)}
+            disabled={isView}
           />
         </div>
 
@@ -135,6 +139,7 @@ export const EditClientDrawer = memo(({
             options={EMPLOYEE_SCALE_OPTIONS}
             value={formData.employeeScale}
             onChange={(e) => handleDropdownChange('employeeScale', e.target.value)}
+            disabled={isView}
           />
           <TextInput
             label="Company Website"
@@ -142,6 +147,7 @@ export const EditClientDrawer = memo(({
             placeholder="Enter Company Website"
             value={formData.website}
             onChange={handleChange}
+            disabled={isView}
           />
         </div>
 
@@ -154,6 +160,7 @@ export const EditClientDrawer = memo(({
             placeholder="Enter Email Address"
             value={formData.email}
             onChange={handleChange}
+            disabled={isView}
           />
           <PhoneNumber
             label="Contact Number"
@@ -161,6 +168,7 @@ export const EditClientDrawer = memo(({
             placeholder="98765 43210"
             value={formData.phone}
             onChange={handleChange}
+            disabled={isView}
           />
         </div>
 
@@ -171,6 +179,7 @@ export const EditClientDrawer = memo(({
           placeholder="Kaivanna Complex, 304 - 306 & 701, Chimanlal Girdharlal Rd, Panchavati Society, Ambawadi, Ahmedabad"
           value={formData.address}
           onChange={handleChange}
+          disabled={isView}
         />
 
         {/* Row 5: Country & State */}
@@ -182,6 +191,7 @@ export const EditClientDrawer = memo(({
             options={COUNTRY_OPTIONS}
             value={formData.country}
             onChange={(e) => handleDropdownChange('country', e.target.value)}
+            disabled={isView}
           />
           <DropdownInput
             label="State"
@@ -190,6 +200,7 @@ export const EditClientDrawer = memo(({
             options={STATE_OPTIONS}
             value={formData.state}
             onChange={(e) => handleDropdownChange('state', e.target.value)}
+            disabled={isView}
           />
         </div>
 
@@ -202,6 +213,7 @@ export const EditClientDrawer = memo(({
             options={CITY_OPTIONS}
             value={formData.city}
             onChange={(e) => handleDropdownChange('city', e.target.value)}
+            disabled={isView}
           />
           <TextInput
             label="Postal Code"
@@ -209,6 +221,7 @@ export const EditClientDrawer = memo(({
             placeholder="380009"
             value={formData.postalCode}
             onChange={handleChange}
+            disabled={isView}
           />
         </div>
 
@@ -219,6 +232,7 @@ export const EditClientDrawer = memo(({
           placeholder="Johnson Doe"
           value={formData.assignedBde}
           onChange={handleChange}
+          disabled={true}
         />
       </form>
     </Drawer>

@@ -128,8 +128,9 @@ export const AddLeadDrawer = memo(({
     if (onClose) onClose();
   };
 
+  const isView = mode === 'view';
   const isViewOrEdit = mode === 'view' || mode === 'edit';
-  const drawerTitle = isViewOrEdit ? 'Lead Details' : 'Add New Lead';
+  const drawerTitle = isView ? 'View Lead Details' : mode === 'edit' ? 'Edit Lead Details' : 'Add New Lead';
 
   //==================================================================================================================
   //    RENDER DRAWER
@@ -141,27 +142,29 @@ export const AddLeadDrawer = memo(({
       title={drawerTitle}
       subtitle="Create and qualify a new enterprise prospect. Real-time deduplication verification is active across customer records."
       width="w-full sm:w-[700px]"
-      bodyClassName="px-6 py-4"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-3 sm:px-6 py-2.5 sm:py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex flex-col sm:flex-row sm:justify-between items-stretch sm:items-center gap-2 sm:gap-4 shrink-0">
+        <div className="px-3 sm:px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex flex-col sm:flex-row sm:justify-between items-stretch sm:items-center gap-2 sm:gap-4 shrink-0">
           <div className="flex items-center justify-between sm:justify-start">
             <BackButton onClick={onClose} label="Back" />
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="sm:hidden px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold transition-colors cursor-pointer"
-            >
-              Save Lead
-            </button>
+            {!isView && (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="sm:hidden px-3.5 py-1.5 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold border-b-2 border-black-90/20 transition-colors cursor-pointer"
+              >
+                Save Lead
+              </button>
+            )}
           </div>
 
-          {/* Action Buttons: 1st/2nd images show only Save Lead for Add New Lead; View/Edit shows Deactivate, Convert, Save */}
-          {isViewOrEdit ? (
+          {/* Action Buttons: View mode has NO Save Lead; Edit mode has Deactivate, Convert, Save; Create mode has Save */}
+          {mode === 'edit' ? (
             <div className="flex items-center justify-between sm:justify-end gap-2">
               <button
                 type="button"
                 onClick={onDeactivate}
-                className="flex-1 sm:flex-initial px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg border border-alert bg-alert-light text-alert hover:bg-alert-light/80 text-[11px] sm:text-xs font-semibold transition-colors cursor-pointer text-center whitespace-nowrap"
+                className="flex-1 sm:flex-initial px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-alert bg-alert-light text-alert hover:bg-alert-light/80 text-[11px] sm:text-xs font-semibold transition-colors cursor-pointer text-center whitespace-nowrap"
               >
                 Deactivate Lead
               </button>
@@ -169,7 +172,7 @@ export const AddLeadDrawer = memo(({
               <button
                 type="button"
                 onClick={onConvert}
-                className="flex-1 sm:flex-initial px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-success hover:bg-success/90 text-white-100 text-[11px] sm:text-xs font-semibold transition-colors flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap"
+                className="flex-1 sm:flex-initial px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[7px] bg-success hover:bg-success/90 text-white-100 border-b-2 border-black-90/20 text-[11px] sm:text-xs font-semibold transition-colors flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap"
               >
                 <span>Convert Lead</span>
                 <ChevronRight size={14} />
@@ -178,16 +181,35 @@ export const AddLeadDrawer = memo(({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="hidden sm:inline-flex px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold transition-colors cursor-pointer"
+                className="hidden sm:inline-flex px-4 py-1.5 sm:py-2 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 border-b-2 border-black-90/20 text-xs font-semibold transition-colors cursor-pointer"
               >
                 Save Lead
+              </button>
+            </div>
+          ) : isView ? (
+            <div className="flex items-center justify-between sm:justify-end gap-2">
+              <button
+                type="button"
+                onClick={onDeactivate}
+                className="flex-1 sm:flex-initial px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-alert bg-alert-light text-alert hover:bg-alert-light/80 text-[11px] sm:text-xs font-semibold transition-colors cursor-pointer text-center whitespace-nowrap"
+              >
+                Deactivate Lead
+              </button>
+
+              <button
+                type="button"
+                onClick={onConvert}
+                className="flex-1 sm:flex-initial px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[7px] bg-success hover:bg-success/90 text-white-100 border-b-2 border-black-90/20 text-[11px] sm:text-xs font-semibold transition-colors flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap"
+              >
+                <span>Convert Lead</span>
+                <ChevronRight size={14} />
               </button>
             </div>
           ) : (
             <button
               type="button"
               onClick={handleSubmit}
-              className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold px-6 py-2.5 rounded-lg transition-all  cursor-pointer active:scale-95"
+              className="hidden sm:inline-flex bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold px-5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
             >
               Save Lead
             </button>
@@ -213,6 +235,7 @@ export const AddLeadDrawer = memo(({
             placeholder="Enter Full Name"
             value={formData.name}
             onChange={handleChange}
+            disabled={isView}
             required
           />
         </div>
@@ -226,6 +249,7 @@ export const AddLeadDrawer = memo(({
           placeholder="Enter Designation"
           value={formData.designation}
           onChange={handleChange}
+          disabled={isView}
         />
 
         {/* ================================================================================================================
@@ -239,6 +263,7 @@ export const AddLeadDrawer = memo(({
             options={PRODUCT_INTEREST_OPTIONS}
             value={formData.productInterest}
             onChange={(e) => handleDropdownChange('productInterest', e.target.value)}
+            disabled={isView}
           />
           <DropdownInput
             label="Lead Source"
@@ -247,6 +272,7 @@ export const AddLeadDrawer = memo(({
             options={LEAD_SOURCES.filter((s) => s.value !== 'All')}
             value={formData.leadSource}
             onChange={(e) => handleDropdownChange('leadSource', e.target.value)}
+            disabled={isView}
           />
         </div>
 
@@ -261,6 +287,7 @@ export const AddLeadDrawer = memo(({
             placeholder="Enter Email Address"
             value={formData.email}
             onChange={handleChange}
+            disabled={isView}
           />
           <PhoneNumber
             label="Contact Number"
@@ -268,6 +295,7 @@ export const AddLeadDrawer = memo(({
             placeholder="98765 43210"
             value={formData.phone}
             onChange={handleChange}
+            disabled={isView}
             required
           />
         </div>
@@ -283,6 +311,7 @@ export const AddLeadDrawer = memo(({
             options={LEAD_PRIORITIES.filter((p) => p.value !== 'All')}
             value={formData.priority}
             onChange={(e) => handleDropdownChange('priority', e.target.value)}
+            disabled={isView}
           />
           <DropdownInput
             label="Lead Stage"
@@ -291,6 +320,7 @@ export const AddLeadDrawer = memo(({
             options={LEAD_STAGES.filter((s) => s.value !== 'All')}
             value={formData.stage}
             onChange={(e) => handleDropdownChange('stage', e.target.value)}
+            disabled={isView}
           />
         </div>
 
@@ -313,6 +343,7 @@ export const AddLeadDrawer = memo(({
             placeholder="Enter Organization Name"
             value={formData.companyName}
             onChange={handleChange}
+            disabled={isView}
           />
           <DropdownInput
             label="Industry Type"
@@ -321,6 +352,7 @@ export const AddLeadDrawer = memo(({
             options={INDUSTRY_OPTIONS}
             value={formData.industry}
             onChange={(e) => handleDropdownChange('industry', e.target.value)}
+            disabled={isView}
           />
         </div>
 
@@ -335,6 +367,7 @@ export const AddLeadDrawer = memo(({
             options={EMPLOYEE_SCALE_OPTIONS}
             value={formData.employeeScale}
             onChange={(e) => handleDropdownChange('employeeScale', e.target.value)}
+            disabled={isView}
           />
           <TextInput
             label="Company Website"
@@ -342,6 +375,7 @@ export const AddLeadDrawer = memo(({
             placeholder="Enter Company Website"
             value={formData.website}
             onChange={handleChange}
+            disabled={isView}
           />
         </div>
 
@@ -354,6 +388,7 @@ export const AddLeadDrawer = memo(({
           placeholder="Enter Address"
           value={formData.address}
           onChange={handleChange}
+          disabled={isView}
         />
 
         {/* ================================================================================================================
@@ -367,6 +402,7 @@ export const AddLeadDrawer = memo(({
             options={COUNTRY_OPTIONS}
             value={formData.country}
             onChange={(e) => handleDropdownChange('country', e.target.value)}
+            disabled={isView}
           />
           <DropdownInput
             label="State"
@@ -375,6 +411,7 @@ export const AddLeadDrawer = memo(({
             options={STATE_OPTIONS}
             value={formData.state}
             onChange={(e) => handleDropdownChange('state', e.target.value)}
+            disabled={isView}
           />
         </div>
 
@@ -389,6 +426,7 @@ export const AddLeadDrawer = memo(({
             options={CITY_OPTIONS}
             value={formData.city}
             onChange={(e) => handleDropdownChange('city', e.target.value)}
+            disabled={isView}
           />
           <TextInput
             label="Postal Code"
@@ -396,6 +434,7 @@ export const AddLeadDrawer = memo(({
             placeholder="380009"
             value={formData.postalCode}
             onChange={handleChange}
+            disabled={isView}
           />
         </div>
 
@@ -415,17 +454,17 @@ export const AddLeadDrawer = memo(({
                   name={doc.name}
                   size={doc.size}
                   uploadDate={doc.uploadDate}
-                  onDelete={handleDeleteDocument}
+                  onDelete={isView ? undefined : handleDeleteDocument}
                 />
               ))}
             </div>
           </div>
-        ) : (
+        ) : !isView ? (
           <UploadDropzone
             label="Upload Document (PNG, JPG or PDF (Max 10 Docs & Max 5MB Each))"
             placeholder="Drag and drop or click to upload"
           />
-        )}
+        ) : null}
       </form>
     </Drawer>
   );

@@ -99,16 +99,16 @@ export const CreateQuotationDrawer = memo(({
       title={title}
       subtitle="Configuring high-velocity commercial package & revenue allocation for fiscal closing Q4."
       width="w-full sm:w-[560px]"
-      bodyClassName="px-6 py-5"
+      bodyClassName="px-6 py-2"
       footer={
-        <div className="px-6 py-4 bg-white-100 border-t border-stroke sticky bottom-0 z-20 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
           <BackButton onClick={onClose} label="Back" />
           <div className="flex items-center gap-2">
             {!isViewMode && (
               <button
                 type="button"
                 onClick={() => handleSubmit('Draft')}
-                className="px-3.5 py-2.5 rounded-lg border border-stroke bg-white-100 text-black-90 text-xs font-semibold hover:bg-gray transition-all cursor-pointer active:scale-95 "
+                className="px-3.5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-stroke/80 bg-gray hover:bg-gray/80 text-black-90 text-xs font-semibold transition-all cursor-pointer active:scale-95"
               >
                 Save as Draft
               </button>
@@ -116,7 +116,7 @@ export const CreateQuotationDrawer = memo(({
             <button
               type="button"
               onClick={() => alert('Exporting Quotation PDF...')}
-              className="px-3.5 py-2.5 rounded-lg bg-secondary hover:bg-secondary/90 text-white-100 text-xs font-semibold transition-all cursor-pointer active:scale-95 "
+              className="px-3.5 py-1.5 sm:py-2 rounded-[7px] bg-secondary hover:bg-secondary/90 text-white-100 text-xs font-semibold border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
             >
               Export PDF
             </button>
@@ -124,7 +124,7 @@ export const CreateQuotationDrawer = memo(({
               <button
                 type="button"
                 onClick={() => handleSubmit('Pending Approval')}
-                className="px-3.5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold transition-all cursor-pointer active:scale-95 "
+                className="px-3.5 py-1.5 sm:py-2 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
               >
                 Send for VP Approval
               </button>
@@ -132,7 +132,7 @@ export const CreateQuotationDrawer = memo(({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold transition-all cursor-pointer active:scale-95 "
+                className="px-5 py-1.5 sm:py-2 rounded-[7px] bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
               >
                 Close
               </button>
@@ -242,7 +242,7 @@ export const CreateQuotationDrawer = memo(({
           </h3>
 
           {/* Product Card 1 */}
-          <div className="flex items-center justify-between p-3.5 bg-white-100 border border-stroke rounded-xl hover:border-primary/40 transition-colors ">
+          <div className="flex items-center justify-between p-3.5 bg-white-100 border-b-2 border-stroke/80 rounded-[7px] hover:border-primary/40 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 rounded-lg bg-[#EBF3FF] flex items-center justify-center text-secondary shrink-0">
                 <Layers size={18} />
@@ -252,7 +252,7 @@ export const CreateQuotationDrawer = memo(({
                   <span className="text-xs font-bold text-black-90">
                     Enterprise Cloud Data Mesh Suite v4.2
                   </span>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-gray text-black-90/70 rounded font-medium border border-stroke">
+                  <span className="text-[10px] px-1.5 py-0.5 bg-gray text-black-90/70 rounded-[4px] font-medium border-b-2 border-stroke/80">
                     SKU-CLD-998
                   </span>
                 </div>
@@ -270,7 +270,7 @@ export const CreateQuotationDrawer = memo(({
           </div>
 
           {/* Product Card 2 */}
-          <div className="flex items-center justify-between p-3.5 bg-white-100 border border-stroke rounded-xl hover:border-primary/40 transition-colors ">
+          <div className="flex items-center justify-between p-3.5 bg-white-100 border-b-2 border-stroke/80 rounded-[7px] hover:border-primary/40 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 rounded-lg bg-[#EBF3FF] flex items-center justify-center text-secondary shrink-0">
                 <Layers size={18} />
@@ -280,7 +280,7 @@ export const CreateQuotationDrawer = memo(({
                   <span className="text-xs font-bold text-black-90">
                     Enterprise Cloud Data Mesh Suite v4.2
                   </span>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-gray text-black-90/70 rounded font-medium border border-stroke">
+                  <span className="text-[10px] px-1.5 py-0.5 bg-gray text-black-90/70 rounded-[4px] font-medium border-b-2 border-stroke/80">
                     SKU-CLD-998
                   </span>
                 </div>
@@ -324,7 +324,7 @@ export const CreateQuotationDrawer = memo(({
           </div>
 
           {/* Grand Total Box */}
-          <div className="flex items-center justify-between p-3.5 bg-gray border border-stroke rounded-xl mt-1">
+          <div className="flex items-center justify-between p-3.5 bg-gray border-b-2 border-stroke/80 rounded-[7px] mt-1">
             <span className="text-xs font-bold text-black-90 tracking-wider">
               GRAND TOTAL
             </span>

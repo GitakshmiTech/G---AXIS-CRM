@@ -23,7 +23,7 @@ export const TextAreaInput = memo(({
   inputClassName,
   ...props
 }) => {
-  const defaultClass = 'w-full min-h-[100px] p-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none transition-all resize-y disabled:bg-gray disabled:cursor-not-allowed';
+  const defaultClass = 'w-full min-h-[100px] p-3 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 placeholder:select-none font-normal focus:outline-none transition-all resize-y disabled:bg-gray disabled:cursor-not-allowed';
   const resolvedClass = textareaClassName || inputClassName || defaultClass;
 
   return (
