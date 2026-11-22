@@ -2,8 +2,18 @@
 //    IMPORTS AND DEPENDENCIES
 //    React primitives, Lucide chevron sort indicators.
 // ==================================================================================================================
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+
+// Estimate the space needed for a one-line label, including its optional sort icon and cell padding.
+const getColumnWidth = (column) => {
+  const widthHint = column.width || `${column.headerClassName || ''} ${column.className || ''}`;
+  const pixelMatch = String(widthHint).match(/w-\[(\d+(?:\.\d+)?)px\]/);
+  const scaleMatch = String(widthHint).match(/\bw-(\d+)\b/);
+  const hintedWidth = pixelMatch ? Number(pixelMatch[1]) : scaleMatch ? Number(scaleMatch[1]) * 4 : 120;
+  const labelWidth = String(column.label || '').length * 7 + (column.sortable ? 44 : 24);
+  return Math.max(hintedWidth, labelWidth);
+};
 
 //==================================================================================================================
 //    REUSABLE DATA TABLE COMPONENT
@@ -17,6 +27,10 @@ export const DataTable = ({
   className = '',
   maxHeight,
   freezeFirstColumn = true,
+  minWidth = 0,
+  fixedLayout = true,
+  fitContent = false,
+  loading = false,
 }) => {
   //==================================================================================================================
   //    PERSISTENT SORTING STATE
@@ -25,7 +39,7 @@ export const DataTable = ({
     try {
       const saved = localStorage.getItem(`dataTable-sort-${window.location.pathname}`);
       return saved ? JSON.parse(saved) : null;
-    } catch (e) {
+    } catch {
       return null;
     }
   });
@@ -108,15 +122,34 @@ export const DataTable = ({
     });
   }, [data, sortConfig]);
 
+  // Convert existing pixel width hints into responsive proportions and remove fixed widths from cells.
+  const columnWidths = useMemo(() => {
+    if (fitContent || !columns.length) return [];
+    const weights = columns.map(getColumnWidth);
+    const total = weights.reduce((sum, width) => sum + width, 0);
+    return weights.map((width) => `${(width / total) * 100}%`);
+  }, [columns, fitContent]);
+
+  // Preserve readable baseline widths and allow horizontal scrolling only when the viewport is narrower.
+  const responsiveMinWidth = useMemo(() => {
+    if (fitContent) return minWidth;
+    return columns.reduce((total, column) => total + getColumnWidth(column), 0);
+  }, [columns, fitContent, minWidth]);
+
+  // Keep width constraints at the table column level so legacy page classes cannot force overflow.
+  const responsiveCellClass = (classNames = '') => fitContent
+    ? classNames
+    : classNames.split(/\s+/).filter((token) => !/^(?:min-|max-)?w-(?:\[[^\]]+\]|\d+|full|auto|screen|min|max|fit)$/.test(token)).join(' ');
+
   return (
     //==================================================================================================================
     //    RESPONSIVE TABLE WRAPPER
     // ==================================================================================================================
     <div
-      className={`w-full min-h-[350px] ${maxHeight ? 'overflow-auto no-scrollbar' : ''} ${className}`}
+      className={`data-table-viewport w-full overflow-x-auto min-h-[350px] ${maxHeight ? 'overflow-y-auto no-scrollbar' : ''} ${className}`}
       style={maxHeight ? { maxHeight } : undefined}
     >
-      <table className="w-full text-left border-separate border-spacing-0 min-w-[760px]">
+      <table aria-busy={loading} className={`${fitContent ? 'w-max' : 'w-full'} text-left border-separate border-spacing-0 ${fixedLayout ? 'table-fixed' : ''}`} style={{ minWidth: fitContent ? minWidth : responsiveMinWidth, width: fitContent ? 'max-content' : '100%' }}>
         {/* Table Column Headers */}
         <thead className="sticky top-0 z-10 bg-gray">
           <tr className="bg-gray text-[11px] font-semibold text-black capitalize tracking-wider">
@@ -126,9 +159,10 @@ export const DataTable = ({
                 <th
                   key={column.key}
                   onClick={() => column.sortable && handleSortToggle(column)}
-                  className={`sticky top-0 bg-gray py-2 px-2 first:pl-4 last:pr-4 first:rounded-l-lg last:rounded-r-lg relative ${
+                  style={!fitContent ? { width: columnWidths[index] } : undefined}
+                  className={`sticky top-0 overflow-hidden bg-gray py-2 px-2 first:pl-4 last:pr-4 first:rounded-l-lg last:rounded-r-lg relative ${
                     isFirst ? 'left-0 z-20' : 'z-10'
-                  } ${column.sortable ? 'cursor-pointer  group' : ''} ${column.headerClassName || ''}`}
+                  } ${column.sortable ? 'cursor-pointer  group' : ''} ${responsiveCellClass(column.headerClassName || '')}`}
                 >
                   <div
                     className={`flex items-center gap-1.5 ${column.align === 'center'
@@ -138,7 +172,7 @@ export const DataTable = ({
                         : 'justify-start'
                       }`}
                   >
-                    <span className="whitespace-nowrap">{column.label}</span>
+                    <span className="min-w-0 whitespace-nowrap leading-tight">{column.label}</span>
                     {column.sortable && (
                       <div
                         className={`p-0.5 transition-all ${sortConfig?.key === column.key
@@ -164,7 +198,21 @@ export const DataTable = ({
 
         {/* Table Body Rows */}
         <tbody className="divide-y divide-stroke text-xs text-black-90">
-          {sortedData.length > 0 ? (
+          {loading ? (
+            Array.from({ length: 5 }, (_, rowIndex) => (
+              <tr key={`skeleton-row-${rowIndex}`} aria-hidden="true" className="border-b border-stroke/50">
+                {columns.map((column, columnIndex) => {
+                  const isFirst = (freezeFirstColumn && columnIndex === 0) || column.pinned === 'left';
+                  const width = [68, 82, 72, 88, 62, 76][(columnIndex + rowIndex) % 6];
+                  return (
+                    <td key={`skeleton-cell-${column.key}`} className={`crm-data-table-cell align-middle py-4 px-2 first:pl-4 last:pr-4 ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : 'text-left'} ${isFirst ? 'sticky left-0 z-[5] bg-white-100' : ''}`}>
+                      <span className="inline-block h-3 max-w-full animate-pulse rounded-[4px] bg-gray" style={{ width: `${width}%` }} />
+                    </td>
+                  );
+                })}
+              </tr>
+            ))
+          ) : sortedData.length > 0 ? (
             sortedData.map((row, rowIndex) => {
               const key =
                 typeof rowKey === 'function' ? rowKey(row, rowIndex) : row[rowKey] || rowIndex;
@@ -179,11 +227,11 @@ export const DataTable = ({
                     return (
                       <td
                         key={column.key}
-                        className={`py-3 px-2 first:pl-4 last:pr-4 ${
+                        className={`crm-data-table-cell align-top whitespace-normal break-words [overflow-wrap:anywhere] py-3 px-2 first:pl-4 last:pr-4 ${
                           isFirst
                             ? 'sticky left-0 z-[5] bg-white-100 group-hover:bg-[#FBFCFE]'
                             : ''
-                        } ${column.className || ''}`}
+                        } ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : 'text-left'} ${responsiveCellClass(column.className || '')}`}
                       >
                         {column.render ? column.render(row, rowIndex) : row[column.key]}
                       </td>

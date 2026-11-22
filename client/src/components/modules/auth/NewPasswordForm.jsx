@@ -3,31 +3,32 @@
 //    Password reset form for establishing a secure new credential
 //===========================================================================================
 
-import React, { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PasswordInput from '../../common/inputs/PasswordInput';
 import Button from '../../common/buttons/Button';
+import { resetPasswordSchema } from '../../../utils/validationSchemas';
+import { clearFieldError, focusFirstInvalidField, validateForm } from '../../../utils/validationUtils';
 
 export const NewPasswordForm = memo(() => {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const formRef = useRef(null);
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
-      if (!password.trim()) {
-        setError('Please enter a new password.');
-        return;
-      }
-      if (password !== confirmPassword) {
-        setError('Passwords do not match.');
+      const validation = await validateForm(resetPasswordSchema, { password, confirmPassword });
+      if (Object.keys(validation.errors).length) {
+        setFieldErrors(validation.errors);
+        focusFirstInvalidField(formRef.current, validation.errors);
         return;
       }
       setSubmitted(true);
-      setError('');
+      setFieldErrors({});
       setTimeout(() => {
         navigate('/login', { replace: true });
       }, 1200);
@@ -46,12 +47,7 @@ export const NewPasswordForm = memo(() => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
-        {error && (
-          <div className="p-3 text-xs font-semibold text-alert bg-alert/10 border-b-2 border-stroke/80 rounded-[7px] text-center">
-            {error}
-          </div>
-        )}
+      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
 
         {submitted && (
           <div className="p-3 text-xs font-semibold text-success bg-success/10 border-b-2 border-stroke/80 rounded-[7px] text-center">
@@ -63,20 +59,23 @@ export const NewPasswordForm = memo(() => {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
-            if (error) setError('');
+            clearFieldError(setFieldErrors, 'password');
           }}
           placeholder="New password"
           required
+          error={fieldErrors.password}
         />
 
         <PasswordInput
           value={confirmPassword}
           onChange={(e) => {
             setConfirmPassword(e.target.value);
-            if (error) setError('');
+            clearFieldError(setFieldErrors, 'confirmPassword');
           }}
           placeholder="Confirm new password"
           required
+          name="confirmPassword"
+          error={fieldErrors.confirmPassword}
         />
 
         <div className="mt-2 flex flex-col gap-3">

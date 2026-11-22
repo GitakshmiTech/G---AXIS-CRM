@@ -2,9 +2,9 @@
 //    IMPORTS AND DEPENDENCIES
 //    React primitives, Lucide icons, common data table shell, toolbar, pagination, and multi-mode drawers
 //==================================================================================================================
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  ChevronDown,
   Mail,
   MessageSquare,
   Clock,
@@ -16,81 +16,125 @@ import { DataTable } from '../components/common/Table/DataTable';
 import { Pagination } from '../components/common/Table/Pagination';
 import { ViewBtn } from '../components/common/buttons/ViewBtn';
 import { EditBtn } from '../components/common/buttons/EditBtn';
-import { AddLeadDrawer } from '../components/modules/leads/AddLeadDrawer';
+import { DropdownInput } from '../components/common/inputs/DropdownInput';
 import { LeadActivityDrawer } from '../components/modules/leads/LeadActivityDrawer';
 import { LeadCommentsDrawer } from '../components/modules/leads/LeadCommentsDrawer';
-import { ConvertLeadDrawer } from '../components/modules/leads/ConvertLeadDrawer';
 import {
-  INITIAL_LEADS_DATA,
   LEAD_STAGES,
   LEAD_PRIORITIES,
   LEAD_SOURCES,
 } from '../constants/leadsConstants';
+import { addLeadComment, fetchLead, fetchLeads, updateLeadStatus } from '../services/leadsService';
+import { useToast } from '../hooks/useToast';
+
+const LEAD_STAGE_OPTIONS = LEAD_STAGES.filter((stage) => stage.value !== 'All');
 
 //==================================================================================================================
 //    LEAD MANAGEMENT / LEADS UNIFIED PAGE COMPONENT
 //    Enterprise leads management with filters, quick contacts, and creation/inspection slide-overs
 //==================================================================================================================
 export const Leads = () => {
-  const [leads, setLeads] = useState(INITIAL_LEADS_DATA);
+  const navigate = useNavigate();
+  const toast = useToast();
+  const [leads, setLeads] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [stageFilter, setStageFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [sourceFilter, setSourceFilter] = useState('All');
   const [viewMode, setViewMode] = useState('list');
   const [currentPage, setCurrentPage] = useState(1);
+  const [updatingLeadIds, setUpdatingLeadIds] = useState([]);
   const pageSize = 10;
 
+  // Load API-backed rows when backend-supported search or status filters change.
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setApiError('');
+    fetchLeads({ search: searchQuery, status: stageFilter, source: sourceFilter === 'All' ? '' : sourceFilter, limit: 100 })
+      .then(({ rows }) => { if (active) setLeads(rows); })
+      .catch((error) => { if (active) setApiError(error.message || 'Unable to load leads.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [searchQuery, stageFilter, sourceFilter]);
+
   // Drawer States
-  const [isAddOrEditOpen, setIsAddOrEditOpen] = useState(false);
-  const [drawerMode, setDrawerMode] = useState('create'); // 'create' | 'edit' | 'view'
   const [selectedLead, setSelectedLead] = useState(null);
 
   const [isActivityOpen, setIsActivityOpen] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
-  const [isConvertOpen, setIsConvertOpen] = useState(false);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentsError, setCommentsError] = useState('');
 
   //==================================================================================================================
   //    Handlers
   //==================================================================================================================
   const handleOpenCreate = useCallback(() => {
-    setSelectedLead(null);
-    setDrawerMode('create');
-    setIsAddOrEditOpen(true);
-  }, []);
+    navigate('/leads/new');
+  }, [navigate]);
 
   const handleOpenEdit = useCallback((lead) => {
-    setSelectedLead(lead);
-    setDrawerMode('edit');
-    setIsAddOrEditOpen(true);
-  }, []);
+    navigate(`/leads/${encodeURIComponent(lead.id)}/edit`);
+  }, [navigate]);
 
   const handleOpenView = useCallback((lead) => {
-    setSelectedLead(lead);
-    setDrawerMode('view');
-    setIsAddOrEditOpen(true);
-  }, []);
+    navigate(`/leads/${encodeURIComponent(lead.id)}/view`);
+  }, [navigate]);
 
-  const handleOpenComments = useCallback((lead) => {
-    setSelectedLead(lead);
+  const handleOpenComments = useCallback(async (lead) => {
+    setSelectedLead({ ...lead, activities: [] });
     setIsCommentsOpen(true);
-  }, []);
+    setCommentsError('');
+    setCommentsLoading(true);
+    try { setSelectedLead(await fetchLead(lead.id)); }
+    catch (error) { setCommentsError(error.message || 'Unable to load lead comments.'); toast(error.message || 'Unable to load lead comments.', 'error'); }
+    finally { setCommentsLoading(false); }
+  }, [toast]);
 
-  const handleOpenActivity = useCallback((lead) => {
+  const handleOpenActivity = useCallback(async (lead) => {
     setSelectedLead(lead);
     setIsActivityOpen(true);
-  }, []);
+    try { setSelectedLead(await fetchLead(lead.id)); }
+    catch (error) { setApiError(error.message || 'Unable to load lead activity.'); toast(error.message || 'Unable to load lead activity.', 'error'); }
+  }, [toast]);
 
-  const handleOpenConvert = useCallback(() => {
-    setIsAddOrEditOpen(false);
-    setIsConvertOpen(true);
-  }, []);
+  const handleAddComment = useCallback(async (text) => {
+    if (!selectedLead?.id) throw new Error('Select a lead before adding a comment.');
+    const comment = await addLeadComment(selectedLead.id, text);
+    toast('Comment added to the lead.');
+    return comment;
+  }, [selectedLead, toast]);
+
+  /** Persist a stage selection and update the row only after the API confirms it. */
+  const handleStageChange = useCallback(async (lead, nextStage) => {
+    if (!nextStage || nextStage === lead.stage) return;
+    setUpdatingLeadIds((ids) => [...ids, lead.id]);
+    try {
+      const updated = await updateLeadStatus(lead.id, nextStage);
+      const stage = updated.stage || nextStage;
+      setLeads((items) => items.map((item) => item.id === lead.id ? { ...item, stage } : item));
+      toast(`Lead stage changed to ${stage}.`);
+    } catch (error) {
+      toast(error.message || 'Unable to update the lead stage.', 'error');
+    } finally {
+      setUpdatingLeadIds((ids) => ids.filter((id) => id !== lead.id));
+    }
+  }, [toast]);
+
+  const leadComments = useMemo(() => (
+    selectedLead?.activities?.filter((activity) => activity.type === 'note').map((activity) => ({
+      id: activity.id,
+      text: activity.text || activity.description,
+      timestamp: activity.timestamp,
+      avatar: '',
+    })) || []
+  ), [selectedLead]);
 
   const handleCloseAllDrawers = useCallback(() => {
-    setIsAddOrEditOpen(false);
     setIsActivityOpen(false);
     setIsCommentsOpen(false);
-    setIsConvertOpen(false);
   }, []);
 
   const handleResetFilters = useCallback(() => {
@@ -100,71 +144,6 @@ export const Leads = () => {
     setSourceFilter('All');
     setCurrentPage(1);
   }, []);
-
-  const handleSaveLead = useCallback((formData) => {
-    if (drawerMode === 'edit' && selectedLead) {
-      setLeads((prev) =>
-        prev.map((item) =>
-          item.id === selectedLead.id ? { ...item, ...formData } : item
-        )
-      );
-    } else {
-      const newLead = {
-        id: `lead-${Date.now()}`,
-        code: `#${String(leads.length + 1).padStart(3, '0')}`,
-        name: formData.name,
-        avatar:
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
-        designation: formData.designation,
-        companyName: formData.companyName,
-        companyLogo:
-          'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=80&h=80&fit=crop&crop=faces',
-        stage: formData.stage,
-        priority: formData.priority,
-        email: formData.email,
-        phone: formData.phone,
-        productInterest: formData.productInterest,
-        leadSource: formData.leadSource,
-        industry: formData.industry,
-        employeeScale: formData.employeeScale,
-        website: formData.website,
-        address: formData.address,
-        country: formData.country,
-        state: formData.state,
-        city: formData.city,
-        postalCode: formData.postalCode,
-        createdDate: new Date().toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        }),
-        createdTime: new Date().toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-      };
-      setLeads((prev) => [newLead, ...prev]);
-    }
-    handleCloseAllDrawers();
-  }, [drawerMode, selectedLead, leads.length, handleCloseAllDrawers]);
-
-  const handleDeactivateLead = useCallback(() => {
-    if (selectedLead) {
-      setLeads((prev) => prev.filter((item) => item.id !== selectedLead.id));
-      handleCloseAllDrawers();
-    }
-  }, [selectedLead, handleCloseAllDrawers]);
-
-  const handleConfirmConvert = useCallback((dealData) => {
-    if (selectedLead) {
-      setLeads((prev) =>
-        prev.map((item) =>
-          item.id === selectedLead.id ? { ...item, stage: 'Won' } : item
-        )
-      );
-    }
-    handleCloseAllDrawers();
-  }, [selectedLead, handleCloseAllDrawers]);
 
   //==================================================================================================================
   //    FILTERING & PAGINATION
@@ -247,9 +226,10 @@ export const Leads = () => {
       label: 'Code',
       sortable: true,
       sortType: 'text',
-      className: 'w-20 pl-4',
+      className: 'w-[155px] pl-4',
+      headerClassName: 'w-[155px]',
       render: (row) => (
-        <span className="font-semibold text-black-90">{row.code}</span>
+        <span title={row.code} className="whitespace-nowrap font-semibold text-black-90">{row.code}</span>
       ),
     },
     {
@@ -257,15 +237,16 @@ export const Leads = () => {
       label: 'Lead Name',
       sortable: true,
       sortType: 'text',
-      className: 'max-sm:min-w-[150px] max-sm:pr-3',
+      className: 'w-[190px] max-w-[190px] pr-3',
+      headerClassName: 'w-[190px]',
       render: (row) => (
-        <div className="flex items-center gap-2.5">
+        <div className="flex min-w-0 items-center gap-2.5">
           <img
             src={row.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face'}
             alt={row.name}
             className="w-8 h-8 rounded-full object-cover border-none"
           />
-          <span className="font-medium text-black-90 whitespace-nowrap">
+          <span title={row.name} className="block min-w-0 whitespace-normal break-words font-medium text-black-90">
             {row.name}
           </span>
         </div>
@@ -276,15 +257,16 @@ export const Leads = () => {
       label: 'Company Name',
       sortable: true,
       sortType: 'text',
-      className: 'max-sm:min-w-[180px] max-sm:pr-5',
+      className: 'w-[220px] max-w-[220px] pr-3',
+      headerClassName: 'w-[220px]',
       render: (row) => (
-        <div className="flex items-center gap-2.5">
+        <div className="flex min-w-0 items-center gap-2.5">
           <img
             src={row.companyLogo || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=80&h=80&fit=crop&crop=faces'}
             alt={row.companyName}
             className="w-7 h-7 rounded-full object-cover border-none shrink-0"
           />
-          <span className="font-medium text-black-90 whitespace-nowrap">
+          <span title={row.companyName} className="block min-w-0 whitespace-normal break-words font-medium text-black-90">
             {row.companyName}
           </span>
         </div>
@@ -295,12 +277,26 @@ export const Leads = () => {
       label: 'Stage',
       sortable: true,
       sortType: 'status',
-      className: 'max-sm:pl-3',
+      align: 'center',
+      className: 'w-[150px]',
+      headerClassName: 'w-[150px]',
       render: (row) => (
-        <div className="w-[112px] h-[24px] inline-flex items-center justify-between px-3 py-0.5 bg-gray rounded-[7px] text-xs font-semibold text-black-90 cursor-pointer hover:bg-gray/80 transition-colors">
-          <span>{row.stage}</span>
-          <ChevronDown size={14} className="text-primary shrink-0" strokeWidth={2.5} />
-        </div>
+        <div className="flex w-full justify-center"><DropdownInput
+          name={`lead-stage-${row.id}`}
+          value={row.stage || 'New'}
+          options={[...(!LEAD_STAGE_OPTIONS.some((stage) => stage.value === row.stage) && row.stage ? [{ value: row.stage, label: row.stage }] : []), ...LEAD_STAGE_OPTIONS]}
+          onChange={(event) => handleStageChange(row, event.target.value)}
+          disabled={updatingLeadIds.includes(row.id)}
+          aria-label={`Change stage for ${row.name}`}
+          title="Change lead stage"
+          containerClassName="w-fit min-w-0"
+          containerDataUiStyle="table-stage-select"
+          fitContent
+          dropdownMenuClassName="right-auto w-max min-w-[10rem]"
+          dropdownOptionLabelClassName="overflow-visible"
+          chevronButtonClassName="absolute right-1 top-1/2 -translate-y-1/2 cursor-pointer p-0.5 focus:outline-none"
+          selectClassName="h-7 px-2 pr-6 bg-transparent border-0 rounded-none text-xs text-black-90 font-semibold shadow-none focus:outline-none focus:shadow-none cursor-pointer transition-colors hover:text-primary disabled:cursor-wait"
+        /></div>
       ),
     },
     {
@@ -308,6 +304,8 @@ export const Leads = () => {
       label: 'Priority',
       sortable: true,
       sortType: 'text',
+      className: 'w-[145px]',
+      headerClassName: 'w-[145px]',
       render: (row) => {
         const badgeColor =
           row.priority?.toLowerCase() === 'high'
@@ -318,9 +316,9 @@ export const Leads = () => {
 
         return (
           <span
-            className={`w-[112px] h-[24px] inline-flex items-center justify-center px-3 py-0.5 rounded-[7px] text-xs font-semibold ${badgeColor}`}
+            className={`w-full max-w-[112px] h-[24px] inline-flex items-center justify-center px-2 py-0.5 rounded-[7px] text-xs font-semibold ${badgeColor}`}
           >
-            {row.priority}
+            {row.priority || '—'}
           </span>
         );
       },
@@ -329,6 +327,8 @@ export const Leads = () => {
       key: 'quickContact',
       label: 'Quick Contact',
       align: 'center',
+      className: 'w-[140px]',
+      headerClassName: 'w-[140px]',
       render: (row) => (
         <div className="flex items-center justify-center gap-2">
           {/* WhatsApp Direct Action */}
@@ -361,6 +361,8 @@ export const Leads = () => {
       key: 'createdDate',
       label: 'Created Date',
       sortable: true,
+      className: 'w-[130px]',
+      headerClassName: 'w-[130px]',
       render: (row) => (
         <div className="flex flex-col text-[11px] leading-tight">
           <span className="font-medium text-black-90">{row.createdDate}</span>
@@ -373,8 +375,9 @@ export const Leads = () => {
       label: 'Action',
       align: 'center',
       className: 'pr-4',
+      headerClassName: 'w-[185px]',
       render: (row) => (
-        <div className="flex items-center justify-center gap-1.5">
+        <div className="flex flex-wrap items-center justify-center gap-1">
           <ViewBtn onClick={() => handleOpenView(row)} title="View Lead Details" />
           <EditBtn onClick={() => handleOpenEdit(row)} title="Edit Lead" />
           <button
@@ -401,6 +404,8 @@ export const Leads = () => {
     handleOpenEdit,
     handleOpenActivity,
     handleOpenComments,
+    handleStageChange,
+    updatingLeadIds,
   ]);
 
   //==================================================================================================================
@@ -454,52 +459,38 @@ export const Leads = () => {
           />
         }
       >
+        {apiError && <div role="alert" className="mx-4 mt-3 rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-4 py-3 text-sm text-alert">{apiError}</div>}
         <DataTable
           columns={columns}
           data={paginatedLeads}
           rowKey="id"
+          loading={loading}
+          fixedLayout
           emptyMessage="No leads found matching current criteria."
         />
       </TableContainer>
 
       {/* ==============================================================================================================
-          1. Add / Edit / View Lead Drawer
-      ============================================================================================================== */}
-      <AddLeadDrawer
-        isOpen={isAddOrEditOpen}
-        onClose={handleCloseAllDrawers}
-        onSave={handleSaveLead}
-        onDeactivate={handleDeactivateLead}
-        onConvert={handleOpenConvert}
-        initialData={selectedLead}
-        mode={drawerMode}
-      />
-
-      {/* ==============================================================================================================
-          2. Lead Activity Drawer
+          Lead Activity Drawer
       ============================================================================================================== */}
       <LeadActivityDrawer
         isOpen={isActivityOpen}
         onClose={handleCloseAllDrawers}
+        activities={selectedLead?.activities || []}
       />
 
       {/* ==============================================================================================================
-          3. Lead Comments Drawer
+          Lead Comments Drawer
       ============================================================================================================== */}
       <LeadCommentsDrawer
         isOpen={isCommentsOpen}
         onClose={handleCloseAllDrawers}
+        initialComments={leadComments}
+        isLoading={commentsLoading}
+        loadError={commentsError}
+        onAddComment={handleAddComment}
       />
 
-      {/* ==============================================================================================================
-          4. Convert Lead / Make a Deal Drawer
-      ============================================================================================================== */}
-      <ConvertLeadDrawer
-        isOpen={isConvertOpen}
-        onClose={handleCloseAllDrawers}
-        onConfirm={handleConfirmConvert}
-        lead={selectedLead}
-      />
     </div>
   );
 };

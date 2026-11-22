@@ -32,6 +32,7 @@ export const LeadActivityDrawer = memo(({
       }
     >
       <div className="flex flex-col gap-3.5">
+        {activities.length === 0 && <p className="py-8 text-center text-xs text-black-90/60">No activity recorded for this lead.</p>}
         {activities.map((item) => (
           <ActivityCard
             key={item.id}

@@ -3,46 +3,40 @@
 //    Slide-over drawer for team conversation, threaded notes, and activity comments on leads
 //==================================================================================================================
 
-import React, { useState, memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Drawer } from '../../common/sidebar/Drawer';
-import { Button } from '../../common/buttons/Button';
-import { MOCK_COMMENTS } from '../../../constants/leadsConstants';
 
 export const LeadCommentsDrawer = memo(({
   isOpen = false,
   onClose,
-  initialComments = MOCK_COMMENTS,
+  initialComments = [],
+  isLoading = false,
+  loadError = '',
+  onAddComment,
 }) => {
   const [comments, setComments] = useState(initialComments);
   const [newComment, setNewComment] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleAddComment = (e) => {
+  useEffect(() => {
+    if (isOpen) setComments(initialComments);
+  }, [initialComments, isOpen]);
+
+  const handleAddComment = async (e) => {
     if (e) e.preventDefault();
     if (!newComment.trim()) return;
-
-    const commentObj = {
-      id: `com-${Date.now()}`,
-      text: newComment.trim(),
-      timestamp:
-        new Date().toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        }) +
-        ' ' +
-        new Date()
-          .toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-          })
-          .toLowerCase(),
-      avatar:
-        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
-    };
-
-    setComments((prev) => [...prev, commentObj]);
-    setNewComment('');
+    setIsSaving(true);
+    setError('');
+    try {
+      const savedComment = await onAddComment(newComment.trim());
+      setComments((prev) => [...prev, savedComment]);
+      setNewComment('');
+    } catch (saveError) {
+      setError(saveError.message || 'Unable to save comment.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -66,32 +60,35 @@ export const LeadCommentsDrawer = memo(({
             placeholder="Add comment here"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
+            disabled={isSaving || isLoading}
             className="flex-1 min-w-0 h-[34px] sm:h-[36px] px-3 sm:px-3.5 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none transition-all"
           />
           <button
             type="submit"
-            className="px-4 sm:px-5 h-[34px] sm:h-[36px] bg-primary hover:bg-primary/90 text-white-100 text-xs font-semibold rounded-[7px] border-b-2 border-black-90/20 shrink-0 transition-colors cursor-pointer flex items-center justify-center"
+            disabled={isSaving || isLoading || !newComment.trim()}
+            className="px-4 sm:px-5 h-[34px] sm:h-[36px] bg-primary hover:bg-primary/90 disabled:opacity-50 text-white-100 text-xs font-semibold rounded-[7px] border-b-2 border-black-90/20 shrink-0 transition-colors cursor-pointer flex items-center justify-center"
           >
-            Submit
+            {isSaving ? 'Saving…' : 'Submit'}
           </button>
         </form>
       }
     >
       <div className="flex flex-col gap-4">
+        {error && <p className="text-xs text-alert" role="alert">{error}</p>}
+        {loadError && <p className="text-xs text-alert" role="alert">{loadError}</p>}
+        {isLoading && <p className="py-8 text-center text-xs text-black-90/60" role="status">Loading comments…</p>}
+        {!isLoading && comments.length === 0 && <p className="py-8 text-center text-xs text-black-90/60">No comments yet. Add the first comment below.</p>}
         {comments.map((item) => (
           <div key={item.id} className="flex flex-col gap-1">
             <div className="flex items-start gap-3">
               {/* Comment Bubble */}
-              <div className="flex-1 bg-[#F2F4F7] border border-stroke rounded-2xl p-3.5 text-xs text-black-90 leading-relaxed ">
+              <div className="flex-1 bg-gray border-b-2 border-stroke/80 rounded-[7px] p-3.5 text-xs text-black-90 leading-relaxed">
                 {item.text}
               </div>
 
               {/* Author Avatar */}
-              <img
-                src={item.avatar}
-                alt="Commenter"
-                className="w-9 h-9 rounded-full object-cover shrink-0"
-              />
+              {item.avatar ? <img src={item.avatar} alt="Commenter" className="w-9 h-9 rounded-full object-cover border-none shrink-0" /> :
+                <div title="Lead note" aria-label="Lead note" className="w-9 h-9 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center shrink-0">N</div>}
             </div>
 
             {/* Comment Timestamp */}

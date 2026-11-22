@@ -17,7 +17,7 @@ export const BdeLayout = () => {
   const navigate = useNavigate();
 
   const handleProfileClick = useCallback(() => {
-    navigate('/bde/profile');
+    navigate('/profile');
   }, [navigate]);
 
   const headerContent = useMemo(() => {
@@ -29,9 +29,9 @@ export const BdeLayout = () => {
     }
     if (location.pathname.startsWith('/bde/clients') || location.pathname === '/clients') {
       return {
-        title: 'My Clients',
+        title: 'My Accounts',
         subtitle:
-          'Enterprise accounts linked to your converted leads, active stakeholder contacts, and opportunity deals. Direct modifications...',
+          'Manage accounts from successful lead conversions, including linked contacts, account ownership, and related deals.',
       };
     }
     if (location.pathname.startsWith('/bde/contacts') || location.pathname === '/contacts') {
@@ -63,7 +63,7 @@ export const BdeLayout = () => {
     }
     if (location.pathname.startsWith('/bde/profile') || location.pathname === '/profile') {
       return {
-        title: 'Edit Profile',
+        title: 'My Profile',
         subtitle: 'Manage your personal account settings, security, and preferences',
       };
     }
@@ -77,6 +77,7 @@ export const BdeLayout = () => {
       !headerContent
     );
   }, [location.pathname, headerContent]);
+  const showPageScrollbar = location.pathname.startsWith('/leads/') || location.pathname.startsWith('/contacts/');
 
   return (
     <SidebarProvider>
@@ -123,7 +124,7 @@ export const BdeLayout = () => {
             <main
               className={`flex-1 flex flex-col min-h-0 bg-gray rounded-tl-[15px] ${
                 isScrollablePage
-                  ? 'overflow-y-auto overflow-x-hidden p-2 sm:p-2.5 md:p-3 no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'
+                  ? `overflow-y-auto overflow-x-hidden p-2 sm:p-2.5 md:p-3 ${showPageScrollbar ? 'overscroll-contain' : 'no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'}`
                   : 'overflow-hidden p-2 sm:p-2.5 md:p-3'
               }`}
             >

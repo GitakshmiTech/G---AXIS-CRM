@@ -1,5 +1,31 @@
 # React + Vite
 
+## Deals Directory API Integration (21/11/2026)
+
+- Replaced seeded Deals rows with authenticated, paginated API data. Search, stage/owner filtering, and CSV export use backend Deal endpoints.
+- The list follows FRD Deal Name, Account, Owner, Expected Value, Stage, Expected Close Date, Probability, and View/Edit actions. View/Edit use clean `/deals/:id/view` and `/deals/:id/edit` pages. My Deals currently uses the FRD list view; the Kanban view is deferred.
+- Deal editing maps to backend Deal updates: Deal Name, Stage, Owner, Expected Value, Probability, Expected Close Date, User Count, and Lost Reason. Code and Account are read-only. Linked Lead/Product/Plan/Branch IDs stay outside the form because the client has no corresponding lookup APIs.
+- Pipeline value, weighted forecast, Closed Won value, and win rate come from API aggregates. Awaiting Approvals remains unavailable because the current Deal schema has no approval status.
+
+## Lead Create and Document Preview (21/11/2026)
+
+- Add Lead no longer displays a Lead Code field; existing leads continue to show their API-generated code in View and Edit.
+- The upload area is medium height, and Full Name and Designation share a row on Add New Lead.
+- Saved documents have authenticated View and Download actions. Selected files can also be previewed or downloaded before saving, and their Cancel Upload action removes them from the pending list.
+
+## Contact Directory Updates (20/11/2026)
+
+- The contacts table displays active deal count and summed value from the API; the backend currently associates deals to accounts, so these are account-level totals.
+- Contact edit/view exposes the persisted primary-contact role, and the API enforces a single primary contact per account when a contact is promoted.
+
+## Frontend Validation (20/11/2026)
+
+- Added reusable Yup schemas in `src/utils/validationSchemas.js` and a shared validation result helper in `src/utils/validationUtils.js`.
+- Lead create/edit, lead conversion, contact edit, deal/client/contact/quotation drawers, login, forgot password, and reset password validate values before invoking their save or navigation flow.
+- Lead conversion accepts `DD/MM/YYYY` and `DD-MM-YYYY`, displays the normalized slash format, validates real calendar dates, and sends the API's `YYYY-MM-DD` value.
+- Form validation displays actionable errors beside the affected controls.
+- Yup and Joi validation feedback appears beside the matching field. Invalid submissions scroll to and focus the first invalid field; structured backend field errors are mapped into the same inline messages.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
@@ -14,6 +40,43 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 ## Changelog & Security Updates
+
+### [23/11/2026] Enterprise Redux Architecture & Async Thunk API Calling Integration
+- **Centralized Redux Async Thunk Architecture (`createAsyncThunk`)**:
+  - Implemented the standard enterprise Redux API calling structure across `src/store/` following Senior Developer design principles.
+  - **`authSlice.js` Async Thunks**:
+    - Added `loginUser`: Dispatches asynchronous credential verification to `services/profileService.js`, managing `loading`, `error`, and `session` storage persistence through `extraReducers`.
+    - Added `loadUserProfile`: Fetches fresh authenticated employee and company profile information asynchronously.
+  - **`quotationsSlice.js` (Domain Entity Async Thunk Pattern)**:
+    - Created `quotationsSlice.js` implementing complete async API lifecycle actions: `fetchQuotationsThunk`, `approveQuotationThunk`, `rejectQuotationThunk`, and `sendQuotationThunk`.
+    - Mounted in root store [`store/index.js`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/store/index.js).
+- **Separation of Concerns**:
+  - Services (`src/services/`): Pure API transport, headers, base URLs, endpoints, and response parsing. Zero Redux dependencies.
+  - Store Slices (`src/store/slices/`): State shape, async thunks, optimistic updates, and lifecycle reducers (`pending`, `fulfilled`, `rejected`).
+  - UI Components (`src/pages/`, `src/components/`): Thin UI layer consuming state with `useSelector` and dispatching actions with `useDispatch`.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 4.08s with 0 errors.
+
+### [22/11/2026] Quotation Approval Workflow (FRD 11.20, 11.35, 11.36) & Profile Flow UX Hardening
+- **Quotation Approval Lifecycle & Permission Model**:
+  - Implemented the complete Quotation Approval flow per FRD Sections 11.20, 11.35, and 11.36.
+  - Who Approves: **Sales Manager** (`marcus@gitakshmi.com`) and **CRM Admin** (`admin@gitakshmi.com`).
+  - Quotation Lifecycle:
+    1. **BDE** (`sarah@gitakshmi.com`) creates a draft quotation linked to an accessible Deal & Contact and clicks "Submit for Approval".
+    2. Status advances to `pending_approval` ("Pending Approval").
+    3. **Sales Manager / Admin** logs in and sees pending quotes highlighted in the `/quotations` directory with quick Approve (Check) and Reject (X) actions, as well as on `/quotations/:id/view`.
+    4. **Approve Action**: Opens `QuotationApprovalModal` with deal and quotation totals, allowing an optional manager note. Submitting triggers `POST /crm/quotations/:id/approve` and transitions status to `approved`.
+    5. **Reject Action**: Requires a mandatory manager feedback reason (`POST /crm/quotations/:id/reject`), transitions status to `rejected`, and sends back to BDE with feedback banner for proposal revision.
+    6. **Send to Customer**: Once approved, authorized users can dispatch the quote via `POST /crm/quotations/:id/send` (transitions status to `sent`).
+- **UI Components & Strict Rules Compliance**:
+  - Created [`QuotationApprovalModal.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/quotations/QuotationApprovalModal.jsx): Strict flat design (no drop shadows, 7px radius, 2px bottom border in `stroke/80`).
+  - Enhanced [`Quotations.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Quotations.jsx): Added quick Approve and Reject icon buttons in the Action column for pending approval items for Sales Managers and Admins.
+  - Enhanced [`QuotationForm.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/QuotationForm.jsx): Added header action buttons ("Approve Quotation", "Reject Quotation", "Send to Customer") and context status banners (Pending Review, Approved, Rejected).
+  - Enhanced [`quotationsService.js`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/services/quotationsService.js): Integrated `approveQuotation`, `rejectQuotation`, `sendQuotation`, and `fetchQuotationTimeline`.
+- **Profile & Password Update UX Hardening**:
+  - Eliminated duplicate in-form green alert boxes in [`EditProfile.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/EditProfile.jsx) and [`LoginForm.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/auth/LoginForm.jsx).
+  - Elevated [`ToastViewport.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/toast/ToastViewport.jsx) (`z-[9999]`) for consistent top-right notifications.
+  - Automatically clears auth session and redirects to `/login` upon successful password update.
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 2.99s with 0 errors.
 
 ### [17/11/2026] Consolidated Router into Single `AppRoutes.jsx` File
 - **Unified Single-File Routing Architecture**:
@@ -681,3 +744,102 @@ The React Compiler is not enabled on this template because of its impact on dev 
     - `Table/`: `DataTable`, `DataTableToolbar`, `TableContainer`, `TableFilterSelect`
     - Direct common widgets: `BarChart.jsx`, `ContactAvatarPlaceholder.jsx`, `LogoutConfirmationModal.jsx`, `MobilePageHeader.jsx`, `TopHeader.jsx`, `ViewModeToggle.jsx`
 - **100% Clean Production Build**: Verified with Vite compilation (`npm run build`) passing in 1.48s with 0 errors.
+
+### Leads API Integration (20/11/2026)
+
+- Replaced the leads page's mock list and local create/edit/status/convert behavior with authenticated calls to `/api/crm/leads`.
+- Added `src/services/leadsService.js` to map the backend lead schema and response envelope to the existing UI model. Search, stage, and source filters are sent to supported backend query parameters; priority is retained as metadata in the backend requirement field because the database has no separate priority column.
+- Added the full-page create flow at `/leads/new`, reusing the established lead form and retaining its extra fields. Added the Vite `/api` development proxy to `http://localhost:5000` to prevent frontend-origin 404 responses when the backend uses its default port.
+- Added bearer token forwarding in the shared API client. The create form requires the backend-required company name, full name, and email, and reports API save failures without leaving the page.
+- Backend fields currently persist company, full name, email, phone, source, website, industry/city IDs, and requirement text. Extra UI values without matching backend columns remain visible in the form but are not independently persisted. Document upload remains unavailable in the backend.
+- Authentication remains on the current mock frontend flow. For current API development, the shared API client uses the provided temporary bearer token when the saved frontend token is a mock; `VITE_API_TOKEN` can override it. A genuine token saved by a future auth integration takes precedence. The provided token expires on 27/11/2026 at 11:40 UTC and must be replaced after expiry.
+
+### Lead Form Scrolling and Full Record Details (20/11/2026)
+
+- Kept the full-page lead form and enabled a visible vertical scrollbar for `/leads/new` across role layouts.
+- Removed scrollbar hiding from drawer content so the complete View/Edit lead form and its fixed footer remain reachable on shorter screens.
+- View/Edit now fetches `/api/crm/leads/:id` for complete details. Added the backend requirement and expected-value fields to the form and mapped backend industry/city identifiers into selectable detail values.
+- Normalized lead codes from the API to uppercase (for example, `gg_lead_001` displays as `GG_LEAD_001`). Add, View, and Edit share the same lead form component and field layout.
+
+### Lead Create, View, and Edit Page Routes (20/11/2026)
+
+- Routed Add, View, and Edit through the shared full-page lead form at `/leads/new`, `/leads/:id/view`, and `/leads/:id/edit`; activity and comments remain drawers.
+- Removed the sticky page footer overlap so all form fields, including status, priority, requirement, and expected value, are reachable by page scrolling.
+- Expanded lead list responses with requirement, industry, city, and expected value fields. Lead creation now accepts and validates the backend-supported status field.
+- Duplicate conflicts now display the backend's specific duplicate message and, when the matching record is visible to the current user, offer a direct link to its View page.
+- View/Edit mode is derived from the lead route and clears create-form errors when navigation reuses the page component.
+- Replaced static Lead Comments data with the backend lead activity endpoints: notes load from `GET /api/crm/leads/:id` and new comments post to `POST /api/crm/leads/:id/activities` as note activities. The drawer now shows loading, empty, and API error states.
+
+### Contacts API and Full-Page Details (20/11/2026)
+
+- Replaced contact mock rows with server-backed pagination and debounced search using `GET /api/crm/contacts`; export downloads the filtered backend CSV.
+- View and Edit actions navigate to `/contacts/:id/view` and `/contacts/:id/edit` and use the detail and update endpoints in a full page, with loading, error, and save states.
+- Contact forms send only fields supported by the backend (name, designation, email, phone). Account name and primary-contact state come from API data; deal counts and avatars are not returned by this API and are shown without invented values.
+- No contact create route was added because the backend creates contacts during lead conversion and exposes no contact POST endpoint.
+
+### Application Typography Scale (20/11/2026)
+
+- Set shared Tailwind typography tokens to 90% of their default sizes at normal 100% browser zoom. This scales text consistently across dashboard, Leads, Contacts, and shared components while preserving layout spacing and browser zoom.
+# Lead Document Uploads (20/11/2026)
+
+- Lead create/edit pages accept up to 10 PNG, JPG/JPEG, or PDF documents, each no larger than 5 MB, and display selected and saved files.
+- Documents use authenticated multipart `FormData` calls; the shared API client leaves the multipart boundary header to the browser.
+- Lead detail pages load document metadata and support authenticated download/removal. Lead priority remains High, Medium, or Low and continues through the existing API requirement metadata mapping.
+
+### Shared Notifications and Lead Table (20/11/2026)
+
+- Added one app-wide toast provider and viewport for success and error messages across lead saves, stage changes, comments, and lead actions.
+- Lead stage controls now persist changes through the status API and refresh the row after confirmation.
+- Lead table columns now use deliberate widths, fixed layout, truncation with full-name tooltips, and horizontal scrolling at narrow widths to prevent name and company overlap.
+
+### Lead Conversion Page (20/11/2026)
+
+- Replaced the conversion drawer flow with the lazy-loaded `/leads/:id/convert` page and dynamically loaded lead and company summaries.
+- The form submits deal title, amount, supported deal stage, and a validated DD/MM/YYYY close date to the lead-conversion API. Product interest and lead assignment are displayed from the lead record.
+- Success and API validation failures use the shared toast provider; only qualified leads can submit conversion.
+
+### Deal Directory Table and Inline Stage Updates (21/11/2026)
+
+- Aligned the Deal list structure with the Leads table by displaying the uppercase Deal Code in its own column, followed by Deal Name and the API-backed account, owner, value, stage, close date, probability, and actions.
+- Replaced the read-only Deal stage badge with an inline stage selector. Changes use `PATCH /api/crm/deals/:id/stage`, update the row only after the API confirms the change, and show errors through the shared toast.
+- Added Leads-style header sort arrows and fixed table column sizing so Deal Name and Account remain compact, readable, and do not create excessive whitespace.
+- Sized the Deals table to its columns with horizontal scrolling when needed, and added a visible chevron to the inline stage selector.
+- Deal amount validation now accepts both Indian comma grouping (for example, `1,00,000`) and international grouping, while numeric conversion strips grouping commas before API submission.
+- Kept server-backed search, stage and owner filters, pagination, export, and the list-only view in place.
+
+### API-backed Client Account Directory (21/11/2026)
+
+- Replaced the Clients page's generated sample rows, static filters, local pagination, and alert export with authenticated `/crm/accounts` list, detail, update, and CSV export requests.
+- The directory now displays API account codes/names, resolved industry and owner labels, linked contact counts, open deal counts/values/stages, and DD/MM/YYYY creation dates. It includes the FRD account KPIs and server filters for industry and linked-contact ranges.
+- View/Edit loads authorized Account details and linked Contacts/Deals. Edit sends only supported account fields to `PATCH /crm/accounts/:id`; backend failures stay in the drawer for correction.
+- Account detail reads are deduplicated while in flight and cached briefly to prevent duplicate requests during rapid repeat opens; successful saves and directory reset invalidate the cached detail.
+- The backend list enriches its authorized, paginated account records with real industry/owner lookups and Contact/active Deal summaries. Accounts created during successful Lead Conversion are visible to their authorized creator/owner.
+- Removed the unused Clients sample-data constants to prevent static account rows from being reused.
+- Replaced the account detail drawer with lazy-loaded `/clients/:id/view` and `/clients/:id/edit` pages. The full-page flow retains API-backed editing, linked Contact/Deal summaries, and directory navigation.
+- Arranged the linked Contact and Deal summaries as side-by-side sections on wide screens and added editable GST alongside account name, industry, email, phone, and address, matching fields accepted by the Accounts API.
+- Renamed the BDE and Sales workspace entry and page title from “My Clients” to “My Accounts,” updated the Admin label to “Account Management,” and aligned the account table, search, back button, and export filename with the FRD terminology.
+- Populated the editable Industry field from the active Industry Master endpoint and fixed update validation for the lookup IDs used by the backend. Assigned BDE stays read-only because ownership reassignment is not an Accounts API operation.
+- Added authenticated Profile and Change Password flows, connected login to the tenant API with the role returned by RBAC, and added a Settings link to profile editing. Account identity, role, and work email remain read-only; name and phone are self-editable.
+### Quotations API integration (21/11/2026)
+- Replaced quotation mock rows with the tenant API collection endpoint, server-side search, product/status filters, API pagination, and loading/error states.
+- Added API response mapping and connected Draft create/edit plus approval submission to the quotation lifecycle endpoints.
+- Reworked the quotation form page to select accessible Deals and Contacts from the selected Account, collect real line-item and commercial fields, and send ISO dates while displaying `DD/MM/YYYY`.
+- Moved quotation create, view, and draft-edit workflows to dedicated flat page routes (`/quotations/new`, `/quotations/:id/view`, `/quotations/:id/edit`) per the page-based design request.
+- Added API product filtering backed by distinct quotation line-item products; the directory now fits the table to the available page width.
+### Responsive data tables (21/11/2026)
+- Updated the shared `DataTable` to scale columns to the available viewport and scroll horizontally only when the viewport is narrower than the readable column widths.
+- Kept complete cell values visible with natural wrapping; the table scrolls horizontally only on screens too narrow for its readable minimum widths.
+- Kept account, lead, deal, contact, and quotation codes on one line by allocating explicit readable code-column widths.
+- Replaced native Lead and Deal stage menus with the shared searchable dropdown control.
+- Added reusable row skeletons to API-backed tables and stat-card skeletons to Accounts and Deals while requests are pending; quotation grid mode has matching card placeholders.
+- Sized inline Lead and Deal stage selectors to their selected text so the chevron stays close to the stage label.
+- Corrected Lead and Deal stage selector width and height so long stage names remain fully visible and align with the other table cell values.
+- Widened Lead and Deal stage option menus independently of the compact selected-value control so every stage option stays on one line.
+- Kept all table header labels on one line and included header text plus sort icons when calculating each table's readable minimum width.
+
+### Password Update & Profile Redirection UX Flow (22/11/2026)
+- Enhanced password update UX in `EditProfile.jsx`: removed the awkward inline green banner and replaced it with a top toast notification via `ToastViewport` (`useToast`).
+- Automatically invalidates existing session and dispatches `logout()` on password change, securely redirecting user to `/login` with clean post-reset state.
+- Removed duplicate inline update banners inside `UpdateProfileTab` and `LoginForm` so success messages exclusively appear once in the top toast notification viewport.
+- Updated `ToastViewport.jsx` with prominent z-index (`z-[9999]`), type-based bottom borders (`border-b-success` / `border-b-alert`), and accessible dismiss controls.
+- Aligned demo credentials and role detection with backend seeded database entities (`admin@gitakshmi.com`, `marcus@gitakshmi.com`, `sarah@gitakshmi.com`).

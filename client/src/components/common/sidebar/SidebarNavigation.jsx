@@ -38,7 +38,7 @@ export const NAV_SECTIONS = [
         icon: Sparkles,
       },
       {
-        label: 'My Clients',
+        label: 'My Accounts',
         path: '/clients',
         icon: Users,
       },
@@ -99,7 +99,7 @@ export const SALES_NAV_SECTIONS = [
         icon: Sparkles,
       },
       {
-        label: 'My Clients',
+        label: 'My Accounts',
         path: '/clients',
         icon: Building2,
       },
@@ -163,7 +163,7 @@ export const ADMIN_NAV_SECTIONS = [
         icon: Sparkles,
       },
       {
-        label: 'Client Management',
+        label: 'Account Management',
         path: '/clients',
         icon: Building2,
       },

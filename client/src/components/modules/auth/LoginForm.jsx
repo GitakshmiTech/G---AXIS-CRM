@@ -3,58 +3,56 @@
 //    Form for credentials entry, automatic role determination, and Redux login
 //===========================================================================================
 
-import React, { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import EmailInput from '../../common/inputs/EmailInput';
 import PasswordInput from '../../common/inputs/PasswordInput';
 import Button from '../../common/buttons/Button';
 import { loginSuccess } from '../../../store/slices/authSlice';
-import { resolveUserByCredentials } from '../../../constants/authConstants';
+import { loginSchema } from '../../../utils/validationSchemas';
+import { clearFieldError, focusFirstInvalidField, validateForm } from '../../../utils/validationUtils';
+import { authenticate } from '../../../services/profileService';
+import { useToast } from '../../../hooks/useToast';
 
 export const LoginForm = memo(() => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const toast = useToast();
 
   // Strict Rule #23: Form inputs MUST initialize completely empty, displaying only placeholders
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef(null);
 
   // Form submission & automatic role determination from user credentials
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
-      setError('');
-
+      const validation = await validateForm(loginSchema, { email, password });
+      if (Object.keys(validation.errors).length) {
+        setFieldErrors(validation.errors);
+        focusFirstInvalidField(formRef.current, validation.errors);
+        return;
+      }
+      setFieldErrors({});
       const trimmedEmail = email.trim();
-      const trimmedPassword = password.trim();
 
-      if (!trimmedEmail) {
-        setError('Please enter your email address.');
-        return;
+      setIsSubmitting(true);
+      try {
+        const session = await authenticate({ email: trimmedEmail, password });
+        dispatch(loginSuccess(session));
+        navigate('/dashboard', { replace: true });
+      } catch (error) {
+        toast(error.message || 'Invalid email or password. Please check your credentials.', 'error');
+      } finally {
+        setIsSubmitting(false);
       }
-
-      if (!trimmedPassword) {
-        setError('Please enter your password.');
-        return;
-      }
-
-      // Automatic role resolution from credentials
-      const { role: resolvedRole, user } = resolveUserByCredentials(trimmedEmail);
-
-      dispatch(
-        loginSuccess({
-          role: resolvedRole,
-          user,
-          token: `token-${resolvedRole}-${Date.now()}`,
-        })
-      );
-
-      navigate('/dashboard', { replace: true });
     },
-    [email, password, dispatch, navigate]
+    [email, password, dispatch, navigate, toast]
   );
 
   return (
@@ -70,23 +68,17 @@ export const LoginForm = memo(() => {
       </div>
 
       {/* Form Card */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
-        {/* Error Alert */}
-        {error && (
-          <div className="p-3 text-xs font-semibold text-alert bg-alert/10 border-b-2 border-stroke/80 rounded-[7px] text-center">
-            {error}
-          </div>
-        )}
-
+      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
         {/* Email Input */}
         <EmailInput
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
-            if (error) setError('');
+            clearFieldError(setFieldErrors, 'email');
           }}
           placeholder="name@example.com"
           required
+          error={fieldErrors.email}
         />
 
         {/* Password Input */}
@@ -94,10 +86,11 @@ export const LoginForm = memo(() => {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
-            if (error) setError('');
+            clearFieldError(setFieldErrors, 'password');
           }}
           placeholder="••••••"
           required
+          error={fieldErrors.password}
         />
 
         {/* Remember Me & Forgot Password */}
@@ -124,9 +117,10 @@ export const LoginForm = memo(() => {
         <div className="mt-2">
           <Button
             type="submit"
-            className="w-full h-[44px] bg-primary hover:bg-primary/95 text-white-100 font-semibold text-sm rounded-[7px] border-b-2 border-stroke/80 transition-all cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full h-[44px] bg-primary hover:bg-primary/95 text-white-100 font-semibold text-sm rounded-[7px] border-b-2 border-stroke/80 transition-all cursor-pointer disabled:cursor-wait disabled:opacity-60"
           >
-            Sign In
+            {isSubmitting ? 'Signing in…' : 'Sign In'}
           </Button>
         </div>
       </form>

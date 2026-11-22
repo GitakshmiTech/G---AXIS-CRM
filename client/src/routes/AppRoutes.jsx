@@ -21,10 +21,16 @@ const Login = lazy(() => import('../pages/Login'));
 // Unified Domain Pages
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const Leads = lazy(() => import('../pages/Leads'));
+const LeadForm = lazy(() => import('../pages/LeadForm'));
+const LeadConversion = lazy(() => import('../pages/LeadConversion'));
 const Clients = lazy(() => import('../pages/Clients'));
+const ClientForm = lazy(() => import('../pages/ClientForm'));
 const Contacts = lazy(() => import('../pages/Contacts'));
+const ContactForm = lazy(() => import('../pages/ContactForm'));
 const Deals = lazy(() => import('../pages/Deals'));
+const DealForm = lazy(() => import('../pages/DealForm'));
 const Quotations = lazy(() => import('../pages/Quotations'));
+const QuotationForm = lazy(() => import('../pages/QuotationForm'));
 const Settings = lazy(() => import('../pages/Settings'));
 const EditProfile = lazy(() => import('../pages/EditProfile'));
 
@@ -112,10 +118,23 @@ export const AppRoutes = () => {
             {/* Common Unified Clean Routes (Role-aware conditional rendering) */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/leads" element={<Leads />} />
+            <Route path="/leads/new" element={<LeadForm />} />
+            <Route path="/leads/:id/edit" element={<LeadForm />} />
+            <Route path="/leads/:id/view" element={<LeadForm />} />
+            <Route path="/leads/:id/convert" element={<LeadConversion />} />
             <Route path="/clients" element={<Clients />} />
+            <Route path="/clients/:id/view" element={<ClientForm />} />
+            <Route path="/clients/:id/edit" element={<ClientForm />} />
             <Route path="/contacts" element={<Contacts />} />
+            <Route path="/contacts/:id/view" element={<ContactForm />} />
+            <Route path="/contacts/:id/edit" element={<ContactForm />} />
             <Route path="/deals" element={<Deals />} />
+            <Route path="/deals/:id/view" element={<DealForm />} />
+            <Route path="/deals/:id/edit" element={<DealForm />} />
             <Route path="/quotations" element={<Quotations />} />
+            <Route path="/quotations/new" element={<QuotationForm mode="create" />} />
+            <Route path="/quotations/:id/view" element={<QuotationForm mode="view" />} />
+            <Route path="/quotations/:id/edit" element={<QuotationForm mode="edit" />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/profile" element={<EditProfile />} />
 

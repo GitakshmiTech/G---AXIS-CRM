@@ -3,13 +3,16 @@
 //    Slide-over drawer for converting a qualified lead into a closed deal with deal details
 //==================================================================================================================
 
-import React, { useState, memo, useCallback } from 'react';
+import { useState, memo, useCallback, useRef } from 'react';
 import { Calendar } from 'lucide-react';
 import { Drawer } from '../../common/sidebar/Drawer';
 import { LeadSummaryCard } from './LeadSummaryCard';
 import { DropdownInput } from '../../common/inputs/DropdownInput';
+import { FieldError } from '../../common/inputs/FieldError';
 import { BackButton } from '../../common/buttons/BackButton';
 import { PRODUCT_INTEREST_OPTIONS } from '../../../constants/leadsConstants';
+import { dealDetailsSchema } from '../../../utils/validationSchemas';
+import { clearFieldError, focusFirstInvalidField, validateForm } from '../../../utils/validationUtils';
 
 //==================================================================================================================
 //    CONVERT LEAD DRAWER
@@ -28,18 +31,25 @@ export const ConvertLeadDrawer = memo(({
     productInterest: lead?.productInterest || '',
     assignedBde: 'Johnson Doe',
   });
+  const [fieldErrors, setFieldErrors] = useState({});
+  const formRef = useRef(null);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setDealData((prev) => ({ ...prev, [name]: value }));
+    const normalizedValue = ['startDate', 'closeDate'].includes(name) && /^\d{2}-\d{2}-\d{4}$/.test(value) ? value.replaceAll('-', '/') : value;
+    setDealData((prev) => ({ ...prev, [name]: normalizedValue }));
+    clearFieldError(setFieldErrors, name);
   }, []);
 
   const handleDropdownChange = useCallback((name, val) => {
     setDealData((prev) => ({ ...prev, [name]: val }));
   }, []);
 
-  const handleSubmit = useCallback((e) => {
+  const handleSubmit = useCallback(async (e) => {
     if (e) e.preventDefault();
+    const validation = await validateForm(dealDetailsSchema, dealData);
+    if (Object.keys(validation.errors).length) { setFieldErrors(validation.errors); focusFirstInvalidField(formRef.current, validation.errors); return; }
+    setFieldErrors({});
     if (onConfirm) onConfirm(dealData);
     if (onClose) onClose();
   }, [dealData, onConfirm, onClose]);
@@ -68,7 +78,7 @@ export const ConvertLeadDrawer = memo(({
         </div>
       }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* ================================================================================================================
             SECTION 1: Lead Profile Summary Card (Image 2)
         ================================================================================================================ */}
@@ -121,9 +131,12 @@ export const ConvertLeadDrawer = memo(({
                   value={dealData.amount}
                   onChange={handleChange}
                   placeholder="Enter Deal Amount"
+                  aria-invalid={Boolean(fieldErrors.amount)}
+                  aria-describedby={fieldErrors.amount ? 'amount-error' : undefined}
                   className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
                 />
               </div>
+              <FieldError name="amount" error={fieldErrors.amount} />
             </div>
 
             {/* Deal Stage */}
@@ -156,10 +169,13 @@ export const ConvertLeadDrawer = memo(({
                   value={dealData.startDate}
                   onChange={handleChange}
                   placeholder="DD/MM/YYYY"
+                  aria-invalid={Boolean(fieldErrors.startDate)}
+                  aria-describedby={fieldErrors.startDate ? 'startDate-error' : undefined}
                   className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
                 />
                 <Calendar size={16} className="text-primary shrink-0  cursor-pointer" />
               </div>
+              <FieldError name="startDate" error={fieldErrors.startDate} />
             </div>
 
             {/* Expected Close Date */}
@@ -174,10 +190,13 @@ export const ConvertLeadDrawer = memo(({
                   value={dealData.closeDate}
                   onChange={handleChange}
                   placeholder="DD/MM/YYYY"
+                  aria-invalid={Boolean(fieldErrors.closeDate)}
+                  aria-describedby={fieldErrors.closeDate ? 'closeDate-error' : undefined}
                   className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none"
                 />
                 <Calendar size={16} className="text-primary shrink-0  cursor-pointer" />
               </div>
+              <FieldError name="closeDate" error={fieldErrors.closeDate} />
             </div>
           </div>
 

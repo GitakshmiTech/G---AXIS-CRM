@@ -15,6 +15,8 @@ export const UploadDropzone = memo(({
   accept = '.png,.jpg,.jpeg,.pdf',
   onFileSelect,
   disabled = false,
+  multiple = false,
+  size = 'compact',
   className = '',
 }) => {
   const fileInputRef = useRef(null);
@@ -30,6 +32,7 @@ export const UploadDropzone = memo(({
     if (files && files.length > 0 && onFileSelect) {
       onFileSelect(files);
     }
+    e.target.value = '';
   };
 
   return (
@@ -45,6 +48,7 @@ export const UploadDropzone = memo(({
         ref={fileInputRef}
         type="file"
         accept={accept}
+        multiple={multiple}
         onChange={handleChange}
         disabled={disabled}
         className="hidden"
@@ -53,7 +57,9 @@ export const UploadDropzone = memo(({
       {/* Dashed Drag & Drop Box */}
       <div
         onClick={handleClick}
-        className={`w-full h-[46px] border-b-2 border-dashed border-stroke/80 bg-gray rounded-[7px] flex items-center justify-center gap-2 transition-colors group  ${
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => { event.preventDefault(); if (!disabled && onFileSelect) onFileSelect(event.dataTransfer.files); }}
+        className={`w-full ${size === 'medium' ? 'min-h-[96px] px-4 py-5' : 'h-[46px] px-3'} border-b-2 border-dashed border-stroke/80 bg-gray rounded-[7px] flex items-center justify-center gap-3 transition-colors group  ${
           disabled
             ? 'opacity-60 cursor-not-allowed bg-gray/30'
             : 'cursor-pointer hover:bg-gray/60'

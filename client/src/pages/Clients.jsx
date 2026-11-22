@@ -1,272 +1,114 @@
-//==================================================================================================================
-//    CLIENT MANAGEMENT PAGE COMPONENT (SUPER ADMIN)
-//    Enterprise accounts workspace module featuring client directory, stakeholders stack, and drawer actions
-//==================================================================================================================
-
-import React, { useState, useMemo, useCallback } from 'react';
+//===========================================================================================
+//    CLIENT ACCOUNT DIRECTORY
+// ===========================================================================================
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TableContainer } from '../components/common/Table/TableContainer';
 import { DataTableToolbar } from '../components/common/Table/DataTableToolbar';
 import { DataTable } from '../components/common/Table/DataTable';
 import { Pagination } from '../components/common/Table/Pagination';
 import { ViewBtn } from '../components/common/buttons/ViewBtn';
 import { EditBtn } from '../components/common/buttons/EditBtn';
-import { AvatarStack } from '../components/common/avatar/AvatarStack';
-import { EditClientDrawer } from '../components/modules/clients/EditClientDrawer';
-import {
-  INITIAL_CLIENTS_DATA,
-  CLIENT_INDUSTRY_OPTIONS,
-  CLIENT_STAGE_OPTIONS,
-} from '../constants/clientsConstants';
+import { StatCard } from '../components/common/cards/StatCard';
+import { clearClientDetailsCache, fetchClients, exportClients } from '../services/clientsService';
+import { downloadBlob } from '../utils/exportUtils';
+import { formatCurrency } from '../utils/formatters';
+import { useToast } from '../hooks/useToast';
 
-//==================================================================================================================
-//    CLIENTS / CLIENT MANAGEMENT UNIFIED COMPONENT
-//==================================================================================================================
+/** Load and manage authorized Accounts created through the CRM conversion flow. */
 export const Clients = () => {
-  const [clients, setClients] = useState(INITIAL_CLIENTS_DATA);
+  const navigate = useNavigate();
+  const toast = useToast();
+  const [clients, setClients] = useState([]);
+  const [industries, setIndustries] = useState([]);
+  const [stats, setStats] = useState({ totalAccounts: 0, linkedContacts: 0, activeDealsValue: 0 });
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [searchQuery, setSearchQuery] = useState('');
-  const [industryFilter, setIndustryFilter] = useState('All');
-  const [stageFilter, setStageFilter] = useState('All');
-  const [viewMode, setViewMode] = useState('list');
+  const [industryFilter, setIndustryFilter] = useState('');
+  const [contactRange, setContactRange] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
   const pageSize = 10;
 
-  // Drawer state
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [drawerMode, setDrawerMode] = useState('edit');
+  // Fetch the API page whenever search, filters, or pagination changes.
+  useEffect(() => {
+    let active = true;
+    const timer = setTimeout(() => {
+      setIsLoading(true);
+      setError('');
+      fetchClients({ page: currentPage, limit: pageSize, search: searchQuery, industryId: industryFilter, contactRange })
+        .then((result) => {
+          if (!active) return;
+          setClients(result.rows);
+          setIndustries(result.industries);
+          setStats(result.stats);
+          setPagination(result.pagination);
+        })
+        .catch((requestError) => {
+          if (!active) return;
+          setClients([]);
+          setError(requestError.message || 'Unable to load client accounts.');
+        })
+        .finally(() => { if (active) setIsLoading(false); });
+    }, searchQuery.trim() ? 250 : 0);
+    return () => { active = false; clearTimeout(timer); };
+  }, [contactRange, currentPage, industryFilter, searchQuery]);
 
-  //==================================================================================================================
-  //    DRAWER TRIGGER HANDLERS
-  //==================================================================================================================
-  const handleOpenEdit = useCallback((client) => {
-    setSelectedClient(client);
-    setDrawerMode('edit');
-    setIsEditOpen(true);
-  }, []);
+  const handleExport = useCallback(async () => {
+    try {
+      setIsExporting(true);
+      const blob = await exportClients({ search: searchQuery, industryId: industryFilter, contactRange });
+      downloadBlob(blob, 'accounts.csv');
+    } catch (exportError) { toast(exportError.message || 'Unable to export accounts.', 'error'); }
+    finally { setIsExporting(false); }
+  }, [contactRange, industryFilter, searchQuery, toast]);
 
-  const handleOpenView = useCallback((client) => {
-    setSelectedClient(client);
-    setDrawerMode('view');
-    setIsEditOpen(true);
-  }, []);
-
-  const handleCloseDrawer = useCallback(() => {
-    setIsEditOpen(false);
-    setSelectedClient(null);
-  }, []);
-
-  const handleSaveClient = useCallback((updatedData) => {
-    if (selectedClient) {
-      setClients((prev) =>
-        prev.map((c) => (c.id === selectedClient.id ? { ...c, ...updatedData } : c))
-      );
-    }
-    handleCloseDrawer();
-  }, [selectedClient, handleCloseDrawer]);
-
-  //==================================================================================================================
-  //    FILTERING & SORTING (OPTIMIZED WITH USEMEMO)
-  //==================================================================================================================
-  const filteredClients = useMemo(() => {
-    return clients.filter((client) => {
-      const matchesSearch =
-        !searchQuery.trim() ||
-        client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        client.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        client.website.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        client.industryType.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const matchesIndustry =
-        industryFilter === 'All' || client.industryType === industryFilter;
-      const matchesStage =
-        stageFilter === 'All' || client.stage === stageFilter;
-
-      return matchesSearch && matchesIndustry && matchesStage;
-    });
-  }, [clients, searchQuery, industryFilter, stageFilter]);
-
-  const paginatedClients = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredClients.slice(start, start + pageSize);
-  }, [filteredClients, currentPage, pageSize]);
-
-  //==================================================================================================================
-  //    TABLE COLUMNS DEFINITION
-  //==================================================================================================================
+  const industryOptions = useMemo(() => [
+    { value: '', label: 'By Industry Type' },
+    ...industries,
+  ], [industries]);
+  const contactOptions = useMemo(() => [
+    { value: '', label: 'By Contacts' },
+    { value: '0', label: 'No linked contacts' },
+    { value: '1-3', label: '1–3 contacts' },
+    { value: '4+', label: '4+ contacts' },
+  ], []);
   const columns = useMemo(() => [
-    {
-      key: 'code',
-      label: 'Code',
-      sortable: true,
-      className: 'w-20 pl-4',
-      render: (row) => (
-        <span className="font-semibold text-black-90">{row.code}</span>
-      ),
-    },
-    {
-      key: 'name',
-      label: 'Client Name',
-      sortable: true,
-      className: 'max-sm:min-w-[180px] max-sm:pr-4',
-      headerClassName: 'max-sm:min-w-[180px] max-sm:pr-4',
-      render: (row) => (
-        <div className="flex items-center gap-2.5">
-          <img
-            src={row.companyLogo}
-            alt={row.name}
-            className="w-7 h-7 rounded-full object-cover border-none shrink-0"
-          />
-          <div className="flex flex-col min-w-0">
-            <span className="font-semibold text-black-90 whitespace-nowrap">
-              {row.name}
-            </span>
-            <span className="text-[11px] text-black-90/50 font-normal truncate">
-              {row.website}
-            </span>
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'industryType',
-      label: 'Industry Type',
-      sortable: true,
-      className: 'max-sm:min-w-[150px] max-sm:pr-4',
-      headerClassName: 'max-sm:min-w-[150px] max-sm:pr-4',
-      render: (row) => (
-        <span className="font-semibold text-black-90 whitespace-nowrap">
-          {row.industryType}
-        </span>
-      ),
-    },
-    {
-      key: 'stakeholders',
-      label: 'Stakeholders',
-      sortable: true,
-      align: 'center',
-      className: 'max-sm:min-w-[130px]',
-      headerClassName: 'max-sm:min-w-[130px]',
-      render: (row) => (
-        <AvatarStack
-          avatars={row.stakeholders}
-          extraCount={row.extraStakeholdersCount}
-        />
-      ),
-    },
-    {
-      key: 'assignedBde',
-      label: 'Assigned BDE',
-      sortable: true,
-      render: (row) => (
-        <div className="flex items-center gap-2">
-          <img
-            src={row.assignedBdeAvatar}
-            alt={row.assignedBde}
-            className="w-6 h-6 rounded-full object-cover border-none shrink-0"
-          />
-          <span className="font-semibold text-black-90 whitespace-nowrap text-xs">
-            {row.assignedBde}
-          </span>
-        </div>
-      ),
-    },
-    {
-      key: 'stage',
-      label: 'Stage',
-      sortable: true,
-      render: (row) => (
-        <div className="w-[112px] h-[24px] inline-flex items-center justify-center px-3 py-0.5 bg-gray rounded-[7px] text-xs font-semibold text-black-90 ">
-          {row.stage}
-        </div>
-      ),
-    },
-    {
-      key: 'createdDate',
-      label: 'Created Date',
-      sortable: true,
-      render: (row) => (
-        <div className="flex flex-col text-[11px] leading-tight">
-          <span className="font-medium text-black-90">{row.createdDate}</span>
-          <span className="text-black-90/50 mt-0.5">{row.createdTime}</span>
-        </div>
-      ),
-    },
-    {
-      key: 'actions',
-      label: 'Action',
-      align: 'center',
-      className: 'pr-4',
-      render: (row) => (
-        <div className="flex items-center justify-center gap-1.5">
-          <ViewBtn onClick={() => handleOpenView(row)} title="View Client Details" />
-          <EditBtn onClick={() => handleOpenEdit(row)} title="Edit Client" />
-        </div>
-      ),
-    },
-  ], [handleOpenView, handleOpenEdit]);
+    { key: 'code', label: 'Code', sortable: true, className: 'w-[155px] pl-4', headerClassName: 'w-[155px]', render: (row) => <span title={row.code} className="whitespace-nowrap font-semibold text-black-90">{row.code || '—'}</span> },
+    { key: 'name', label: 'Account Name', sortable: true, className: 'w-[195px] max-w-[195px]', headerClassName: 'w-[195px]', render: (row) => <div className="min-w-0 whitespace-normal break-words"><span title={row.name} className="block font-semibold text-black-90">{row.name}</span><span className="block break-all text-[11px] text-black-90/55">{row.email || 'No email on account'}</span></div> },
+    { key: 'industryType', label: 'Industry', sortable: true, className: 'w-[145px] max-w-[145px]', headerClassName: 'w-[145px]', render: (row) => <span title={row.industryType} className="block whitespace-normal break-words font-medium text-black-90">{row.industryType}</span> },
+    { key: 'assignedBde', label: 'Assigned BDE', sortable: true, className: 'w-[140px] max-w-[140px]', headerClassName: 'w-[140px]', render: (row) => <span title={row.assignedBde} className="block whitespace-normal break-words font-semibold text-black-90">{row.assignedBde}</span> },
+    { key: 'stakeholderCount', label: 'Stakeholders', sortable: true, sortType: 'number', align: 'center', className: 'w-[105px]', headerClassName: 'w-[105px]', render: (row) => <span className="font-semibold text-black-90">{row.stakeholderCount}</span> },
+    { key: 'activeDealsCount', label: 'Pipeline Deals', sortable: true, sortType: 'number', className: 'w-[195px]', headerClassName: 'w-[195px]', render: (row) => <div><span title={`${row.activeDealsCount} active · ${formatCurrency(row.activeDealValue, '₹')}`} className="block whitespace-normal break-words font-semibold text-black-90">{row.activeDealsCount} active · {formatCurrency(row.activeDealValue, '₹')}</span><span className="block whitespace-normal break-words text-[11px] text-black-90/55">{row.activeDealStages.length ? row.activeDealStages.join(', ') : 'No active deal stages'}</span></div> },
+    { key: 'createdDate', label: 'Created Date', sortable: true, className: 'w-[115px]', headerClassName: 'w-[115px]', render: (row) => <div><span className="block font-medium text-black-90">{row.createdDate}</span>{row.createdTime && <span className="text-[11px] text-black-90/55">{row.createdTime}</span>}</div> },
+    { key: 'actions', label: 'Action', align: 'center', className: 'w-[100px] pr-4', headerClassName: 'w-[100px]', render: (row) => <div className="flex items-center justify-center gap-1.5"><ViewBtn onClick={() => navigate(`/clients/${encodeURIComponent(row.id)}/view`, { state: { industries } })} title="View Account Details" /><EditBtn onClick={() => navigate(`/clients/${encodeURIComponent(row.id)}/edit`, { state: { industries } })} title="Edit Account" /></div> },
+  ], [industries, navigate]);
 
-  //==================================================================================================================
-  //    RENDER MAIN COMPONENT
-  //==================================================================================================================
   return (
-    <div className="w-full flex-1 flex flex-col min-h-0 select-text">
-      <TableContainer
-        toolbar={
-          <DataTableToolbar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            searchPlaceholder="Search here..."
-            filters={[
-              {
-                id: 'industry-filter',
-                value: industryFilter,
-                onChange: setIndustryFilter,
-                options: CLIENT_INDUSTRY_OPTIONS,
-              },
-              {
-                id: 'stage-filter',
-                value: stageFilter,
-                onChange: setStageFilter,
-                options: CLIENT_STAGE_OPTIONS,
-              },
-            ]}
-            onResetFilters={() => {
-              setSearchQuery('');
-              setIndustryFilter('All');
-              setStageFilter('All');
-              setCurrentPage(1);
-            }}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            onExport={() => alert('Exporting Clients Data...')}
-          />
-        }
-        pagination={
-          <Pagination
-            currentPage={currentPage}
-            totalEntries={filteredClients.length}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            className="pt-0 border-t-0"
-          />
-        }
-      >
-        <DataTable
-          columns={columns}
-          data={paginatedClients}
-          rowKey="id"
-          emptyMessage="No clients found matching the current search criteria."
-        />
+    <div className="flex min-h-0 w-full flex-1 flex-col gap-3 select-text">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <StatCard title="Total Accounts Managed" value={stats.totalAccounts} colorKey="secondary" loading={isLoading} />
+        <StatCard title="Linked Contacts" value={stats.linkedContacts} colorKey="purple" loading={isLoading} />
+        <StatCard title="Active Deals Value" value={formatCurrency(stats.activeDealsValue, '₹')} colorKey="success" loading={isLoading} />
+      </div>
+      <TableContainer toolbar={<DataTableToolbar
+        searchQuery={searchQuery}
+        onSearchChange={(value) => { setSearchQuery(value); setCurrentPage(1); }}
+        searchPlaceholder="Search account ID, name, domain, or industry..."
+        filters={[
+          { id: 'industry-filter', value: industryFilter, onChange: (event) => { setIndustryFilter(event.target.value); setCurrentPage(1); }, options: industryOptions },
+          { id: 'contact-filter', value: contactRange, onChange: (event) => { setContactRange(event.target.value); setCurrentPage(1); }, options: contactOptions },
+        ]}
+        onResetFilters={() => { clearClientDetailsCache(); setSearchQuery(''); setIndustryFilter(''); setContactRange(''); setCurrentPage(1); }}
+        showViewToggle={false}
+        onExport={handleExport}
+      />} pagination={<Pagination currentPage={currentPage} totalEntries={pagination.total} pageSize={pageSize} onPageChange={setCurrentPage} className="pt-0 border-t-0" />}>
+        {error && <div role="alert" className="mx-4 mt-3 rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-4 py-3 text-sm text-alert">{error}</div>}
+        {isExporting && <div role="status" className="px-4 py-2 text-xs text-black-90/60">Preparing account export…</div>}
+        <DataTable columns={columns} data={clients} rowKey="id" fixedLayout loading={isLoading} emptyMessage="No accounts found matching the current search criteria." />
       </TableContainer>
-
-      {/* Slide-over Edit / View Client Details Drawer */}
-      <EditClientDrawer
-        isOpen={isEditOpen}
-        onClose={handleCloseDrawer}
-        onSave={handleSaveClient}
-        initialData={selectedClient}
-        mode={drawerMode}
-      />
     </div>
   );
 };

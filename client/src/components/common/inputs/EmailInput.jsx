@@ -3,6 +3,7 @@
 //    Standardized reusable email input field used across client panel modules and authentication layouts
 // ==================================================================================================================
 import { memo } from 'react';
+import { FieldError } from './FieldError';
 
 export const EmailInput = memo(({
   label = 'Email',
@@ -15,6 +16,7 @@ export const EmailInput = memo(({
   disabled = false,
   readOnly = false,
   required = false,
+  error = '',
   onChange,
   className = '',
   containerClassName = 'flex flex-col gap-1 w-full',
@@ -39,10 +41,13 @@ export const EmailInput = memo(({
         disabled={disabled}
         readOnly={readOnly}
         required={required}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id || name}-error` : undefined}
         onChange={onChange}
         className={`${inputClassName} ${className}`.trim()}
         {...props}
       />
+      <FieldError name={id || name} error={error} />
     </div>
   );
 });

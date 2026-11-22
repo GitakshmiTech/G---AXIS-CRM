@@ -17,7 +17,7 @@ export const AdminLayout = () => {
   const navigate = useNavigate();
 
   const handleProfileClick = useCallback(() => {
-    navigate('/admin/settings');
+    navigate('/profile');
   }, [navigate]);
 
   // Dynamic header content for sub-routes
@@ -30,8 +30,8 @@ export const AdminLayout = () => {
     }
     if (location.pathname.startsWith('/admin/clients') || location.pathname.startsWith('/clients')) {
       return {
-        title: 'Client Management',
-        subtitle: 'Enterprise accounts linked to your converted leads, active stakeholder contacts, and opportunity deals. Direct modifications...',
+        title: 'Account Management',
+        subtitle: 'Manage CRM accounts, linked contacts, assigned ownership, and related sales opportunities.',
       };
     }
     if (location.pathname.startsWith('/admin/contacts') || location.pathname.startsWith('/contacts')) {
@@ -88,6 +88,12 @@ export const AdminLayout = () => {
         subtitle: 'Manage super admin preferences and platform configurations.',
       };
     }
+    if (location.pathname.startsWith('/profile')) {
+      return {
+        title: 'My Profile',
+        subtitle: 'View your employee details and update permitted contact information.',
+      };
+    }
     return null;
   }, [location.pathname]);
 
@@ -101,6 +107,7 @@ export const AdminLayout = () => {
       !headerContent
     );
   }, [location.pathname, headerContent]);
+  const showPageScrollbar = location.pathname.startsWith('/leads/') || location.pathname.startsWith('/contacts/');
 
   return (
     <SidebarProvider>
@@ -147,7 +154,7 @@ export const AdminLayout = () => {
             <main
               className={`flex-1 flex flex-col min-h-0 bg-gray rounded-tl-[15px] ${
                 isScrollablePage
-                  ? 'overflow-y-auto overflow-x-hidden p-2 sm:p-2.5 md:p-3 no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'
+                  ? `overflow-y-auto overflow-x-hidden p-2 sm:p-2.5 md:p-3 ${showPageScrollbar ? 'overscroll-contain' : 'no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'}`
                   : 'overflow-hidden p-2 sm:p-2.5 md:p-3'
               }`}
             >

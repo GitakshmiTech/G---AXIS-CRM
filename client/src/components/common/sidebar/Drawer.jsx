@@ -29,12 +29,13 @@ export const Drawer = ({
   bodyClassName = 'px-6 py-2',
   headerClassName = '',
   subtitleClassName = '',
+  presentation = 'drawer',
 }) => {
   //==================================================================================================================
   //    Prevent body scroll when drawer is open to avoid background scrolling
   // ==================================================================================================================
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && presentation === 'drawer') {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -42,7 +43,7 @@ export const Drawer = ({
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, presentation]);
 
   const resolvedSubtitle = subtitle || description;
   const resolvedWidth = widthClass || width || 'sm:w-[560px]';
@@ -54,7 +55,7 @@ export const Drawer = ({
       //    FULL VIEWPORT BLURRED BACKDROP
       //    Renders at body root to blur entire application including sidebar and top bars.
       // ==================================================================================================================*/}
-      {isOpen && (
+      {isOpen && presentation === 'drawer' && (
         <div 
           className="fixed inset-0 bg-black-90/20 backdrop-blur-[8px] z-[9998] transition-opacity animate-in fade-in duration-300" 
           onClick={onClose} 
@@ -63,8 +64,8 @@ export const Drawer = ({
       )}
 
       <div 
-        className={`fixed top-0 right-0 h-full w-full ${resolvedWidth} bg-white-100 -[0px_8px_30px_rgba(0,0,0,0.12)] z-[9999] transform transition-transform duration-300 flex flex-col border-l border-stroke ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`${presentation === 'drawer' ? `fixed top-0 right-0 h-full w-full ${resolvedWidth} z-[9999] transform transition-transform duration-300 border-l border-stroke ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col` : 'relative w-full min-h-full'} bg-white-100 ${
+          presentation === 'page' ? 'rounded-[7px]' : ''
         }`}
       >
         {/*==================================================================================================================
@@ -102,7 +103,7 @@ export const Drawer = ({
           </button>
         </div>
         
-        <div className={`flex-1 flex flex-col min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-white-100 ${bodyClassName}`}>
+        <div className={`${presentation === 'drawer' ? 'flex-1 min-h-0 overflow-y-auto overscroll-contain' : ''} flex flex-col bg-white-100 ${bodyClassName}`}>
           {children}
         </div>
 
@@ -142,7 +143,7 @@ export const Drawer = ({
   //    PORTAL MOUNTING
   //    Render drawer at document root to achieve full window blur including sidebar.
   // ==================================================================================================================
-  if (typeof document !== 'undefined') {
+  if (presentation === 'drawer' && typeof document !== 'undefined') {
     return createPortal(drawerContent, document.body);
   }
 

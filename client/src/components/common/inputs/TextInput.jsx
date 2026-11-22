@@ -2,7 +2,8 @@
 //    COMMON TEXT INPUT COMPONENT
 //    Standardized reusable text input field used for name, address, and plain text metadata
 // ==================================================================================================================
-import React, { memo } from 'react';
+import { memo } from 'react';
+import { FieldError } from './FieldError';
 
 export const TextInput = memo(({
   label,
@@ -15,6 +16,7 @@ export const TextInput = memo(({
   disabled = false,
   readOnly = false,
   required = false,
+  error = '',
   onChange,
   className = '',
   containerClassName = 'flex flex-col gap-1 w-full',
@@ -39,10 +41,13 @@ export const TextInput = memo(({
         disabled={disabled}
         readOnly={readOnly}
         required={required}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id || name}-error` : undefined}
         onChange={onChange}
         className={`${inputClassName} ${className}`.trim()}
         {...props}
       />
+      <FieldError name={id || name} error={error} />
     </div>
   );
 });

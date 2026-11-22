@@ -7,6 +7,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 //    Local Imports
 //==================================================================================================================
 import { AppRoutes } from './routes/AppRoutes';
+import { ToastProvider } from './context/ToastContext.jsx';
 
 //==================================================================================================================
 //    Main App Component
@@ -14,9 +15,9 @@ import { AppRoutes } from './routes/AppRoutes';
 function App() {
   return (
     <Router>
-      <div className="w-full min-h-screen">
-        <AppRoutes />
-      </div>
+      <ToastProvider>
+        <div className="w-full min-h-screen"><AppRoutes /></div>
+      </ToastProvider>
     </Router>
   );
 }

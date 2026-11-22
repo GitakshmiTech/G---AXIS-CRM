@@ -10,6 +10,7 @@ export const ViewModeToggle = memo(({
   viewMode = 'list',
   onViewModeChange,
   iconSize = 15,
+  gridViewLabel = 'Grid view',
   className = '',
 }) => {
   return (
@@ -41,8 +42,8 @@ export const ViewModeToggle = memo(({
             ? 'bg-primary text-white-100'
             : 'text-black-90/60 hover:text-black-90'
         }`}
-        title="Grid view"
-        aria-label="Grid view"
+        title={gridViewLabel}
+        aria-label={gridViewLabel}
       >
         <LayoutGrid size={iconSize} />
       </button>

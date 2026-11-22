@@ -3,7 +3,7 @@
 //    Slide-over drawer for updating contact stakeholder information and profile specifics
 //==================================================================================================================
 
-import React, { useState, useEffect, memo, useCallback, useRef } from 'react';
+import { useState, useEffect, memo, useCallback, useRef } from 'react';
 import { Drawer } from '../../common/sidebar/Drawer';
 import { TextInput } from '../../common/inputs/TextInput';
 import { DropdownInput } from '../../common/inputs/DropdownInput';
@@ -11,6 +11,8 @@ import { PhoneNumber } from '../../common/inputs/PhoneNumber';
 import { BackButton } from '../../common/buttons/BackButton';
 import { ContactAvatarPlaceholder } from '../../common/avatar/ContactAvatarPlaceholder';
 import { LEAD_SOURCES } from '../../../constants/leadsConstants';
+import { editContactSchema } from '../../../utils/validationSchemas';
+import { clearFieldError, focusFirstInvalidField, validateForm } from '../../../utils/validationUtils';
 
 //==================================================================================================================
 //    EDIT / VIEW CONTACT DRAWER
@@ -37,6 +39,8 @@ export const EditContactDrawer = memo(({
   });
 
   const fileInputRef = useRef(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (initialData) {
@@ -59,6 +63,7 @@ export const EditContactDrawer = memo(({
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    clearFieldError(setFieldErrors, name);
   }, []);
 
   const handleDropdownChange = useCallback((name, val) => {
@@ -79,8 +84,11 @@ export const EditContactDrawer = memo(({
     }
   };
 
-  const handleSubmit = useCallback((e) => {
+  const handleSubmit = useCallback(async (e) => {
     if (e) e.preventDefault();
+    const validation = await validateForm(editContactSchema, formData);
+    if (Object.keys(validation.errors).length) { setFieldErrors(validation.errors); focusFirstInvalidField(formRef.current, validation.errors); return; }
+    setFieldErrors({});
     if (onSave) onSave({ ...formData, name: `${formData.firstName} ${formData.lastName}`.trim() });
     if (onClose) onClose();
   }, [formData, onSave, onClose]);
@@ -112,7 +120,7 @@ export const EditContactDrawer = memo(({
         </div>
       }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Top Profile Image Upload Section (Same as BDE) */}
         <div className="flex items-center gap-4">
           {formData.uploadedAvatar ? (
@@ -155,6 +163,7 @@ export const EditContactDrawer = memo(({
             value={formData.firstName}
             onChange={handleChange}
             disabled={isView}
+            error={fieldErrors.firstName}
           />
           <TextInput
             label="Last Name"
@@ -163,6 +172,7 @@ export const EditContactDrawer = memo(({
             value={formData.lastName}
             onChange={handleChange}
             disabled={isView}
+            error={fieldErrors.lastName}
           />
         </div>
 
@@ -197,6 +207,7 @@ export const EditContactDrawer = memo(({
             value={formData.email}
             onChange={handleChange}
             disabled={isView}
+            error={fieldErrors.email}
           />
           <PhoneNumber
             label="Contact Number"
@@ -205,6 +216,7 @@ export const EditContactDrawer = memo(({
             value={formData.phone}
             onChange={handleChange}
             disabled={isView}
+            error={fieldErrors.phone}
           />
         </div>
 

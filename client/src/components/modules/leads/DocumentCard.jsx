@@ -3,19 +3,20 @@
 //    Standard reusable document card using lucide-react icons with project common design tokens
 //==================================================================================================================
 import React, { memo } from 'react';
-import { Paperclip, X } from 'lucide-react';
-import { ImportIcon } from '../../common/icons/ImportIcon';
+import { Download, Eye, Paperclip, X } from 'lucide-react';
 
 //==================================================================================================================
 //    DOCUMENT CARD
 //==================================================================================================================
 export const DocumentCard = memo(({
   id,
-  name = 'Doc Name.pdf',
-  size = '4.2 MB',
-  uploadDate = 'Uploaded on oct 22, 2024',
+  name = 'Document',
+  size = '',
+  uploadDate = '',
   onDownload,
+  onView,
   onDelete,
+  deleteTitle = 'Remove Document',
   className = '',
 }) => {
   return (
@@ -39,20 +40,33 @@ export const DocumentCard = memo(({
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2 shrink-0">
-        <button
+        {id && onView && (
+          <button
+            type="button"
+            onClick={() => onView(id)}
+            className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[7px] border-b-2 border-stroke/80 bg-gray transition-colors hover:bg-gray/80"
+            title="View Document"
+            aria-label={`View ${name}`}
+          >
+            <Eye size={14} className="text-primary" />
+          </button>
+        )}
+        {id && onDownload && <button
           type="button"
           onClick={() => onDownload && onDownload(id)}
           className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer "
           title="Download Document"
+          aria-label={`Download ${name}`}
         >
-          <ImportIcon size={14} color="#2E8EFF" />
-        </button>
+          <Download size={14} className="text-primary" />
+        </button>}
         {onDelete && (
           <button
             type="button"
             onClick={() => onDelete(id)}
             className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-alert-light transition-colors cursor-pointer "
-            title="Delete Document"
+            title={deleteTitle}
+            aria-label={`${deleteTitle}: ${name}`}
           >
             <X size={15} className="text-alert" strokeWidth={2} />
           </button>

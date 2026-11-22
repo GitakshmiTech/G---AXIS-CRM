@@ -17,7 +17,7 @@ export const SalesLayout = () => {
   const navigate = useNavigate();
 
   const handleProfileClick = useCallback(() => {
-    navigate('/sales/profile');
+    navigate('/profile');
   }, [navigate]);
 
   //==================================================================================================================
@@ -39,8 +39,8 @@ export const SalesLayout = () => {
     }
     if (location.pathname.startsWith('/sales/clients') || location.pathname.startsWith('/clients')) {
       return {
-        title: 'My Clients',
-        subtitle: 'Enterprise accounts linked to your converted leads, active stakeholder contacts, and opportunity deals. Direct modifications...',
+        title: 'My Accounts',
+        subtitle: 'Manage accounts from successful lead conversions, including linked contacts, account ownership, and related deals.',
       };
     }
     if (location.pathname.startsWith('/sales/contacts') || location.pathname.startsWith('/contacts')) {
@@ -77,7 +77,7 @@ export const SalesLayout = () => {
     }
     if (location.pathname.startsWith('/sales/profile') || location.pathname.startsWith('/profile')) {
       return {
-        title: 'Edit Profile',
+        title: 'My Profile',
         subtitle: 'Manage your personal account settings, security, and preferences',
       };
     }
@@ -91,6 +91,7 @@ export const SalesLayout = () => {
       !headerContent
     );
   }, [location.pathname, headerContent]);
+  const showPageScrollbar = location.pathname.startsWith('/leads/') || location.pathname.startsWith('/contacts/');
 
   return (
     <SidebarProvider>
@@ -137,7 +138,7 @@ export const SalesLayout = () => {
             <main
               className={`flex-1 flex flex-col min-h-0 bg-gray rounded-tl-[15px] ${
                 isScrollablePage
-                  ? 'overflow-y-auto overflow-x-hidden p-2 sm:p-2.5 md:p-3 no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'
+                  ? `overflow-y-auto overflow-x-hidden p-2 sm:p-2.5 md:p-3 ${showPageScrollbar ? 'overscroll-contain' : 'no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'}`
                   : 'overflow-hidden p-2 sm:p-2.5 md:p-3'
               }`}
             >

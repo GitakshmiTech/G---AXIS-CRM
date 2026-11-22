@@ -3,8 +3,43 @@
 //    Centralized authentication state management for G-CRM (Role, Token, User, Permissions)
 //==================================================================================================================
 
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { DEFAULT_USERS, USER_ROLES } from '../../constants/authConstants';
+import { authenticate, fetchProfile } from '../../services/profileService';
+
+//===========================================================================================
+//    ASYNC THUNKS (REDUX API CALLING LAYER)
+// ===========================================================================================
+
+/**
+ * Async Thunk for authenticating user credentials against the API
+ */
+export const loginUser = createAsyncThunk(
+  'auth/loginUser',
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const session = await authenticate({ email, password });
+      return session;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Invalid email or password.');
+    }
+  }
+);
+
+/**
+ * Async Thunk for refreshing the authenticated employee profile
+ */
+export const loadUserProfile = createAsyncThunk(
+  'auth/loadUserProfile',
+  async (_, { rejectWithValue }) => {
+    try {
+      const profile = await fetchProfile();
+      return profile;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to load profile.');
+    }
+  }
+);
 
 // Helper to safely load initial session from localStorage
 const getSavedRole = () => {
@@ -116,8 +151,61 @@ export const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+
+    profileUpdated: (state, action) => {
+      state.user = { ...state.user, ...action.payload };
+      try {
+        localStorage.setItem('gcrm_user', JSON.stringify(state.user));
+      } catch {
+        // Keep the in-memory profile updated if browser storage is unavailable.
+      }
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // ── loginUser async thunk lifecycle ──────────────────────────────────────────
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        const { role, user, token } = action.payload;
+        const targetRole = role || USER_ROLES.BDE;
+        const targetUser = user || DEFAULT_USERS[targetRole] || DEFAULT_USERS.bde;
+        const targetToken = token || 'gcrm-mock-jwt-token';
+
+        state.role = targetRole;
+        state.user = targetUser;
+        state.token = targetToken;
+        state.isAuthenticated = true;
+
+        try {
+          localStorage.setItem('gcrm_role', targetRole);
+          localStorage.setItem('gcrm_user', JSON.stringify(targetUser));
+          localStorage.setItem('gcrm_token', targetToken);
+          localStorage.setItem('gcrm_auth', 'true');
+          sessionStorage.setItem('last_login_type', targetRole);
+        } catch {
+          // Ignore storage write errors
+        }
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Login failed.';
+      })
+      // ── loadUserProfile async thunk lifecycle ─────────────────────────────────────
+      .addCase(loadUserProfile.fulfilled, (state, action) => {
+        state.user = { ...state.user, ...action.payload };
+        try {
+          localStorage.setItem('gcrm_user', JSON.stringify(state.user));
+        } catch {
+          // Ignore storage write errors
+        }
+      });
   },
 });
 
-export const { loginSuccess, logout, switchRole, setError, clearError } = authSlice.actions;
+export const { loginSuccess, logout, switchRole, setError, clearError, profileUpdated } = authSlice.actions;
 export default authSlice.reducer;

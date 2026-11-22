@@ -2,7 +2,7 @@
 //    PHONE INPUT COMPONENT
 //    Standardized country dial code selector with flag images and phone number input field matching design tokens
 //==================================================================================================================
-import React, { useState, useRef, useEffect, memo } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 //==================================================================================================================
@@ -126,6 +126,7 @@ export const PhoneInput = memo(({
   required = false,
   disabled = false,
   className = '',
+  ...props
 }) => {
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]); // Default: India (+91)
   const [isOpen, setIsOpen] = useState(false);
@@ -247,6 +248,7 @@ export const PhoneInput = memo(({
         onChange={handleInputChange}
         required={required}
         disabled={disabled}
+        {...props}
         className="w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/80 placeholder:select-none font-normal focus:outline-none min-w-0"
       />
     </div>

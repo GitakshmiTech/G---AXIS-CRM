@@ -3,26 +3,31 @@
 //    Password recovery form allowing users to submit email for reset instruction
 //===========================================================================================
 
-import React, { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import EmailInput from '../../common/inputs/EmailInput';
 import Button from '../../common/buttons/Button';
+import { forgotPasswordSchema } from '../../../utils/validationSchemas';
+import { clearFieldError, focusFirstInvalidField, validateForm } from '../../../utils/validationUtils';
 
 export const ForgotPasswordForm = memo(() => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const formRef = useRef(null);
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
-      if (!email.trim()) {
-        setError('Please enter your email address.');
+      const validation = await validateForm(forgotPasswordSchema, { email });
+      if (Object.keys(validation.errors).length) {
+        setFieldErrors(validation.errors);
+        focusFirstInvalidField(formRef.current, validation.errors);
         return;
       }
       setSubmitted(true);
-      setError('');
+      setFieldErrors({});
       setTimeout(() => {
         navigate('/new-password');
       }, 1200);
@@ -41,12 +46,7 @@ export const ForgotPasswordForm = memo(() => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
-        {error && (
-          <div className="p-3 text-xs font-semibold text-alert bg-alert/10 border-b-2 border-stroke/80 rounded-[7px] text-center">
-            {error}
-          </div>
-        )}
+      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
 
         {submitted && (
           <div className="p-3 text-xs font-semibold text-success bg-success/10 border-b-2 border-stroke/80 rounded-[7px] text-center">
@@ -58,10 +58,11 @@ export const ForgotPasswordForm = memo(() => {
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
-            if (error) setError('');
+            clearFieldError(setFieldErrors, 'email');
           }}
           placeholder="name@example.com"
           required
+          error={fieldErrors.email}
         />
 
         <div className="mt-2 flex flex-col gap-3">

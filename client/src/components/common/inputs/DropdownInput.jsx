@@ -5,6 +5,7 @@
 import React, { memo, useState, useRef, useMemo, useCallback } from 'react';
 import { Check } from 'lucide-react';
 import { useClickOutside } from '../../../hooks/useClickOutside';
+import { FieldError } from './FieldError';
 
 // ==================================================================================================================
 //    Dropdown Chevron Down Icon
@@ -36,12 +37,18 @@ export const DropdownInput = memo(({
   placeholder = '',
   disabled = false,
   required = false,
+  error = '',
   onChange,
   className = '',
   containerClassName = 'flex flex-col gap-1 w-full',
   labelClassName = 'text-xs font-semibold text-black-90',
   selectClassName = 'w-full h-[40px] px-3 pr-8 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 placeholder:select-none font-normal focus:outline-none cursor-pointer transition-all disabled:bg-gray disabled:cursor-not-allowed',
   chevronClassName = 'w-4 h-4 text-primary',
+  chevronButtonClassName = 'absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-0.5 focus:outline-none',
+  containerDataUiStyle,
+  fitContent = false,
+  dropdownMenuClassName = '',
+  dropdownOptionLabelClassName = '',
   showChevron,
   children,
   ...props
@@ -204,7 +211,7 @@ export const DropdownInput = memo(({
     : (selectedOption ? selectedOption.label : '');
 
   return (
-    <div className={`relative ${containerClassName}`} ref={dropdownRef}>
+    <div className={`relative ${containerClassName}`} ref={dropdownRef} data-ui-style={containerDataUiStyle}>
       {label && (
         <label htmlFor={id || name} className={labelClassName}>
           {label}
@@ -221,20 +228,24 @@ export const DropdownInput = memo(({
       />
 
       {/* Main Searchable Input Box */}
-      <div className="relative w-full flex items-center">
+      <div className={`relative flex items-center ${fitContent ? 'w-fit' : 'w-full'}`}>
         <input
           ref={inputRef}
           type="text"
           id={id ? `${id}-search` : undefined}
           value={displayValue}
+          style={fitContent ? { width: `${Math.max(64, displayValue.length * 7 + 36)}px` } : undefined}
           onChange={handleInputChange}
           onClick={handleInputClick}
           onFocus={handleInputClick}
           onKeyDown={handleKeyDown}
           placeholder={effectivePlaceholder}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${name || id}-error` : undefined}
           disabled={disabled}
           autoComplete="off"
           className={`
+            ${fitContent ? 'w-auto min-w-[4rem] max-w-[12rem]' : ''}
             ${selectClassName}
             
             ${className}
@@ -250,7 +261,9 @@ export const DropdownInput = memo(({
             onMouseDown={(e) => e.preventDefault()}
             onClick={handleChevronClick}
             disabled={disabled}
-            className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer p-0.5 focus:outline-none"
+            className={chevronButtonClassName}
+            title={props.title || 'Open options'}
+            aria-label={props['aria-label'] || 'Toggle options'}
           >
             <ChevronDown
               className={`${chevronClassName} transition-transform duration-200 ${isOpen ? 'rotate-180' : ''
@@ -264,8 +277,8 @@ export const DropdownInput = memo(({
       {isOpen && !disabled && (
         <div
           data-ui-style="dropdown-menu"
-          data-ui-width="trigger"
-          className="absolute left-0 right-0 top-full mt-1 z-50 bg-gray border-none rounded-none overflow-hidden animate-in fade-in-50 duration-100 p-0 shadow-none w-full min-w-full">
+          data-ui-width={dropdownMenuClassName ? undefined : 'trigger'}
+          className={`absolute left-0 top-full mt-1 z-50 bg-gray border-none rounded-none overflow-hidden animate-in fade-in-50 duration-100 p-0 shadow-none ${dropdownMenuClassName || 'right-0 w-full min-w-full'}`}>
           <div className="max-h-60 overflow-y-auto no-scrollbar flex flex-col gap-0.5 w-full">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((opt, idx) => {
@@ -283,7 +296,7 @@ export const DropdownInput = memo(({
                       }
                     `}
                   >
-                    <span className="truncate whitespace-nowrap">{opt.label}</span>
+                    <span className={`whitespace-nowrap ${dropdownOptionLabelClassName || 'truncate'}`}>{opt.label}</span>
                     {isSelected && <Check size={12} className="text-primary shrink-0 ml-1.5" />}
                   </div>
                 );
@@ -296,6 +309,7 @@ export const DropdownInput = memo(({
           </div>
         </div>
       )}
+      <FieldError name={name || id} error={error} />
     </div>
   );
 });

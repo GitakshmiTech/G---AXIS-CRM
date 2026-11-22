@@ -8,8 +8,10 @@ export const LEAD_STAGES = [
   { value: 'New', label: 'New' },
   { value: 'Contacted', label: 'Contacted' },
   { value: 'Qualified', label: 'Qualified' },
-  { value: 'Proposal', label: 'Proposal' },
   { value: 'Negotiation', label: 'Negotiation' },
+  { value: 'Nurture', label: 'Nurture' },
+  { value: 'Disqualified', label: 'Disqualified' },
+  { value: 'Unassigned', label: 'Unassigned' },
   { value: 'Won', label: 'Won' },
   { value: 'Lost', label: 'Lost' },
 ];

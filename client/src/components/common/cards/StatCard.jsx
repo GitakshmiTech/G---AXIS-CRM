@@ -53,6 +53,7 @@ export const StatCard = ({
   icon: CustomIcon,
   iconSrc,
   className = '',
+  loading = false,
 }) => {
   // Resolve item object or individual props
   const resolvedTitle = item?.title ?? title;
@@ -141,8 +142,10 @@ export const StatCard = ({
 
   return (
     <div
-      className={`bg-white-100 rounded-xl p-3 sm:p-5 border-b-2 border-stroke/80 flex flex-col justify-between  ${className}`}
+      aria-busy={loading}
+      className={`bg-white-100 rounded-xl p-3 sm:p-5 border-b-2 border-stroke/80 flex flex-col justify-between ${className}`}
     >
+      {loading ? <div aria-hidden="true" className="animate-pulse space-y-3"><div className="h-4 w-2/3 rounded-[4px] bg-gray" /><div className="h-8 w-1/2 rounded-[4px] bg-gray" /><div className="h-6 w-full rounded-[4px] bg-gray" /></div> : <>
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 sm:mb-3 gap-1 sm:gap-2">
         <div className="flex justify-center sm:justify-end w-full sm:w-auto order-1 sm:order-2">
           {renderIcon()}
@@ -158,6 +161,7 @@ export const StatCard = ({
         </h2>
         {renderTrend()}
       </div>
+      </>}
     </div>
   );
 };

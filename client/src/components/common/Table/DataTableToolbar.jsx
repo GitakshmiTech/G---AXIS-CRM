@@ -25,6 +25,7 @@ export const DataTableToolbar = ({
   onResetFilters,
   viewMode = 'list',
   onViewModeChange,
+  gridViewLabel = 'Grid view',
   showViewToggle = true,
   onImport,
   onExport,
@@ -119,6 +120,7 @@ export const DataTableToolbar = ({
             {showViewToggle && (
               <ViewModeToggle
                 viewMode={viewMode}
+                gridViewLabel={gridViewLabel}
                 onViewModeChange={(mode) => {
                   closeMobilePanels();
                   onViewModeChange && onViewModeChange(mode);
@@ -287,6 +289,7 @@ export const DataTableToolbar = ({
           {showViewToggle && (
             <ViewModeToggle
               viewMode={viewMode}
+              gridViewLabel={gridViewLabel}
               onViewModeChange={onViewModeChange}
             />
           )}

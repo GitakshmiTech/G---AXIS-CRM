@@ -37,3 +37,15 @@ export const exportToCSV = (data, filename = 'export.csv') => {
   URL.revokeObjectURL(url);
 };
 
+/** Download a Blob returned directly by a backend export endpoint. */
+export const downloadBlob = (blob, filename = 'export.csv') => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+};
+

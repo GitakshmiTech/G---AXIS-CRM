@@ -3,13 +3,15 @@
 //    Slide-over drawer for updating sales opportunity, stage, dates, and forecast valuation
 //==================================================================================================================
 
-import React, { useState, useEffect, memo, useCallback } from 'react';
+import { useState, useEffect, memo, useCallback, useRef } from 'react';
 import { Calendar } from 'lucide-react';
 import { Drawer } from '../../common/sidebar/Drawer';
 import { TextInput } from '../../common/inputs/TextInput';
+import { FieldError } from '../../common/inputs/FieldError';
 import { DropdownInput } from '../../common/inputs/DropdownInput';
 import { BackButton } from '../../common/buttons/BackButton';
-import { DEAL_PRODUCT_OPTIONS } from '../../../constants/dealsConstants';
+import { editDealSchema } from '../../../utils/validationSchemas';
+import { clearFieldError, focusFirstInvalidField, validateForm } from '../../../utils/validationUtils';
 
 //==================================================================================================================
 //    EDIT / VIEW DEAL DRAWER
@@ -23,42 +25,50 @@ export const EditDealDrawer = memo(({
 }) => {
   const isView = mode === 'view';
   const [formData, setFormData] = useState({
-    dealName: 'HyperScale Systems',
-    stage: '2. Stage 2',
-    dealAmount: '483,500',
+    dealName: '',
+    stage: '',
+    dealAmount: '',
     productInterest: '',
     startDate: '',
     closeDate: '',
-    assignedBde: 'Johnson Doe',
+    assignedBde: '',
   });
+  const [fieldErrors, setFieldErrors] = useState({});
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        dealName: initialData.companyName || initialData.dealName || 'HyperScale Systems',
-        stage: initialData.stage || '2. Stage 2',
-        dealAmount: initialData.dealAmount || (initialData.expectedValue ? initialData.expectedValue.replace(/[^0-9]/g, '') : '483,500'),
-        productInterest: initialData.productInterestName || '',
+        dealName: initialData.title || initialData.dealName || '',
+        stage: initialData.stage || '',
+        dealAmount: initialData.value ? Number(initialData.value).toLocaleString('en-IN') : '',
+        productInterest: initialData.productId || '',
         startDate: initialData.startDate || '',
         closeDate: initialData.closeDate || initialData.expectedCloseDate || '',
-        assignedBde: initialData.assignedBde || 'Johnson Doe',
+        assignedBde: initialData.assignedBde || '',
       });
     }
   }, [initialData, isOpen]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const normalizedValue = ['startDate', 'closeDate'].includes(name) && /^\d{2}-\d{2}-\d{4}$/.test(value) ? value.replaceAll('-', '/') : value;
+    setFormData((prev) => ({ ...prev, [name]: normalizedValue }));
+    clearFieldError(setFieldErrors, name);
   }, []);
 
   const handleDropdownChange = useCallback((name, val) => {
     setFormData((prev) => ({ ...prev, [name]: val }));
+    clearFieldError(setFieldErrors, name);
   }, []);
 
-  const handleSubmit = useCallback((e) => {
+  const handleSubmit = useCallback(async (e) => {
     if (e) e.preventDefault();
-    if (onSave) onSave(formData);
-    if (onClose) onClose();
+    const validation = await validateForm(editDealSchema, formData);
+    if (Object.keys(validation.errors).length) { setFieldErrors(validation.errors); focusFirstInvalidField(formRef.current, validation.errors); return; }
+    setFieldErrors({});
+    const saved = onSave ? await onSave(formData) : true;
+    if (saved !== false && onClose) onClose();
   }, [formData, onSave, onClose]);
 
   return (
@@ -88,7 +98,7 @@ export const EditDealDrawer = memo(({
         </div>
       }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Row 1: Deal Name & Stage */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <TextInput
@@ -98,6 +108,7 @@ export const EditDealDrawer = memo(({
             value={formData.dealName}
             onChange={handleChange}
             disabled={isView}
+            error={fieldErrors.dealName}
           />
           <TextInput
             label="Stage"
@@ -126,16 +137,19 @@ export const EditDealDrawer = memo(({
                 onChange={handleChange}
                 placeholder="Enter Deal Amount"
                 disabled={isView}
+                aria-invalid={Boolean(fieldErrors.dealAmount)}
+                aria-describedby={fieldErrors.dealAmount ? 'dealAmount-error' : undefined}
                 className={`w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none ${isView ? 'cursor-not-allowed' : ''}`}
               />
             </div>
+            <FieldError name="dealAmount" error={fieldErrors.dealAmount} />
           </div>
 
           <DropdownInput
             label="Product Interest"
             name="productInterest"
             placeholder="Select Product"
-            options={DEAL_PRODUCT_OPTIONS}
+            options={initialData?.productOptions || []}
             value={formData.productInterest}
             onChange={(e) => handleDropdownChange('productInterest', e.target.value)}
             disabled={isView}
@@ -156,10 +170,13 @@ export const EditDealDrawer = memo(({
                 onChange={handleChange}
                 placeholder="DD/MM/YYYY"
                 disabled={isView}
+                aria-invalid={Boolean(fieldErrors.startDate)}
+                aria-describedby={fieldErrors.startDate ? 'startDate-error' : undefined}
                 className={`w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none ${isView ? 'cursor-not-allowed' : ''}`}
               />
               <Calendar size={16} className={`text-primary shrink-0 ${isView ? 'cursor-not-allowed' : 'cursor-pointer'}`} />
             </div>
+            <FieldError name="startDate" error={fieldErrors.startDate} />
           </div>
 
           <div className="flex flex-col gap-1 w-full">
@@ -174,10 +191,13 @@ export const EditDealDrawer = memo(({
                 onChange={handleChange}
                 placeholder="DD/MM/YYYY"
                 disabled={isView}
+                aria-invalid={Boolean(fieldErrors.closeDate)}
+                aria-describedby={fieldErrors.closeDate ? 'closeDate-error' : undefined}
                 className={`w-full h-full bg-transparent text-xs text-black-90 placeholder:text-black-90/40 font-normal focus:outline-none ${isView ? 'cursor-not-allowed' : ''}`}
               />
               <Calendar size={16} className={`text-primary shrink-0 ${isView ? 'cursor-not-allowed' : 'cursor-pointer'}`} />
             </div>
+            <FieldError name="closeDate" error={fieldErrors.closeDate} />
           </div>
         </div>
 
@@ -188,7 +208,7 @@ export const EditDealDrawer = memo(({
           placeholder="Johnson Doe"
           value={formData.assignedBde}
           onChange={handleChange}
-          disabled={isView}
+          disabled
         />
       </form>
     </Drawer>

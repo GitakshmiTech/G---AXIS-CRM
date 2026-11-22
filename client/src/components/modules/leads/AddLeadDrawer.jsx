@@ -3,7 +3,7 @@
 //    Slide-over drawer for inspecting, editing, and creating enterprise leads
 //==================================================================================================================
 
-import React, { useState, useEffect, memo } from 'react';
+import { useState, useEffect, useMemo, memo, useRef } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Drawer } from '../../common/sidebar/Drawer';
 import { TextInput } from '../../common/inputs/TextInput';
@@ -12,6 +12,9 @@ import { PhoneNumber } from '../../common/inputs/PhoneNumber';
 import { BackButton } from '../../common/buttons/BackButton';
 import { DocumentCard } from './DocumentCard';
 import { UploadDropzone } from '../../common/inputs/UploadDropzone';
+import { downloadLocalDocument, previewLocalDocument } from '../../../utils/documentUtils';
+import { leadSchema } from '../../../utils/validationSchemas';
+import { clearFieldError, focusFirstInvalidField, validateForm } from '../../../utils/validationUtils';
 import {
   PRODUCT_INTEREST_OPTIONS,
   INDUSTRY_OPTIONS,
@@ -22,17 +25,21 @@ import {
   LEAD_STAGES,
   LEAD_PRIORITIES,
   LEAD_SOURCES,
-  MOCK_DOCUMENTS,
 } from '../../../constants/leadsConstants';
 
 export const AddLeadDrawer = memo(({
   isOpen = false,
   onClose,
   onSave,
+  saveError = '',
+  serverErrors = {},
+  duplicateLead = null,
+  onOpenDuplicate,
   onDeactivate,
   onConvert,
   initialData = null,
   mode = 'create', // 'create' | 'edit' | 'view'
+  presentation = 'drawer',
 }) => {
   //==================================================================================================================
   //    FORM STATE
@@ -56,9 +63,26 @@ export const AddLeadDrawer = memo(({
     state: '',
     city: '',
     postalCode: '',
+    requirement: '',
+    expectedValue: '',
   });
 
-  const [documents, setDocuments] = useState(MOCK_DOCUMENTS);
+  const [documents, setDocuments] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadError, setUploadError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [dismissedServerErrors, setDismissedServerErrors] = useState({});
+  const formRef = useRef(null);
+  const industryOptions = useMemo(() => (
+    initialData?.industry && !INDUSTRY_OPTIONS.some((option) => option.value === initialData.industry)
+      ? [...INDUSTRY_OPTIONS, { value: initialData.industry, label: `Industry ID: ${initialData.industry}` }]
+      : INDUSTRY_OPTIONS
+  ), [initialData]);
+  const cityOptions = useMemo(() => (
+    initialData?.city && !CITY_OPTIONS.some((option) => option.value === initialData.city)
+      ? [...CITY_OPTIONS, { value: initialData.city, label: `City ID: ${initialData.city}` }]
+      : CITY_OPTIONS
+  ), [initialData]);
 
   // Populate data when editing or viewing
   useEffect(() => {
@@ -71,19 +95,22 @@ export const AddLeadDrawer = memo(({
         leadSource: initialData.leadSource || '',
         email: initialData.email || '',
         phone: initialData.phone || '',
-        priority: initialData.priority || 'Low',
-        stage: initialData.stage || 'Proposal',
+        priority: initialData.priority || '',
+        stage: initialData.stage || '',
         companyName: initialData.companyName || '',
-        industry: initialData.industry || 'Information Technology',
-        employeeScale: initialData.employeeScale || '0 - 50',
+        industry: initialData.industry || '',
+        employeeScale: initialData.employeeScale || '',
         website: initialData.website || '',
-        address: initialData.address || 'Kaivanna Complex, 304 - 306 & 701, Chimanlal Girdharlal Rd, Panchavati Society, Ambawadi, Ahmedabad',
-        country: initialData.country || 'India',
-        state: initialData.state || 'Gujarat',
-        city: initialData.city || 'Ahmedabad',
-        postalCode: initialData.postalCode || '380009',
+        address: initialData.address || '',
+        country: initialData.country || '',
+        state: initialData.state || '',
+        city: initialData.city || '',
+        postalCode: initialData.postalCode || '',
+        requirement: initialData.requirement || '',
+        expectedValue: initialData.expectedValue || '',
       });
-      setDocuments(MOCK_DOCUMENTS);
+      setDocuments(initialData.documents || []);
+      setSelectedFiles([]);
     } else {
       setFormData({
         code: '',
@@ -104,28 +131,79 @@ export const AddLeadDrawer = memo(({
         state: '',
         city: '',
         postalCode: '',
+        requirement: '',
+        expectedValue: '',
       });
       setDocuments([]);
+      setSelectedFiles([]);
+      setUploadError('');
     }
   }, [initialData, isOpen]);
+
+  useEffect(() => {
+    if (Object.keys(serverErrors).length) focusFirstInvalidField(formRef.current, serverErrors);
+  }, [serverErrors]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    clearFieldError(setFieldErrors, name);
+    setDismissedServerErrors((current) => ({ ...current, [name]: true }));
   };
 
   const handleDropdownChange = (name, val) => {
     setFormData((prev) => ({ ...prev, [name]: val }));
+    clearFieldError(setFieldErrors, name);
+    setDismissedServerErrors((current) => ({ ...current, [name]: true }));
   };
 
   const handleDeleteDocument = (docId) => {
     setDocuments((prev) => prev.filter((d) => d.id !== docId));
   };
 
-  const handleSubmit = (e) => {
+  /** Validate the user-selected files against the API's size, type, and count limits. */
+  const handleFileSelect = (fileList) => {
+    const files = Array.from(fileList || []);
+    const allowed = /\.(png|jpe?g|pdf)$/i;
+    const invalid = files.find((file) => !allowed.test(file.name) || file.size > 5 * 1024 * 1024);
+    if (invalid) { setUploadError(`${invalid.name}: use PNG, JPG, or PDF files up to 5 MB each.`); return; }
+    if (documents.length + selectedFiles.length + files.length > 10) { setUploadError('A lead can have up to 10 documents.'); return; }
+    setUploadError('');
+    setSelectedFiles((current) => [...current, ...files]);
+  };
+
+  const handleDownloadDocument = (docId) => {
+    const doc = documents.find((item) => item.id === docId);
+    if (doc && initialData?.onDownloadDocument) initialData.onDownloadDocument(docId, doc.name || doc.originalName);
+  };
+
+  /** Open an uploaded document in a new browser tab for preview. */
+  const handleViewDocument = (docId) => {
+    const doc = documents.find((item) => item.id === docId);
+    if (doc && initialData?.onViewDocument) initialData.onViewDocument(docId, doc.name || doc.originalName);
+  };
+
+  /** Preview or download a selected file before the lead is saved. */
+  const handleSelectedFileAction = (file, action) => {
+    try {
+      if (action === 'view') previewLocalDocument(file);
+      else downloadLocalDocument(file);
+      setUploadError('');
+    } catch (fileError) {
+      setUploadError(fileError.message || 'Unable to open the selected document.');
+    }
+  };
+
+  const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    if (onSave) onSave(formData);
-    if (onClose) onClose();
+    const validation = await validateForm(leadSchema, formData);
+    if (Object.keys(validation.errors).length) {
+      setFieldErrors(validation.errors);
+      focusFirstInvalidField(formRef.current, validation.errors);
+      return;
+    }
+    setFieldErrors({});
+    if (onSave) await onSave(formData, selectedFiles, documents);
   };
 
   const isView = mode === 'view';
@@ -142,9 +220,10 @@ export const AddLeadDrawer = memo(({
       title={drawerTitle}
       subtitle="Create and qualify a new enterprise prospect. Real-time deduplication verification is active across customer records."
       width="w-full sm:w-[700px]"
+      presentation={presentation}
       bodyClassName="px-6 py-2"
       footer={
-        <div className="px-3 sm:px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex flex-col sm:flex-row sm:justify-between items-stretch sm:items-center gap-2 sm:gap-4 shrink-0">
+        <div className={`px-3 sm:px-6 py-2.5 sm:py-3 bg-white-100 ${presentation === 'drawer' ? 'sticky bottom-0 z-20' : ''} flex flex-col sm:flex-row sm:justify-between items-stretch sm:items-center gap-2 sm:gap-4 shrink-0`}>
           <div className="flex items-center justify-between sm:justify-start">
             <BackButton onClick={onClose} label="Back" />
             {!isView && (
@@ -217,40 +296,48 @@ export const AddLeadDrawer = memo(({
         </div>
       }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {saveError && <div role="alert" className="rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-3 py-2 text-xs text-alert">
+          <p>{saveError}</p>
+          {duplicateLead && <button type="button" onClick={() => onOpenDuplicate?.(duplicateLead)} className="mt-2 font-semibold text-primary underline cursor-pointer">
+            Open existing lead {duplicateLead.code}: {duplicateLead.name}
+          </button>}
+        </div>}
         {/* ================================================================================================================
-            ROW 1: Lead Code & Full Name
+            ROW 1: Lead Code for Existing Leads and Full Name
         ================================================================================================================ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <TextInput
-            label="Lead Code"
-            name="code"
-            value={formData.code}
-            disabled={true}
-            readOnly
-          />
+          {mode !== 'create' && <TextInput label="Lead Code" name="code" value={formData.code} disabled readOnly />}
           <TextInput
             label="Full Name"
             name="name"
             placeholder="Enter Full Name"
             value={formData.name}
             onChange={handleChange}
-            disabled={isView}
             required
+            disabled={isView}
+            error={fieldErrors.name || (!dismissedServerErrors.name && serverErrors.name)}
           />
+          {mode === 'create' && <TextInput
+            label="Designation"
+            name="designation"
+            placeholder="Enter Designation"
+            value={formData.designation}
+            onChange={handleChange}
+          />}
         </div>
 
         {/* ================================================================================================================
             ROW 2: Designation (Full Width)
         ================================================================================================================ */}
-        <TextInput
+        {mode !== 'create' && <TextInput
           label="Designation"
           name="designation"
           placeholder="Enter Designation"
           value={formData.designation}
           onChange={handleChange}
           disabled={isView}
-        />
+        />}
 
         {/* ================================================================================================================
             ROW 3: Product Interest & Lead Source
@@ -288,6 +375,8 @@ export const AddLeadDrawer = memo(({
             value={formData.email}
             onChange={handleChange}
             disabled={isView}
+            required
+            error={fieldErrors.email || (!dismissedServerErrors.email && serverErrors.email)}
           />
           <PhoneNumber
             label="Contact Number"
@@ -297,6 +386,7 @@ export const AddLeadDrawer = memo(({
             onChange={handleChange}
             disabled={isView}
             required
+            error={fieldErrors.phone || (!dismissedServerErrors.phone && serverErrors.phone)}
           />
         </div>
 
@@ -344,12 +434,14 @@ export const AddLeadDrawer = memo(({
             value={formData.companyName}
             onChange={handleChange}
             disabled={isView}
+            required
+            error={fieldErrors.companyName || (!dismissedServerErrors.companyName && serverErrors.companyName)}
           />
           <DropdownInput
             label="Industry Type"
             name="industry"
             placeholder="Select Industry Type"
-            options={INDUSTRY_OPTIONS}
+            options={industryOptions}
             value={formData.industry}
             onChange={(e) => handleDropdownChange('industry', e.target.value)}
             disabled={isView}
@@ -376,6 +468,7 @@ export const AddLeadDrawer = memo(({
             value={formData.website}
             onChange={handleChange}
             disabled={isView}
+            error={fieldErrors.website || (!dismissedServerErrors.website && serverErrors.website)}
           />
         </div>
 
@@ -387,6 +480,16 @@ export const AddLeadDrawer = memo(({
           name="address"
           placeholder="Enter Address"
           value={formData.address}
+          onChange={handleChange}
+          disabled={isView}
+          error={fieldErrors.expectedValue || (!dismissedServerErrors.expectedValue && serverErrors.expectedValue)}
+        />
+
+        <TextInput
+          label="Business Requirement"
+          name="requirement"
+          placeholder="Describe the lead requirement"
+          value={formData.requirement}
           onChange={handleChange}
           disabled={isView}
         />
@@ -423,7 +526,7 @@ export const AddLeadDrawer = memo(({
             label="City"
             name="city"
             placeholder="Ahmedabad"
-            options={CITY_OPTIONS}
+            options={cityOptions}
             value={formData.city}
             onChange={(e) => handleDropdownChange('city', e.target.value)}
             disabled={isView}
@@ -438,10 +541,20 @@ export const AddLeadDrawer = memo(({
           />
         </div>
 
+        <TextInput
+          label="Expected Value"
+          name="expectedValue"
+          type="number"
+          placeholder="Enter expected value"
+          value={formData.expectedValue}
+          onChange={handleChange}
+          disabled={isView}
+        />
+
         {/* ================================================================================================================
             ROW 11: Document Upload / Uploaded Documents Section
         ================================================================================================================ */}
-        {isViewOrEdit && documents.length > 0 ? (
+        {(isViewOrEdit && documents.length > 0) || selectedFiles.length > 0 ? (
           <div className="flex flex-col gap-2 pt-1">
             <h4 className="text-xs font-bold text-black-90">
               Uploaded Documents
@@ -451,20 +564,38 @@ export const AddLeadDrawer = memo(({
                 <DocumentCard
                   key={doc.id}
                   id={doc.id}
-                  name={doc.name}
-                  size={doc.size}
+                  name={doc.name || doc.originalName}
+                  size={doc.sizeLabel || doc.size}
                   uploadDate={doc.uploadDate}
+                  onDownload={handleDownloadDocument}
+                  onView={handleViewDocument}
                   onDelete={isView ? undefined : handleDeleteDocument}
                 />
               ))}
+              {selectedFiles.map((file, index) => <DocumentCard
+                key={`${file.name}-${index}`}
+                id={`pending-${index}`}
+                name={file.name}
+                size={`${(file.size / 1024 / 1024).toFixed(2)} MB`}
+                uploadDate="Ready to upload"
+                onView={() => handleSelectedFileAction(file, 'view')}
+                onDownload={() => handleSelectedFileAction(file, 'download')}
+                onDelete={() => setSelectedFiles((current) => current.filter((_, fileIndex) => fileIndex !== index))}
+                deleteTitle="Cancel Upload"
+              />)}
             </div>
           </div>
-        ) : !isView ? (
+        ) : null}
+        {!isView && documents.length + selectedFiles.length < 10 && (
           <UploadDropzone
             label="Upload Document (PNG, JPG or PDF (Max 10 Docs & Max 5MB Each))"
             placeholder="Drag and drop or click to upload"
+            size="medium"
+            onFileSelect={handleFileSelect}
+            multiple
           />
-        ) : null}
+        )}
+        {uploadError && <p role="alert" className="text-xs text-alert">{uploadError}</p>}
       </form>
     </Drawer>
   );

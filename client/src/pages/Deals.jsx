@@ -1,285 +1,175 @@
-//==================================================================================================================
-//    DEAL MANAGEMENT PAGE COMPONENT (SUPER ADMIN WORKSPACE)
-//    Enterprise deals pipeline workspace module featuring deal stages, expected valuation, close dates & edit drawer
-//==================================================================================================================
-
-import React, { useState, useMemo, useCallback } from 'react';
+//===========================================================================================
+//    DEAL DIRECTORY PAGE
+// ===========================================================================================
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TableContainer } from '../components/common/Table/TableContainer';
 import { DataTableToolbar } from '../components/common/Table/DataTableToolbar';
 import { DataTable } from '../components/common/Table/DataTable';
 import { Pagination } from '../components/common/Table/Pagination';
 import { ViewBtn } from '../components/common/buttons/ViewBtn';
 import { EditBtn } from '../components/common/buttons/EditBtn';
-import { AvatarStack } from '../components/common/avatar/AvatarStack';
-import { EditDealDrawer } from '../components/modules/deals/EditDealDrawer';
-import {
-  INITIAL_DEALS_DATA,
-  DEAL_PRODUCT_OPTIONS,
-  DEAL_STAGE_OPTIONS,
-} from '../constants/dealsConstants';
+import { DropdownInput } from '../components/common/inputs/DropdownInput';
+import { StatCard } from '../components/common/cards/StatCard';
+import { CONVERSION_DEAL_STAGE_OPTIONS } from '../constants/dealsConstants';
+import { downloadBlob } from '../utils/exportUtils';
+import { formatCurrency } from '../utils/formatters';
+import { fetchDeals, exportDeals, updateDealStage } from '../services/dealsService';
+import { useToast } from '../hooks/useToast';
 
-//==================================================================================================================
-//    DEALS / DEAL MANAGEMENT UNIFIED COMPONENT
-//==================================================================================================================
+/** Display the authenticated user's Deals using server-backed search and filters. */
 export const Deals = () => {
-  const [deals, setDeals] = useState(INITIAL_DEALS_DATA);
+  const navigate = useNavigate();
+  const toast = useToast();
+  const [deals, setDeals] = useState([]);
+  const [owners, setOwners] = useState([]);
+  const [stats, setStats] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [productFilter, setProductFilter] = useState('All');
-  const [stageFilter, setStageFilter] = useState('All');
-  const [viewMode, setViewMode] = useState('list');
+  const [stageFilter, setStageFilter] = useState('');
+  const [ownerFilter, setOwnerFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
+  const [error, setError] = useState('');
+  const [updatingDealIds, setUpdatingDealIds] = useState([]);
   const pageSize = 10;
 
-  // Drawer state
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedDeal, setSelectedDeal] = useState(null);
-  const [drawerMode, setDrawerMode] = useState('edit');
+  // Reload API rows whenever the server-side search, filters, or page changes.
+  useEffect(() => {
+    let active = true;
+    const timer = setTimeout(() => {
+      setIsLoading(true);
+      setError('');
+      fetchDeals({ page: currentPage, limit: pageSize, search: searchQuery, stage: stageFilter, ownerId: ownerFilter })
+        .then((result) => {
+          if (!active) return;
+          setDeals(result.rows);
+          setOwners(result.owners);
+          setStats(result.stats);
+          setPagination(result.pagination);
+        })
+        .catch((requestError) => {
+          if (!active) return;
+          setDeals([]);
+          setPagination({ page: currentPage, limit: pageSize, total: 0, totalPages: 1 });
+          setError(requestError.message || 'Unable to load deals.');
+        })
+        .finally(() => { if (active) setIsLoading(false); });
+    }, searchQuery.trim() ? 250 : 0);
+    return () => { active = false; clearTimeout(timer); };
+  }, [currentPage, ownerFilter, pageSize, searchQuery, stageFilter]);
 
-  //==================================================================================================================
-  //    DRAWER TRIGGER HANDLERS
-  //==================================================================================================================
-  const handleOpenEdit = useCallback((deal) => {
-    setSelectedDeal(deal);
-    setDrawerMode('edit');
-    setIsEditOpen(true);
-  }, []);
-
-  const handleOpenView = useCallback((deal) => {
-    setSelectedDeal(deal);
-    setDrawerMode('view');
-    setIsEditOpen(true);
-  }, []);
-
-  const handleCloseDrawer = useCallback(() => {
-    setIsEditOpen(false);
-    setSelectedDeal(null);
-  }, []);
-
-  const handleSaveDeal = useCallback((updatedData) => {
-    if (selectedDeal) {
-      setDeals((prev) =>
-        prev.map((d) => (d.id === selectedDeal.id ? { ...d, ...updatedData } : d))
-      );
+  const handleSearch = useCallback((value) => { setSearchQuery(value); setCurrentPage(1); }, []);
+  const handleStageFilter = useCallback((event) => { setStageFilter(event.target.value); setCurrentPage(1); }, []);
+  const handleOwnerFilter = useCallback((event) => { setOwnerFilter(event.target.value); setCurrentPage(1); }, []);
+  /** Save a row's stage through the Deal API and leave the last persisted value on failure. */
+  const handleDealStageChange = useCallback(async (deal, nextStage) => {
+    if (!nextStage || nextStage === deal.stageValue) return;
+    setUpdatingDealIds((ids) => [...ids, deal.id]);
+    try {
+      const updated = await updateDealStage(deal.id, nextStage);
+      const persistedStage = updated.stageValue || nextStage;
+      setDeals((rows) => rows.map((row) => row.id === deal.id ? { ...row, ...updated, stageValue: persistedStage } : row));
+      toast(`Deal stage changed to ${updated.stage || nextStage}.`);
+    } catch (stageError) {
+      toast(stageError.message || 'Unable to update the deal stage.', 'error');
+    } finally {
+      setUpdatingDealIds((ids) => ids.filter((id) => id !== deal.id));
     }
-    handleCloseDrawer();
-  }, [selectedDeal, handleCloseDrawer]);
+  }, [toast]);
+  const handleExport = useCallback(async () => {
+    try {
+      setError('');
+      setIsExporting(true);
+      const blob = await exportDeals({ search: searchQuery, stage: stageFilter, ownerId: ownerFilter });
+      downloadBlob(blob, 'deals.csv');
+    } catch (exportError) {
+      setError(exportError.message || 'Unable to export deals.');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [ownerFilter, searchQuery, stageFilter]);
 
-  //==================================================================================================================
-  //    FILTERING & PAGINATION (OPTIMIZED WITH USEMEMO)
-  //==================================================================================================================
-  const filteredDeals = useMemo(() => {
-    return deals.filter((deal) => {
-      const matchesSearch =
-        !searchQuery.trim() ||
-        deal.dealName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deal.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deal.companyName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deal.stage.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const matchesProduct =
-        productFilter === 'All' || deal.productInterestName === productFilter;
-      const matchesStage =
-        stageFilter === 'All' || deal.stage === stageFilter;
-
-      return matchesSearch && matchesProduct && matchesStage;
-    });
-  }, [deals, searchQuery, productFilter, stageFilter]);
-
-  const paginatedDeals = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredDeals.slice(start, start + pageSize);
-  }, [filteredDeals, currentPage, pageSize]);
-
-  //==================================================================================================================
-  //    TABLE COLUMNS DEFINITION
-  //==================================================================================================================
+  const stageOptions = useMemo(() => [
+    { value: '', label: 'By Stage' },
+    ...CONVERSION_DEAL_STAGE_OPTIONS.map(({ value, label }) => ({ value, label })),
+  ], []);
+  const ownerOptions = useMemo(() => [
+    { value: '', label: 'By Owner' },
+    ...owners,
+  ], [owners]);
   const columns = useMemo(() => [
     {
-      key: 'code',
-      label: 'Code',
-      sortable: true,
-      className: 'w-20 pl-4',
-      render: (row) => (
-        <span className="font-semibold text-black-90">{row.code}</span>
-      ),
+      key: 'code', label: 'Code', sortable: true, sortType: 'text', className: 'w-[155px] pl-4', headerClassName: 'w-[155px]',
+      render: (row) => <span title={row.code} className="whitespace-nowrap font-semibold text-black-90">{row.code || '—'}</span>,
     },
     {
-      key: 'dealName',
-      label: 'Deal Name',
-      sortable: true,
-      render: (row) => (
-        <div className="flex items-center gap-2.5">
-          <img
-            src={row.dealAvatar}
-            alt={row.dealName}
-            className="w-7 h-7 rounded-full object-cover shrink-0"
-          />
-          <div className="flex flex-col min-w-0">
-            <span className="font-semibold text-black-90 whitespace-nowrap">
-              {row.dealName}
-            </span>
-            <span className="text-[11px] text-black-90/50 font-normal truncate">
-              {row.dealRole}
-            </span>
-          </div>
-        </div>
-      ),
+      key: 'title', label: 'Deal Name', sortable: true, sortType: 'text', className: 'w-[145px] max-w-[145px]', headerClassName: 'w-[145px]',
+      render: (row) => <span title={row.title} className="block whitespace-normal break-words font-semibold text-black-90">{row.title || '—'}</span>,
     },
     {
-      key: 'productInterest',
-      label: 'Product Interest',
-      sortable: true,
-      align: 'center',
-      render: (row) => (
-        <AvatarStack
-          avatars={row.productInterest}
-          extraCount={row.extraProductCount}
-        />
-      ),
+      key: 'companyName', label: 'Account', sortable: true, sortType: 'text', className: 'w-[125px] max-w-[125px]', headerClassName: 'w-[125px]',
+      render: (row) => <span title={row.companyName} className="block whitespace-normal break-words text-xs font-medium text-black-90">{row.companyName || '—'}</span>,
     },
     {
-      key: 'expectedValue',
-      label: 'Expected Value',
-      sortable: true,
-      render: (row) => (
-        <span className="text-xs font-semibold text-black-90 whitespace-nowrap leading-none">
-          {row.expectedValue}
-        </span>
-      ),
+      key: 'assignedBde', label: 'Owner (BDE)', sortable: true, sortType: 'text', className: 'w-[145px]', headerClassName: 'w-[145px]',
+      render: (row) => <span title={row.assignedBde} className="block whitespace-normal break-words text-xs font-semibold text-black-90">{row.assignedBde}</span>,
     },
     {
-      key: 'stage',
-      label: 'Stage',
-      sortable: true,
-      align: 'center',
-      render: (row) => (
-        <div className="px-5 py-1.5 bg-gray rounded-[8px] inline-flex items-center justify-center text-xs font-bold text-black-90 ">
-          {row.stage}
-        </div>
-      ),
+      key: 'value', label: 'Expected Value', sortable: true, sortType: 'number', className: 'w-[135px]', headerClassName: 'w-[135px]',
+      render: (row) => <span title={row.expectedValue} className="block break-all text-xs font-semibold text-black-90">{row.expectedValue}</span>,
     },
     {
-      key: 'expectedCloseDate',
-      label: 'Expected Close Date',
-      sortable: true,
-      align: 'center',
-      render: (row) => (
-        <div className="flex flex-col items-center justify-center ">
-          <div className="px-4 py-1.5 bg-gray rounded-[8px] inline-flex items-center justify-center">
-            <span className="text-xs font-bold text-primary whitespace-nowrap">
-              {row.expectedCloseDate}
-            </span>
-          </div>
-          <span className="text-[11px] text-black-90/50 font-medium mt-1 whitespace-nowrap">
-            {row.dueDaysText}
-          </span>
-        </div>
-      ),
+      key: 'stage', label: 'Stage', sortable: true, sortType: 'text', align: 'center',
+      className: 'w-[140px]', headerClassName: 'w-[140px]',
+      render: (row) => <div className="flex w-full justify-center"><DropdownInput name={`deal-stage-${row.id}`} value={row.stageValue || ''} options={CONVERSION_DEAL_STAGE_OPTIONS} onChange={(event) => handleDealStageChange(row, event.target.value)} disabled={updatingDealIds.includes(row.id)} aria-label={`Change stage for ${row.title}`} title="Change deal stage" containerClassName="w-fit min-w-0" containerDataUiStyle="table-stage-select" fitContent dropdownMenuClassName="right-auto w-max min-w-[10rem]" dropdownOptionLabelClassName="overflow-visible" chevronButtonClassName="absolute right-1 top-1/2 -translate-y-1/2 cursor-pointer p-0.5 focus:outline-none" selectClassName="h-7 px-2 pr-6 bg-transparent border-0 rounded-none text-xs text-black-90 font-semibold shadow-none focus:outline-none focus:shadow-none cursor-pointer transition-colors hover:text-primary disabled:cursor-wait" /></div>,
     },
     {
-      key: 'assignedBde',
-      label: 'Assigned BDE',
-      sortable: true,
-      render: (row) => (
-        <div className="flex items-center gap-2.5">
-          <img
-            src={row.assignedBdeAvatar}
-            alt={row.assignedBde}
-            className="w-7 h-7 rounded-full object-cover shrink-0"
-          />
-          <span className="font-semibold text-black-90 whitespace-nowrap text-xs">
-            {row.assignedBde}
-          </span>
-        </div>
-      ),
+      key: 'closeDate', label: 'Expected Close Date', sortable: true, sortType: 'text', align: 'center', className: 'w-[165px]', headerClassName: 'w-[165px]',
+      render: (row) => <span className="text-xs font-semibold text-primary">{row.expectedCloseDate}</span>,
     },
     {
-      key: 'createdDate',
-      label: 'Created Date',
-      sortable: true,
-      render: (row) => (
-        <div className="flex flex-col text-xs leading-tight">
-          <span className="font-medium text-black-90">{row.createdDate}</span>
-          <span className="text-black-90/50 text-[11px] mt-0.5">{row.createdTime}</span>
-        </div>
-      ),
+      key: 'probability', label: 'Probability', sortable: true, sortType: 'number', className: 'w-[100px]', headerClassName: 'w-[100px]',
+      render: (row) => <span className="text-xs font-medium text-black-90">{row.probability === '' ? '—' : `${row.probability}%`}</span>,
     },
     {
-      key: 'actions',
-      label: 'Action',
-      align: 'center',
-      className: 'pr-4',
-      render: (row) => (
-        <div className="flex items-center justify-center gap-1.5">
-          <ViewBtn onClick={() => handleOpenView(row)} title="View Deal Details" />
-          <EditBtn onClick={() => handleOpenEdit(row)} title="Edit Deal" />
-        </div>
-      ),
+      key: 'actions', label: 'Action', align: 'center', className: 'w-[95px] pr-4', headerClassName: 'w-[95px]',
+      render: (row) => <div className="flex items-center justify-center gap-1.5"><ViewBtn onClick={() => navigate(`/deals/${encodeURIComponent(row.id)}/view`)} title="View Deal Details" /><EditBtn onClick={() => navigate(`/deals/${encodeURIComponent(row.id)}/edit`)} title="Edit Deal" /></div>,
     },
-  ], [handleOpenView, handleOpenEdit]);
+  ], [handleDealStageChange, navigate, updatingDealIds]);
 
-  //==================================================================================================================
-  //    RENDER MAIN COMPONENT
-  //==================================================================================================================
   return (
-    <div className="w-full flex-1 flex flex-col min-h-0 select-text">
-      <TableContainer
-        toolbar={
-          <DataTableToolbar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            searchPlaceholder="Search here..."
-            filters={[
-              {
-                id: 'product-filter',
-                value: productFilter,
-                onChange: setProductFilter,
-                options: DEAL_PRODUCT_OPTIONS,
-              },
-              {
-                id: 'stage-filter',
-                value: stageFilter,
-                onChange: setStageFilter,
-                options: DEAL_STAGE_OPTIONS,
-              },
-            ]}
-            onResetFilters={() => {
-              setSearchQuery('');
-              setProductFilter('All');
-              setStageFilter('All');
-              setCurrentPage(1);
-            }}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            onExport={() => alert('Exporting Deals Data...')}
-          />
-        }
-        pagination={
-          <Pagination
-            currentPage={currentPage}
-            totalEntries={filteredDeals.length}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
-            className="pt-0 border-t-0"
-          />
-        }
-      >
-        <DataTable
-          columns={columns}
-          data={paginatedDeals}
-          rowKey="id"
-          emptyMessage="No deals found matching the current search criteria."
-        />
+    <div className="flex min-h-0 w-full flex-1 flex-col gap-3 select-text">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+        <StatCard title="Total Pipeline Value" value={formatCurrency(stats?.pipelineValue || 0, '₹')} colorKey="secondary" loading={isLoading} />
+        <StatCard title="Weighted Forecast" value={formatCurrency(stats?.weightedForecast || 0, '₹')} colorKey="purple" loading={isLoading} />
+        <StatCard title="Closed Won" value={formatCurrency(stats?.closedWonValue || 0, '₹')} colorKey="success" loading={isLoading} />
+        <StatCard title="Win Rate" value={`${stats?.winRate || 0}%`} colorKey="secondary" loading={isLoading} />
+        <StatCard title="Awaiting Approvals" value="—" subText="Approval status is not available in the current API" colorKey="alert" loading={isLoading} />
+      </div>
+      <TableContainer toolbar={<DataTableToolbar
+        searchQuery={searchQuery}
+        onSearchChange={handleSearch}
+        searchPlaceholder="Search deals, codes, or clients..."
+        filters={[
+          { id: 'stage-filter', value: stageFilter, onChange: handleStageFilter, options: stageOptions },
+          { id: 'owner-filter', value: ownerFilter, onChange: handleOwnerFilter, options: ownerOptions },
+        ]}
+        onResetFilters={() => { handleSearch(''); setStageFilter(''); setOwnerFilter(''); }}
+        showViewToggle={false}
+        onExport={handleExport}
+      />} pagination={<Pagination
+        currentPage={currentPage}
+        totalEntries={pagination.total || 0}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        className="pt-0 border-t-0"
+      />}>
+        {error && <div role="alert" className="mx-4 mt-3 rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-4 py-3 text-sm text-alert">{error}</div>}
+        {isExporting && <div role="status" className="px-4 py-2 text-xs text-black-90/60">Preparing deal export…</div>}
+        <DataTable columns={columns} data={deals} rowKey="id" fixedLayout loading={isLoading} emptyMessage="No deals found matching the current search criteria." />
       </TableContainer>
-
-      {/* Slide-over Edit / View Deal Details Drawer (Image 5) */}
-      <EditDealDrawer
-        isOpen={isEditOpen}
-        onClose={handleCloseDrawer}
-        onSave={handleSaveDeal}
-        initialData={selectedDeal}
-        mode={drawerMode}
-      />
     </div>
   );
 };

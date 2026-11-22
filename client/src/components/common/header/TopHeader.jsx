@@ -2,8 +2,8 @@
 //    IMPORTS AND DEPENDENCIES
 //    React primitives, Lucide icons, router navigation, and subcomponents
 //==================================================================================================================
-import { memo, useState, useRef, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { memo, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { ChevronDown, PenLine } from 'lucide-react';
 import { SidebarTrigger } from '../sidebar/Sidebar';
@@ -31,7 +31,6 @@ export const ProfileCapsule = memo(({
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
   const auth = useSelector((state) => state.auth);
 
@@ -43,17 +42,12 @@ export const ProfileCapsule = memo(({
   const resolvedAvatar = auth?.user?.avatar || userAvatar;
 
   // Determine destination paths dynamically from active route & role
-  const profilePath = useMemo(() => {
-    if (auth?.role === 'admin' || location.pathname.startsWith('/admin')) return '/configuration';
-    return '/profile';
-  }, [auth?.role, location.pathname]);
-
   const handleProfileNavigation = () => {
     setIsOpen(false);
     if (onProfileClick) {
       onProfileClick();
     } else {
-      navigate(profilePath);
+      navigate('/profile');
     }
   };
 

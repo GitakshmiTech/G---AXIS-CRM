@@ -5,6 +5,7 @@
 import { memo, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { FieldError } from './FieldError';
 
 export const PasswordInput = memo(({
   label = 'Password',
@@ -16,6 +17,7 @@ export const PasswordInput = memo(({
   disabled = false,
   readOnly = false,
   required = false,
+  error = '',
   onChange,
   className = '',
   containerClassName = 'flex flex-col gap-1 w-full',
@@ -68,6 +70,8 @@ export const PasswordInput = memo(({
           disabled={disabled}
           readOnly={readOnly}
           required={required}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id || name}-error` : undefined}
           onChange={onChange}
           className={`${inputClassName} ${className}`.trim()}
           {...props}
@@ -86,6 +90,7 @@ export const PasswordInput = memo(({
           )}
         </button>
       </div>
+      <FieldError name={id || name} error={error} />
     </div>
   );
 });

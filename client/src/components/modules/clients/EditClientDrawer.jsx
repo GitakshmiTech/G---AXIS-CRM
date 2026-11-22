@@ -1,240 +1,84 @@
-//==================================================================================================================
-//    EDIT CLIENT DRAWER COMPONENT (SUPER ADMIN WORKSPACE)
-//    Slide-over drawer for updating enterprise client profile and account specifications
-//==================================================================================================================
-
-import React, { useState, useEffect, memo, useCallback } from 'react';
+//===========================================================================================
+//    ACCOUNT VIEW AND EDIT DRAWER
+// ===========================================================================================
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Drawer } from '../../common/sidebar/Drawer';
 import { TextInput } from '../../common/inputs/TextInput';
 import { DropdownInput } from '../../common/inputs/DropdownInput';
-import { PhoneNumber } from '../../common/inputs/PhoneNumber';
-import { UploadDropzone } from '../../common/inputs/UploadDropzone';
 import { BackButton } from '../../common/buttons/BackButton';
-import {
-  INDUSTRY_OPTIONS,
-  EMPLOYEE_SCALE_OPTIONS,
-  COUNTRY_OPTIONS,
-  STATE_OPTIONS,
-  CITY_OPTIONS,
-} from '../../../constants/leadsConstants';
 
-//==================================================================================================================
-//    EDIT CLIENT DRAWER
-//==================================================================================================================
-export const EditClientDrawer = memo(({
-  isOpen = false,
-  onClose,
-  onSave,
-  initialData = null,
-  mode = 'edit', // 'view' | 'edit'
-}) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    industryType: '',
-    employeeScale: '0 - 50',
-    website: '',
-    email: '',
-    phone: '',
-    address: 'Kaivanna Complex, 304 - 306 & 701, Chimanlal Girdharlal Rd, Panchavati Society, Ambawadi, Ahmedabad',
-    country: 'India',
-    state: 'Gujarat',
-    city: 'Ahmedabad',
-    postalCode: '380009',
-    assignedBde: 'Johnson Doe',
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        name: initialData.name || '',
-        industryType: initialData.industryType || '',
-        employeeScale: initialData.employeeScale || '0 - 50',
-        website: initialData.website || '',
-        email: initialData.email || '',
-        phone: initialData.phone || '',
-        address: initialData.address || 'Kaivanna Complex, 304 - 306 & 701, Chimanlal Girdharlal Rd, Panchavati Society, Ambawadi, Ahmedabad',
-        country: initialData.country || 'India',
-        state: initialData.state || 'Gujarat',
-        city: initialData.city || 'Ahmedabad',
-        postalCode: initialData.postalCode || '380009',
-        assignedBde: initialData.assignedBde || 'Johnson Doe',
-      });
-    }
-  }, [initialData, isOpen]);
-
-  const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  }, []);
-
-  const handleDropdownChange = useCallback((name, val) => {
-    setFormData((prev) => ({ ...prev, [name]: val }));
-  }, []);
-
-  const handleSubmit = useCallback((e) => {
-    if (e) e.preventDefault();
-    if (onSave) onSave(formData);
-    if (onClose) onClose();
-  }, [formData, onSave, onClose]);
-
+/** Display API-backed Account fields and its related Contacts and Deals. */
+export const EditClientDrawer = memo(({ isOpen, onClose, onSave, initialData, mode = 'view', industries = [], isLoading = false }) => {
+  const [form, setForm] = useState({ name: '', industryId: '', email: '', phone: '', address: '' });
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
   const isView = mode === 'view';
 
+  useEffect(() => {
+    setForm({
+      name: initialData?.name || '',
+      industryId: initialData?.industryId || '',
+      originalIndustryId: initialData?.industryId || '',
+      email: initialData?.email || '',
+      phone: initialData?.phone || '',
+      address: initialData?.address || '',
+    });
+    setError('');
+  }, [initialData, isOpen]);
+
+  const industryOptions = useMemo(() => [
+    ...industries,
+    ...(form.industryId && !industries.some((industry) => industry.value === form.industryId)
+      ? [{ value: form.industryId, label: initialData?.industryType || form.industryId }]
+      : []),
+  ], [form.industryId, industries, initialData]);
+  const handleChange = useCallback((event) => {
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
+  }, []);
+  const handleSave = useCallback(async (event) => {
+    event.preventDefault();
+    if (!form.name.trim()) { setError('Account name is required.'); return; }
+    try {
+      setIsSaving(true);
+      setError('');
+      await onSave(form);
+    } catch (saveError) {
+      setError(saveError.message || 'Unable to save Account details.');
+    } finally { setIsSaving(false); }
+  }, [form, onSave]);
+
   return (
-    //==================================================================================================================
-    //    DRAWER CONTAINER
-    //==================================================================================================================
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={isView ? 'View Client Details' : 'Edit Client'}
-      subtitle="Create and qualify a new enterprise prospect. Real-time deduplication verification is active across customer records."
-      width="w-full sm:w-[560px]"
-      bodyClassName="px-6 py-2"
-      footer={
-        <div className="px-6 py-2.5 sm:py-3 bg-white-100 sticky bottom-0 z-20 flex justify-between items-center shrink-0">
-          <BackButton onClick={onClose} label="Back" />
-          {!isView && (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="bg-primary hover:bg-primary/90 text-white-100 text-xs sm:text-sm font-semibold px-5 py-1.5 sm:py-2 rounded-[7px] border-b-2 border-black-90/20 transition-all cursor-pointer active:scale-95"
-            >
-              Save Details
-            </button>
-          )}
-        </div>
-      }
+      title={isView ? 'View Account Details' : 'Edit Account'}
+      subtitle="Account information and linked records from the CRM API."
+      width="w-full sm:w-[600px]"
+      bodyClassName="px-6 py-3"
+      footer={<div className="flex items-center justify-between border-t border-stroke/60 bg-white-100 px-6 py-3"><BackButton onClick={onClose} label="Back" />{!isView && <button type="submit" form="account-edit-form" disabled={isSaving || isLoading} className="cursor-pointer rounded-[7px] border-b-2 border-black-90/20 bg-primary px-5 py-2 text-xs font-semibold text-white-100 transition-colors hover:bg-primary/90 disabled:cursor-wait disabled:opacity-60">{isSaving ? 'Saving…' : 'Save Details'}</button>}</div>}
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* Upload Document Box (Common Component) */}
-        {!isView && <UploadDropzone label="Upload Document (PNG, JPG or PDF (Max 5MB))" />}
+      {isLoading ? <p role="status" className="py-8 text-center text-sm text-black-90/60">Loading Account details…</p> : (
+        <form id="account-edit-form" noValidate onSubmit={handleSave} className="flex flex-col gap-4">
+          {error && <p role="alert" className="rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-3 py-2 text-xs text-alert">{error}</p>}
+          <TextInput label="Account Code" value={initialData?.code || ''} disabled readOnly />
+          <TextInput label="Account Name" name="name" value={form.name} onChange={handleChange} disabled={isView} required />
+          <TextInput label="Assigned BDE" value={initialData?.assignedBde || 'Unassigned'} disabled readOnly />
+          <DropdownInput label="Industry" name="industryId" value={form.industryId} options={industryOptions} onChange={handleChange} disabled={isView} placeholder="Select industry" />
+          <TextInput label="Email" name="email" type="email" value={form.email} onChange={handleChange} disabled={isView} />
+          <TextInput label="Contact Number" name="phone" value={form.phone} onChange={handleChange} disabled={isView} />
+          <TextInput label="Address" name="address" value={form.address} onChange={handleChange} disabled={isView} />
 
-        {/* Row 1: Client Name & Industry Type */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <TextInput
-            label="Client Name"
-            name="name"
-            placeholder="Enter Client Name"
-            value={formData.name}
-            onChange={handleChange}
-            disabled={isView}
-          />
-          <DropdownInput
-            label="Industry Type"
-            name="industryType"
-            placeholder="Select Industry Type"
-            options={INDUSTRY_OPTIONS}
-            value={formData.industryType}
-            onChange={(e) => handleDropdownChange('industryType', e.target.value)}
-            disabled={isView}
-          />
-        </div>
-
-        {/* Row 2: Employee Scale & Company Website */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <DropdownInput
-            label="Employee Scale"
-            name="employeeScale"
-            placeholder="0 - 50"
-            options={EMPLOYEE_SCALE_OPTIONS}
-            value={formData.employeeScale}
-            onChange={(e) => handleDropdownChange('employeeScale', e.target.value)}
-            disabled={isView}
-          />
-          <TextInput
-            label="Company Website"
-            name="website"
-            placeholder="Enter Company Website"
-            value={formData.website}
-            onChange={handleChange}
-            disabled={isView}
-          />
-        </div>
-
-        {/* Row 3: Email & Contact Number */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <TextInput
-            label="Email"
-            name="email"
-            type="email"
-            placeholder="Enter Email Address"
-            value={formData.email}
-            onChange={handleChange}
-            disabled={isView}
-          />
-          <PhoneNumber
-            label="Contact Number"
-            name="phone"
-            placeholder="98765 43210"
-            value={formData.phone}
-            onChange={handleChange}
-            disabled={isView}
-          />
-        </div>
-
-        {/* Row 4: Address (Full Width) */}
-        <TextInput
-          label="Address"
-          name="address"
-          placeholder="Kaivanna Complex, 304 - 306 & 701, Chimanlal Girdharlal Rd, Panchavati Society, Ambawadi, Ahmedabad"
-          value={formData.address}
-          onChange={handleChange}
-          disabled={isView}
-        />
-
-        {/* Row 5: Country & State */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <DropdownInput
-            label="Country"
-            name="country"
-            placeholder="India"
-            options={COUNTRY_OPTIONS}
-            value={formData.country}
-            onChange={(e) => handleDropdownChange('country', e.target.value)}
-            disabled={isView}
-          />
-          <DropdownInput
-            label="State"
-            name="state"
-            placeholder="Gujarat"
-            options={STATE_OPTIONS}
-            value={formData.state}
-            onChange={(e) => handleDropdownChange('state', e.target.value)}
-            disabled={isView}
-          />
-        </div>
-
-        {/* Row 6: City & Postal Code */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <DropdownInput
-            label="City"
-            name="city"
-            placeholder="Ahmedabad"
-            options={CITY_OPTIONS}
-            value={formData.city}
-            onChange={(e) => handleDropdownChange('city', e.target.value)}
-            disabled={isView}
-          />
-          <TextInput
-            label="Postal Code"
-            name="postalCode"
-            placeholder="380009"
-            value={formData.postalCode}
-            onChange={handleChange}
-            disabled={isView}
-          />
-        </div>
-
-        {/* Row 7: Assigned BDE */}
-        <TextInput
-          label="Assigned BDE"
-          name="assignedBde"
-          placeholder="Johnson Doe"
-          value={formData.assignedBde}
-          onChange={handleChange}
-          disabled={true}
-        />
-      </form>
+          <section className="mt-2 border-t border-stroke/60 pt-4">
+            <h3 className="mb-2 text-sm font-semibold text-black-90">Linked Contacts ({initialData?.contacts?.length || 0})</h3>
+            {initialData?.contacts?.length ? <div className="flex flex-col divide-y divide-stroke/50">{initialData.contacts.map((contact) => <div key={contact.cnt_id} className="py-2"><p className="text-xs font-semibold text-black-90">{contact.cnt_name}{contact.cnt_is_primary ? ' · Primary' : ''}</p><p className="text-[11px] text-black-90/60">{contact.cnt_designation || '—'}{contact.cnt_email ? ` · ${contact.cnt_email}` : ''}</p></div>)}</div> : <p className="text-xs text-black-90/55">No linked contacts.</p>}
+          </section>
+          <section className="border-t border-stroke/60 pt-4">
+            <h3 className="mb-2 text-sm font-semibold text-black-90">Related Deals ({initialData?.deals?.length || 0})</h3>
+            {initialData?.deals?.length ? <div className="flex flex-col divide-y divide-stroke/50">{initialData.deals.map((deal) => <div key={deal.deal_id} className="flex items-center justify-between gap-3 py-2"><div className="min-w-0"><p className="truncate text-xs font-semibold text-black-90">{deal.deal_title || deal.deal_no}</p><p className="text-[11px] capitalize text-black-90/60">{deal.deal_stage}</p></div><span className="whitespace-nowrap text-xs font-semibold text-black-90">{deal.deal_value == null ? '—' : `₹${Number(deal.deal_value).toLocaleString('en-IN')}`}</span></div>)}</div> : <p className="text-xs text-black-90/55">No related deals.</p>}
+          </section>
+        </form>
+      )}
     </Drawer>
   );
 });
