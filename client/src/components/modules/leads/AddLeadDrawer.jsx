@@ -381,7 +381,7 @@ export const AddLeadDrawer = memo(({
           <PhoneNumber
             label="Contact Number"
             name="phone"
-            placeholder="98765 43210"
+            placeholder="Enter Contact Number"
             value={formData.phone}
             onChange={handleChange}
             disabled={isView}
@@ -406,7 +406,7 @@ export const AddLeadDrawer = memo(({
           <DropdownInput
             label="Lead Stage"
             name="stage"
-            placeholder="New (Default)"
+            placeholder="Select Lead Stage"
             options={LEAD_STAGES.filter((s) => s.value !== 'All')}
             value={formData.stage}
             onChange={(e) => handleDropdownChange('stage', e.target.value)}
@@ -455,7 +455,7 @@ export const AddLeadDrawer = memo(({
           <DropdownInput
             label="Employee Scale"
             name="employeeScale"
-            placeholder="0 - 50"
+            placeholder="Select Employee Scale"
             options={EMPLOYEE_SCALE_OPTIONS}
             value={formData.employeeScale}
             onChange={(e) => handleDropdownChange('employeeScale', e.target.value)}
@@ -501,7 +501,7 @@ export const AddLeadDrawer = memo(({
           <DropdownInput
             label="Country"
             name="country"
-            placeholder="India"
+            placeholder="Select Country"
             options={COUNTRY_OPTIONS}
             value={formData.country}
             onChange={(e) => handleDropdownChange('country', e.target.value)}
@@ -510,7 +510,7 @@ export const AddLeadDrawer = memo(({
           <DropdownInput
             label="State"
             name="state"
-            placeholder="Gujarat"
+            placeholder="Select State"
             options={STATE_OPTIONS}
             value={formData.state}
             onChange={(e) => handleDropdownChange('state', e.target.value)}
@@ -525,7 +525,7 @@ export const AddLeadDrawer = memo(({
           <DropdownInput
             label="City"
             name="city"
-            placeholder="Ahmedabad"
+            placeholder="Select City"
             options={cityOptions}
             value={formData.city}
             onChange={(e) => handleDropdownChange('city', e.target.value)}
@@ -534,7 +534,7 @@ export const AddLeadDrawer = memo(({
           <TextInput
             label="Postal Code"
             name="postalCode"
-            placeholder="380009"
+            placeholder="Enter Postal Code"
             value={formData.postalCode}
             onChange={handleChange}
             disabled={isView}

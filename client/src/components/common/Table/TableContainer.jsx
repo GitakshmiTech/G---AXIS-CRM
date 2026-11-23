@@ -13,7 +13,7 @@ export const TableContainer = React.memo(({
 }) => {
   return (
     <div
-      className={`bg-white-100 rounded-xl border-none flex flex-col relative h-full flex-1 min-h-0 justify-between overflow-hidden ${className}`}
+      className={`bg-white-100 rounded-xl border-none flex flex-col relative h-full flex-1 min-h-0 max-md:min-h-[420px] justify-between overflow-hidden ${className}`}
     >
       {/* ================================================================================================================== */}
       {/*    Sticky Toolbar Header (Fixed at top with rounded top corners) */}
@@ -32,7 +32,7 @@ export const TableContainer = React.memo(({
       {/*    Scrollable Table Content or Custom Viewport */}
       {/* ================================================================================================================== */}
       {tableScroll ? (
-        <div className="flex-1 px-3 w-full overflow-hidden min-h-0 flex flex-col">
+        <div className="flex-1 px-3 w-full overflow-hidden min-h-0 max-md:min-h-[300px] flex flex-col">
           <div className="w-full overflow-auto flex-1 min-h-0 no-scrollbar">
             {children}
           </div>

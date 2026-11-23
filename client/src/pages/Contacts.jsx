@@ -2,7 +2,7 @@
 //    CONTACT DIRECTORY PAGE
 // ===========================================================================================
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import whatsappIcon from '../assets/icons/Group.png';
 import { TableContainer } from '../components/common/Table/TableContainer';
@@ -20,8 +20,9 @@ import { formatCurrency } from '../utils/formatters';
 /** Display contacts with server-backed search, pagination, export, and page navigation. */
 const Contacts = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [contacts, setContacts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [viewMode, setViewMode] = useState('list');
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
@@ -29,6 +30,12 @@ const Contacts = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState('');
   const pageSize = 10;
+
+  // Sync search parameter from URL if navigating from quick navigation
+  useEffect(() => {
+    const s = searchParams.get('search');
+    if (s !== null) setSearchQuery(s);
+  }, [searchParams]);
 
   // Refresh the requested server page when the search term or page changes.
   useEffect(() => {
@@ -139,7 +146,7 @@ const Contacts = () => {
   ], [navigate]);
 
   return (
-    <div className="w-full flex-1 flex flex-col min-h-0 select-text">
+    <div className="w-full flex-1 flex flex-col min-h-0 select-text max-md:min-h-fit">
       <TableContainer toolbar={<DataTableToolbar
         searchQuery={searchQuery}
         onSearchChange={handleSearch}

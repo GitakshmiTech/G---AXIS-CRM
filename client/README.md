@@ -1,5 +1,85 @@
 # React + Vite
 
+## Mobile Dashboard Revenue Switcher Single-Row Layout (23/11/2026)
+
+- In [Dashboard.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Dashboard.jsx) and [BarChart.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/charts/BarChart.jsx), optimized the "Monthly vs Yearly Revenue" card header for mobile devices:
+  - Placed the `[Monthly | Yearly]` segmented pill switch and the `[ 2025 ∨ ]` year dropdown side-by-side in a **single, unified row** (`flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto flex-nowrap`).
+  - Added `!w-auto shrink-0 min-w-[76px]` to the year filter dropdown to prevent full-width stretching and eliminate vertical 3-row stacking on mobile screens.
+
+## Mobile Responsive Viewport & Data Table Visibility Standardization (23/11/2026)
+
+- **Mobile Viewport Overflow & Missing Table Content Fix**:
+  - **Root Cause**: On mobile screens (iPhone / Android), the CRM header, mobile page header, and vertical stack of KPI cards (`StatCard`s, e.g. 5 stacked cards in Deals, 3 stacked cards in Accounts) consumed all available vertical height. Because `<main>` in [SalesLayout.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/layouts/SalesLayout.jsx), [AdminLayout.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/layouts/AdminLayout.jsx), and [BdeLayout.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/layouts/BdeLayout.jsx) was set to `overflow-hidden` for main list routes, the layout had no vertical scroll, compressing [TableContainer.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/TableContainer.jsx) to 0 height. This caused table rows (e.g., "Showing 1 out of 1 Entries" or "Showing 2 out of 2 Entries") to be squished and completely hidden from view.
+  - **Layout Fix**:
+    - Updated `<main>` in all 3 layouts to `max-md:overflow-y-auto md:overflow-hidden p-2 sm:p-2.5 md:p-3`, enabling natural vertical scrolling on mobile and tablet devices while retaining strict fixed viewport ergonomics on desktop.
+    - Updated [TableContainer.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/TableContainer.jsx) with `max-md:min-h-[420px]` and table body with `max-md:min-h-[300px]`, guaranteeing table rows are fully rendered and visible on all screen sizes.
+    - Added `max-md:min-h-fit` to page containers across [Deals.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Deals.jsx), [Clients.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Clients.jsx), [Leads.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Leads.jsx), [Contacts.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Contacts.jsx), [MyTeam.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/MyTeam.jsx), [StaffManagement.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/StaffManagement.jsx), and [Quotations.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Quotations.jsx).
+- **Mobile Profile Capsule Dropdown Alignment**:
+  - In [TopHeader.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/header/TopHeader.jsx), updated the dropdown menu positioning from `left-0 right-0 w-full` to `right-0 w-40 min-w-[150px]`, preventing mobile cutoff and ensuring "Edit Profile" and "Logout" render cleanly without awkward text wrapping.
+
+## Filter Dropdown Deduplication & Data Table Alignment Standardization (23/11/2026)
+
+- **Filter Dropdown Duplicate "All Status" / "All Role" Resolution**:
+  - In [TableFilterSelect.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/TableFilterSelect.jsx), resolved the bug where duplicate "All Status" items were rendered when options arrays included `{ value: 'All', label: 'All Status' }`.
+  - Upgraded option deduplication to intelligently detect any option representing the reset/"All" choice (`opt.value === 'All'`, `opt.value === ''`, label starting with `'by '` or `'all '`, or matching `allLabel`/`placeholder`).
+  - Ensured only **one single, unified "All Status" / "All Role"** button is displayed at the top of the menu with correct active checkmark state.
+- **Data Table Row Alignment & Column Widths**:
+  - In [DataTable.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/DataTable.jsx), updated table cell vertical alignment from `align-top` to `align-middle`. This vertically centers text (`Contact No`, `Role`, `Leads`, `Deals`, `Status` badge, `Actions`) in alignment with the multi-line profile avatar container.
+  - In [MyTeam.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/MyTeam.jsx), added explicit header width `w-[240px]` to `Executive Name`, constrained email width with `max-w-[170px] truncate block`, and calibrated `Contact No` to `w-[150px] whitespace-nowrap`. This prevents email text from wrapping onto a second line and eliminates overlap between Executive Name and Contact No.
+  - In [StaffManagement.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/StaffManagement.jsx), standardized column widths (`Employee Name: w-[240px]`, `Contact/Manager: w-[160px]`, `Corporate Email: w-[190px]`, `Role: w-[150px]`, `Branch: w-[150px]`, `Status: w-[110px]`) for 100% alignment across all screen resolutions.
+
+## Quick Navigation New Tab Redirection & Dynamic Lead Search Fix (23/11/2026)
+
+- **Quick Navigation New Tab Redirection**:
+  - In [TeamMemberDetail.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/TeamMemberDetail.jsx), converted the 4 module action buttons (`View Leads`, `View Deals`, `View Accounts`, `View Contacts`) from in-tab client router navigation to `window.open(..., '_blank')`.
+  - When clicking on "View Leads" (or Deals/Accounts/Contacts), the CRM opens the pre-filtered target module in a fresh browser tab with its full search query string pre-applied.
+- **Dynamic Assigned Executive Lead Search Resolution**:
+  - **Backend (`leads.service.js`)**:
+    - Enhanced `leadScope(user)` to permit `Sales Manager`, `Admin`, `CRM Admin`, and `Super Admin` to view and query all leads across their teams rather than restricting visibility exclusively to leads created by or assigned to the manager's own user ID.
+    - Added `{ '$assignedUser.usr_name$': { [Op.like]: term } }` and joined `CoreUser` (`as: 'assignedUser'`) so that searching by sales executive name (e.g., "Sarah Jenkins") matches leads assigned to that executive directly at the SQL level.
+    - Added `assignedTo` query parameter support in `buildLeadWhere`.
+  - **Frontend Client (`leadsService.js` & `Leads.jsx`)**:
+    - Updated `mapLeadFromApi` in [leadsService.js](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/services/leadsService.js) to preserve `assignedUser` and `assignedUserName`.
+    - Enhanced `matchesSearch` inside [Leads.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Leads.jsx) `useMemo` filter to include `item.assignedUserName` and `item.assignedUser?.usr_name`, preventing client-side filtering from discarding leads returned by the backend search.
+  - **End-to-End Dynamic Verification**:
+    - Verified `Sarah Jenkins` (ID: 3) displays 2 assigned leads (`LD-0001 Acme Global Solutions` and `LD-0002 Zenith Logistics Ltd`). Clicking "View Leads" now opens `/leads?search=Sarah%20Jenkins` in a new tab and dynamically renders both leads.
+
+## Dynamic Staff Management & Quick Navigation Synchronization (23/11/2026)
+
+- **Staff Management Dynamic Integration (CRM Admin - FRD Section 10)**:
+  - Created [staffService.js](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/services/staffService.js) connecting [StaffManagement.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/StaffManagement.jsx) directly to the backend `/crm/team` API.
+  - When CRM Admin (`admin@gitakshmi.com`) logs in, Staff Management loads live database staff (`Arthur Pendelton`, `Marcus Vance`, `Sarah Jenkins`, `Rohan Sharma`, etc.).
+  - Added live search debounce, role filter (CRM Admin, Sales Manager, BDE, Sales Executive), branch filter, and CSV roster export.
+  - Added `+ Add Staff Member` provisioning modal for Admin onboarding.
+  - Integrated View action button navigating to `/team/:id` for comprehensive telemetry inspection.
+  - Implemented 100% flat border-only tokens and circular borderless avatars (`rounded-full overflow-hidden border-none` per Rule #24).
+- **Module Quick Navigation URL Search Synchronization**:
+  - Updated [Leads.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Leads.jsx), [Deals.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Deals.jsx), [Clients.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Clients.jsx), and [Contacts.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Contacts.jsx) to parse `useSearchParams` (`?search=...`, `?ownerId=...`).
+  - Quick Navigation buttons in [TeamMemberDetail.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/TeamMemberDetail.jsx) now pass query parameters that dynamically pre-filter records for the selected executive in real-time.
+
+## Team Member Detail Dedicated Full-Page View (23/11/2026)
+
+- **Form Controls & Layout Structure Redesign**:
+  - Replaced nested uneven gray boxes with a clean, structured 2-column grid (`grid grid-cols-1 sm:grid-cols-2 gap-4`) for "Basic Information & Role".
+  - Replaced native unstyled select with the project's standardized searchable `DropdownInput` component with 7px radius, stroke borders, and custom chevron.
+  - Replaced inline phone input with the standardized `PhoneNumber` component featuring country flag selection and removed placeholder (`placeholder=""`) as requested.
+  - Structured fields with uniform labels (`text-xs font-semibold text-black-90`), 40px field height, and clean read-only/display states with semantic icons (`Mail`, `Phone`, `Shield`, `UserCheck`, `MapPin`, `Calendar`).
+- **Scrollable Viewport & Overflow Resolution**:
+  - Configured `isScrollablePage` and `showPageScrollbar` across `SalesLayout.jsx`, `AdminLayout.jsx`, and `BdeLayout.jsx` to recognize `/team/:id`, `/team/:id/view`, `/new`, `/edit`, and `/view` routes.
+  - Adjusted [TeamMemberDetail.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/TeamMemberDetail.jsx) root layout container with `pb-16` padding and natural content stretch, resolving the scroll cutoff issue so bottom cards ("Basic Information & Role", "Module Quick Navigation", and linked records) are fully scrollable and interactive across all screen resolutions.
+- **Converted View Drawer to Full Dedicated Page (`pages/TeamMemberDetail.jsx`)**:
+  - Replaced `ViewMemberDrawer` slide-over drawer with a 100% flat, full-page design adhering to FRD Section 11.25 and Rule #5.
+  - Registered clean un-prefixed routes `/team/:id` and `/team/:id/view` in `routes/AppRoutes.jsx` under `ProtectedRoute` -> `DynamicLayout`.
+  - Updated `pages/MyTeam.jsx` to navigate to `/team/:id` upon clicking "View" action button or the executive's name and avatar.
+- **UI & Telemetry Features**:
+  - Standard `<BackButton />` navigating back to `/team`.
+  - Identity banner with circular borderless profile photo (`rounded-full overflow-hidden border-none`), employee code, reporting manager (`Marcus Vance`), active territory, and active status badge.
+  - Live 6-card KPI Telemetry grid: Assigned Leads, Active Deals, Conversion Rate (%), Accounts Managed, Linked Contacts, and Pending Tasks.
+  - Corporate Profile Card: Corporate email (with 1-click copy), contact phone, primary CRM role (with inline edit & save), assigned territory, and formatted join date (`DD/MM/YYYY`).
+  - Module Quick Navigation Card: 1-click jump links pre-filtered for the executive across `/leads`, `/deals`, `/clients`, and `/contacts`.
+  - Safe Workload Reassignment Modal: Prevents lead abandonment upon deactivation by allowing the manager to reassign active leads and open deals to active team members.
+  - Strict compliance with flat border-only policy (`border-b-2 border-stroke/80`, `rounded-[7px]`, 0 drop-shadows).
+
 ## Deals Directory API Integration (21/11/2026)
 
 - Replaced seeded Deals rows with authenticated, paginated API data. Search, stage/owner filtering, and CSV export use backend Deal endpoints.
@@ -40,6 +120,23 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 ## Changelog & Security Updates
+
+### [23/11/2026] Sales Manager "My Team" Module: Dynamic API & Full FRD Implementation (11.23, 11.24, 11.25)
+- **Backend API Endpoints (`/api/crm/team`)**:
+  - Implemented `team.routes.js`, `team.controller.js`, and `team.service.js` in `G-Axis-Backend/modules/crm/team/` and mounted in `server.js`.
+  - `GET /api/crm/team`: Serves paginated, searchable, status/role filtered team roster with real-time aggregated counts for assigned leads (`CrmLead`) and active deals (`CrmDeal`), plus top summary KPIs (`totalMembers`, `activeMembers`, `inactiveMembers`).
+  - `GET /api/crm/team/:id`: Returns full executive profile and live work telemetry (assigned leads, active deals, managed accounts, linked contacts, pending tasks, conversion rate %, and active pipeline ARR).
+  - `POST /api/crm/team`: Provisions new sales team members under Marcus Vance's reporting hierarchy with bcrypt-hashed credentials (`Admin@123`), unique code validation, and role assignment.
+  - `PATCH /api/crm/team/:id`: Supports editing member role, phone, and territory allocation.
+  - `POST /api/crm/team/:id/deactivate`: Deactivates a team member with safe workload reassignment (transfers open leads and active deals to another active BDE).
+  - `GET /api/crm/team/territories` & `GET /api/crm/team/export`: Territory master lookups and CSV download streaming.
+- **Frontend Dynamic Integration (`src/pages/MyTeam.jsx`)**:
+  - Replaced static mock data with dynamic API calls via [`teamService.js`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/services/teamService.js).
+  - Rendered top 3 KPI cards (`Total Team Members`, `Active Members`, `Inactive Members`) per FRD 11.23.
+  - Created [`AddTeamMemberModal.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/team/AddTeamMemberModal.jsx) for provisioning new team members (FRD 11.24).
+  - Enhanced [`ViewMemberDrawer.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/team/ViewMemberDrawer.jsx) with live telemetry cards, role/phone editing, safe deactivation workflow, and 1-click quick navigation deep links to `/leads`, `/deals`, `/clients`, and `/contacts` (FRD 11.25).
+  - Strict Rules Compliance: 100% flat design (Rule #13), 7px radius with 2px bottom border (Rule #20), circular borderless avatars (Rule #24), and hover tooltips for all actions (Rule #14).
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) in 5.27s with 0 errors.
 
 ### [23/11/2026] Enterprise Redux Architecture & Async Thunk API Calling Integration
 - **Centralized Redux Async Thunk Architecture (`createAsyncThunk`)**:

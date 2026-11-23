@@ -75,6 +75,9 @@ export const mapLeadFromApi = (lead = {}) => {
   createdTime: asDate(lead.lds_created_at || lead.createdAt).createdTime,
   avatar: lead.avatar || '',
   companyLogo: lead.companyLogo || '',
+  assignedTo: lead.lds_assigned_to || lead.assignedTo || '',
+  assignedUser: lead.assignedUser || null,
+  assignedUserName: lead.assignedUser?.usr_name || lead.assignedUserName || '',
   });
 };
 

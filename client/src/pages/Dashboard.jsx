@@ -197,16 +197,16 @@ export const Dashboard = memo(() => {
         <BarChart
           title={chartConfig.title}
           headerRight={
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto">
               <div
                 data-ui-style="joined-control"
-                className="flex items-center bg-gray rounded-[7px] p-[3px] border-b-2 border-stroke/80"
+                className="flex items-center bg-gray rounded-[7px] p-[3px] border-b-2 border-stroke/80 shrink-0"
               >
                 <button
                   type="button"
                   data-ui-style="filter-tab"
                   onClick={() => setRevenueTab('Monthly')}
-                  className={`px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
                     revenueTab === 'Monthly'
                       ? 'font-bold bg-primary text-white-100'
                       : 'font-medium text-black-90 hover:text-black-90'
@@ -218,7 +218,7 @@ export const Dashboard = memo(() => {
                   type="button"
                   data-ui-style="filter-tab"
                   onClick={() => setRevenueTab('Yearly')}
-                  className={`px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
+                  className={`px-2.5 sm:px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
                     revenueTab === 'Yearly'
                       ? 'font-bold bg-primary text-white-100'
                       : 'font-medium text-black-90 hover:text-black-90'
@@ -237,7 +237,8 @@ export const Dashboard = memo(() => {
                 ]}
                 showAllOption={false}
                 placeholder="2025"
-                selectClassName="h-8"
+                className="!w-auto shrink-0"
+                selectClassName="h-8 !w-auto min-w-[76px]"
               />
             </div>
           }

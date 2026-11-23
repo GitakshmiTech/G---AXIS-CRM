@@ -104,10 +104,19 @@ export const AdminLayout = () => {
     return (
       location.pathname.includes('/settings') ||
       location.pathname.includes('/profile') ||
+      location.pathname.startsWith('/team/') ||
+      location.pathname.startsWith('/sales/team/') ||
+      location.pathname.includes('/new') ||
+      location.pathname.includes('/edit') ||
+      location.pathname.includes('/view') ||
       !headerContent
     );
   }, [location.pathname, headerContent]);
-  const showPageScrollbar = location.pathname.startsWith('/leads/') || location.pathname.startsWith('/contacts/');
+  const showPageScrollbar =
+    location.pathname.startsWith('/leads/') ||
+    location.pathname.startsWith('/contacts/') ||
+    location.pathname.startsWith('/team/') ||
+    location.pathname.startsWith('/sales/team/');
 
   return (
     <SidebarProvider>
@@ -155,7 +164,7 @@ export const AdminLayout = () => {
               className={`flex-1 flex flex-col min-h-0 bg-gray rounded-tl-[15px] ${
                 isScrollablePage
                   ? `overflow-y-auto overflow-x-hidden p-2 sm:p-2.5 md:p-3 ${showPageScrollbar ? 'overscroll-contain' : 'no-scrollbar [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'}`
-                  : 'overflow-hidden p-2 sm:p-2.5 md:p-3'
+                  : 'max-md:overflow-y-auto md:overflow-hidden p-2 sm:p-2.5 md:p-3'
               }`}
             >
               <Outlet />

@@ -227,7 +227,7 @@ export const DataTable = ({
                     return (
                       <td
                         key={column.key}
-                        className={`crm-data-table-cell align-top whitespace-normal break-words [overflow-wrap:anywhere] py-3 px-2 first:pl-4 last:pr-4 ${
+                        className={`crm-data-table-cell align-middle whitespace-normal break-words [overflow-wrap:anywhere] py-3 px-2 first:pl-4 last:pr-4 ${
                           isFirst
                             ? 'sticky left-0 z-[5] bg-white-100 group-hover:bg-[#FBFCFE]'
                             : ''

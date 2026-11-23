@@ -40,6 +40,7 @@ const CrmConfiguration = lazy(() => import('../pages/CrmConfiguration'));
 const Integrations = lazy(() => import('../pages/Integrations'));
 const Notifications = lazy(() => import('../pages/Notifications'));
 const MyTeam = lazy(() => import('../pages/MyTeam'));
+const TeamMemberDetail = lazy(() => import('../pages/TeamMemberDetail'));
 const ReportAnalytics = lazy(() => import('../pages/ReportAnalytics'));
 
 //===========================================================================================
@@ -147,6 +148,8 @@ export const AppRoutes = () => {
 
             {/* Sales-Exclusive Clean Routes */}
             <Route path="/team" element={<MyTeam />} />
+            <Route path="/team/:id" element={<TeamMemberDetail />} />
+            <Route path="/team/:id/view" element={<TeamMemberDetail />} />
             <Route path="/analytics" element={<ReportAnalytics />} />
             <Route path="/reports" element={<Navigate to="/analytics" replace />} />
           </Route>

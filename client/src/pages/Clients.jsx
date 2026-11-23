@@ -2,7 +2,7 @@
 //    CLIENT ACCOUNT DIRECTORY
 // ===========================================================================================
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TableContainer } from '../components/common/Table/TableContainer';
 import { DataTableToolbar } from '../components/common/Table/DataTableToolbar';
 import { DataTable } from '../components/common/Table/DataTable';
@@ -18,12 +18,13 @@ import { useToast } from '../hooks/useToast';
 /** Load and manage authorized Accounts created through the CRM conversion flow. */
 export const Clients = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const toast = useToast();
   const [clients, setClients] = useState([]);
   const [industries, setIndustries] = useState([]);
   const [stats, setStats] = useState({ totalAccounts: 0, linkedContacts: 0, activeDealsValue: 0 });
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [industryFilter, setIndustryFilter] = useState('');
   const [contactRange, setContactRange] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,6 +32,12 @@ export const Clients = () => {
   const [error, setError] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const pageSize = 10;
+
+  // Sync search parameter from URL if navigating from quick navigation
+  useEffect(() => {
+    const s = searchParams.get('search');
+    if (s !== null) setSearchQuery(s);
+  }, [searchParams]);
 
   // Fetch the API page whenever search, filters, or pagination changes.
   useEffect(() => {
@@ -87,7 +94,7 @@ export const Clients = () => {
   ], [industries, navigate]);
 
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col gap-3 select-text">
+    <div className="flex min-h-0 w-full flex-1 flex-col gap-3 select-text max-md:min-h-fit">
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <StatCard title="Total Accounts Managed" value={stats.totalAccounts} colorKey="secondary" loading={isLoading} />
         <StatCard title="Linked Contacts" value={stats.linkedContacts} colorKey="purple" loading={isLoading} />

@@ -5,16 +5,13 @@
 
 export const STAFF_ROLE_OPTIONS = [
   { value: 'All', label: 'By Role' },
+  { value: 'CRM Admin', label: 'CRM Admin' },
+  { value: 'Sales Manager', label: 'Sales Manager' },
+  { value: 'BDE', label: 'BDE' },
   { value: 'Sales Executive', label: 'Sales Executive' },
+  { value: 'Senior Sales Executive', label: 'Senior Sales Executive' },
   { value: 'Account Manager', label: 'Account Manager' },
-  { value: 'Brand Strategist', label: 'Brand Strategist' },
-  { value: 'Software Engineer', label: 'Software Engineer' },
-  { value: 'Finance Analyst', label: 'Finance Analyst' },
-  { value: 'Support Specialist', label: 'Support Specialist' },
-  { value: 'HR Coordinator', label: 'HR Coordinator' },
-  { value: 'Product Designer', label: 'Product Designer' },
   { value: 'Operations Lead', label: 'Operations Lead' },
-  { value: 'Growth Analyst', label: 'Growth Analyst' },
 ];
 
 export const STAFF_BRANCH_OPTIONS = [

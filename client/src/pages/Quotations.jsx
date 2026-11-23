@@ -153,7 +153,7 @@ export const Quotations = () => {
   ], [navigate, isApprover]);
 
   return (
-    <div className="w-full flex-1 flex flex-col min-h-0 select-text">
+    <div className="w-full flex-1 flex flex-col min-h-0 select-text max-md:min-h-fit">
       {error && <div role="alert" className="mb-2 rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-4 py-2 text-sm text-alert">{error}</div>}
       <TableContainer
         className="min-h-0"

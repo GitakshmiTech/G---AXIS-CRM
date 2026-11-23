@@ -24,11 +24,14 @@ export const TableFilterSelect = React.memo(({
   const dropdownRef = useRef(null);
   const typeTimeoutRef = useRef(null);
 
-  // Check if options contains an 'All' entry like { value: 'All', label: 'By Stage' }
+  // Check if options contains an 'All' entry like { value: 'All', label: 'By Stage' } or { value: 'All', label: 'All Status' }
   const existingAllEntry = useMemo(() => {
-    return options.find(
-      (opt) => typeof opt === 'object' && (opt?.value === 'All' || opt?.value === '' || (typeof opt?.label === 'string' && opt.label.startsWith('By ')))
-    );
+    return options.find((opt) => {
+      if (!opt || typeof opt !== 'object') return false;
+      const v = String(opt.value ?? '').toLowerCase();
+      const l = String(opt.label ?? '').toLowerCase();
+      return v === 'all' || v === '' || l.startsWith('by ') || l.startsWith('all ') || l === 'all';
+    });
   }, [options]);
 
   const effectivePlaceholder = useMemo(() => {
@@ -66,6 +69,15 @@ export const TableFilterSelect = React.memo(({
     return () => document.removeEventListener('mousedown', handleDocClick);
   }, []);
 
+  const allLabel = useMemo(() => {
+    // If an existing entry explicitly has a clean label like "All Status" or "All Roles", use it
+    if (existingAllEntry?.label && !String(existingAllEntry.label).toLowerCase().startsWith('by ')) {
+      return existingAllEntry.label;
+    }
+    const suffix = effectivePlaceholder.replace(/^By\s+/i, '').trim();
+    return suffix ? `All ${suffix}` : 'All';
+  }, [effectivePlaceholder, existingAllEntry]);
+
   const normalizedOptions = useMemo(() => {
     return options
       .map((opt) => {
@@ -74,14 +86,21 @@ export const TableFilterSelect = React.memo(({
         return { value: val, label: lbl };
       })
       .filter((opt) => {
-        // If shouldShowAll is active, filter out duplicate placeholder options like { value: 'All', label: 'By Stage' }
+        // If shouldShowAll is active, filter out any option representing the 'All' / 'By ...' entry so it is never duplicated
         if (shouldShowAll) {
-          if (opt.value === 'All' && String(opt.label).toLowerCase().startsWith('by ')) return false;
-          if (opt.value === '' && String(opt.label).toLowerCase().startsWith('by ')) return false;
+          const valLower = String(opt.value ?? '').toLowerCase();
+          const lblLower = String(opt.label ?? '').toLowerCase();
+          const allValLower = String(allValue ?? '').toLowerCase();
+          const allLblLower = String(allLabel ?? '').toLowerCase();
+          const placeholderLower = String(effectivePlaceholder ?? '').toLowerCase();
+
+          if (valLower === 'all' || valLower === '' || valLower === allValLower) return false;
+          if (lblLower.startsWith('by ') || lblLower === placeholderLower) return false;
+          if (lblLower === allLblLower || lblLower === 'all' || lblLower.startsWith('all ')) return false;
         }
         return true;
       });
-  }, [options, shouldShowAll]);
+  }, [options, shouldShowAll, allValue, allLabel, effectivePlaceholder]);
 
   const handleSelect = useCallback(
     (optVal) => {
@@ -160,11 +179,6 @@ export const TableFilterSelect = React.memo(({
     const match = normalizedOptions.find((opt) => opt.value === value);
     return match ? match.label : value;
   }, [value, normalizedOptions, effectivePlaceholder, isAllActive]);
-
-  const allLabel = useMemo(() => {
-    const suffix = effectivePlaceholder.replace(/^By\s+/i, '').trim();
-    return suffix ? `All ${suffix}` : 'All';
-  }, [effectivePlaceholder]);
 
   return (
     <div

@@ -1,139 +1,224 @@
-//==================================================================================================================
-//    IMPORTS AND DEPENDENCIES
-//    React primitives, common data table shell, toolbar, pagination, and view drawer
-//==================================================================================================================
-import React, { useState, useMemo, useCallback } from 'react';
+//===========================================================================================
+//    SALES TEAM MANAGEMENT PAGE (FRD 11.23)
+//    Enterprise team allocation, active workload tracking, and employee details view
+//    Strict Flat Design: no drop shadows, 7px radius, 2px bottom border in stroke/80
+// ===========================================================================================
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Users, UserCheck, UserX, Download } from 'lucide-react';
 import { TableContainer } from '../components/common/Table/TableContainer';
 import { DataTableToolbar } from '../components/common/Table/DataTableToolbar';
 import { DataTable } from '../components/common/Table/DataTable';
 import { Pagination } from '../components/common/Table/Pagination';
 import { ViewBtn } from '../components/common/buttons/ViewBtn';
-import { ViewMemberDrawer } from '../components/modules/team/ViewMemberDrawer';
-import {
-  INITIAL_SALES_TEAM_DATA,
-  TEAM_STATUS_OPTIONS,
-  TEAM_ROLE_OPTIONS,
-} from '../constants/salesTeamConstants';
+import { EditBtn } from '../components/common/buttons/EditBtn';
+import { AddTeamMemberModal } from '../components/modules/team/AddTeamMemberModal';
+import { fetchTeamMembers } from '../services/teamService';
+import { useToast } from '../hooks/useToast';
 
-//==================================================================================================================
-//    MY TEAM PAGE COMPONENT (Image 1)
-//    Enterprise team allocation, active workload tracking, and employee details view
-//==================================================================================================================
+const PAGE_SIZE = 10;
+
+const STATUS_FILTER_OPTIONS = [
+  { value: 'All', label: 'All Status' },
+  { value: 'Active', label: 'Active' },
+  { value: 'Inactive', label: 'Inactive' },
+];
+
+const ROLE_FILTER_OPTIONS = [
+  { value: 'All', label: 'All Roles' },
+  { value: 'BDE', label: 'BDE' },
+  { value: 'Sales Executive', label: 'Sales Executive' },
+  { value: 'Senior Sales Executive', label: 'Senior Sales Executive' },
+  { value: 'Sales Manager', label: 'Sales Manager' },
+];
+
 export const MyTeam = () => {
-  const [teamMembers, setTeamMembers] = useState(INITIAL_SALES_TEAM_DATA);
+  const toast = useToast();
+  const navigate = useNavigate();
+
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [kpis, setKpis] = useState({ totalMembers: 0, activeMembers: 0, inactiveMembers: 0 });
+  const [pagination, setPagination] = useState({ page: 1, limit: PAGE_SIZE, total: 0, totalPages: 1 });
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [roleFilter, setRoleFilter] = useState('All');
   const [viewMode, setViewMode] = useState('list');
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Drawer state
-  const [isViewDrawerOpen, setIsViewDrawerOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState(null);
+  // Modals state
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  //==================================================================================================================
-  //    Handlers
-  //==================================================================================================================
-  const handleView = useCallback((member) => {
-    setSelectedMember(member);
-    setIsViewDrawerOpen(true);
-  }, []);
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+      setCurrentPage(1);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-  const handleCloseDrawer = useCallback(() => {
-    setIsViewDrawerOpen(false);
-  }, []);
+  // Load team members from backend API
+  const loadData = useCallback(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    fetchTeamMembers({
+      page: currentPage,
+      limit: PAGE_SIZE,
+      search: debouncedSearch,
+      status: statusFilter,
+      role: roleFilter,
+      signal: controller.signal,
+    })
+      .then((res) => {
+        setTeamMembers(res.rows || []);
+        setKpis(res.kpis || { totalMembers: 0, activeMembers: 0, inactiveMembers: 0 });
+        setPagination(res.pagination || { page: currentPage, limit: PAGE_SIZE, total: 0, totalPages: 1 });
+        setError('');
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError') return;
+        setError(err.message || 'Unable to load team members.');
+      })
+      .finally(() => setLoading(false));
 
+    return () => controller.abort();
+  }, [currentPage, debouncedSearch, statusFilter, roleFilter]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Reset Filters
   const handleResetFilters = useCallback(() => {
     setSearchQuery('');
+    setDebouncedSearch('');
     setStatusFilter('All');
     setRoleFilter('All');
     setCurrentPage(1);
   }, []);
 
-  //==================================================================================================================
-  //    Filtered Team Members
-  //==================================================================================================================
-  const filteredMembers = useMemo(() => {
-    return teamMembers.filter((item) => {
-      const matchesSearch =
-        searchQuery === '' ||
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchQuery.toLowerCase());
+  // View handler - navigate to full page (FRD 11.25)
+  const handleView = useCallback((member) => {
+    if (!member?.id) return;
+    navigate(`/team/${encodeURIComponent(member.id)}`);
+  }, [navigate]);
 
-      const matchesStatus =
-        statusFilter === 'All' || item.status === statusFilter;
+  // CSV Export handler
+  const handleExport = useCallback(() => {
+    try {
+      const escapeCsv = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+      const headers = ['Code', 'Name', 'Email', 'Contact', 'Role', 'Leads', 'Deals', 'Status'];
+      const rows = teamMembers.map((m) => [
+        escapeCsv(m.code),
+        escapeCsv(m.name),
+        escapeCsv(m.email),
+        escapeCsv(m.phone || m.contact),
+        escapeCsv(m.role),
+        escapeCsv(m.assignedLeads ?? m.leads ?? 0),
+        escapeCsv(m.activeDeals ?? m.deals ?? 0),
+        escapeCsv(m.status),
+      ].join(','));
 
-      const matchesRole =
-        roleFilter === 'All' || item.role === roleFilter;
+      const csvContent = [headers.join(','), ...rows].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sales-team-roster-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('Team roster exported successfully.', 'success');
+    } catch {
+      toast('Failed to export CSV.', 'error');
+    }
+  }, [teamMembers, toast]);
 
-      return matchesSearch && matchesStatus && matchesRole;
-    });
-  }, [teamMembers, searchQuery, statusFilter, roleFilter]);
-
-  // Pagination slice
-  const paginatedMembers = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredMembers.slice(startIndex, startIndex + pageSize);
-  }, [filteredMembers, currentPage, pageSize]);
-
-  //==================================================================================================================
-  //    Table Column Definitions (Image 1)
-  //==================================================================================================================
+  // Table Columns
   const columns = useMemo(() => [
     {
       key: 'code',
       label: 'Code',
-      className: 'font-bold text-black-90 text-sm whitespace-nowrap',
+      headerClassName: 'w-[90px]',
+      className: 'font-bold text-black-90 text-xs whitespace-nowrap',
+      render: (row) => <span title={row.code}>{row.code}</span>,
     },
     {
       key: 'name',
       label: 'Executive Name',
+      headerClassName: 'w-[240px]',
+      className: 'min-w-[200px]',
       render: (row) => (
-        <div className="flex items-center gap-3 min-w-[150px]">
-          <img
-            src={row.avatar}
-            alt={row.name}
-            className="w-8 h-8 rounded-full object-cover border-none shrink-0"
-          />
-          <span className="font-bold text-black-90 text-sm truncate">
-            {row.name}
-          </span>
+        <div
+          onClick={() => handleView(row)}
+          className="flex items-center gap-2.5 min-w-[200px] cursor-pointer group"
+          title={`View profile for ${row.name}`}
+        >
+          <div
+            data-preserve-radius="true"
+            className="w-8 h-8 rounded-full overflow-hidden border-none shrink-0 bg-primary/10 flex items-center justify-center text-primary font-bold text-xs"
+          >
+            {row.avatar ? (
+              <img src={row.avatar} alt={row.name} className="w-full h-full object-cover" />
+            ) : (
+              row.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+            )}
+          </div>
+          <div className="min-w-0 max-w-[170px]">
+            <span
+              className="font-bold text-black-90 text-xs truncate block group-hover:text-primary transition-colors"
+              title={row.name}
+            >
+              {row.name}
+            </span>
+            <span className="text-[11px] text-black-90/50 truncate block" title={row.email}>
+              {row.email}
+            </span>
+          </div>
         </div>
       ),
     },
     {
-      key: 'email',
-      label: 'Email',
-      className: 'text-sm font-medium text-black-90/80 whitespace-nowrap',
-    },
-    {
-      key: 'contact',
-      label: 'Contact no',
-      className: 'text-sm font-medium text-black-90/80 whitespace-nowrap',
+      key: 'phone',
+      label: 'Contact No',
+      headerClassName: 'w-[150px]',
+      className: 'text-xs font-medium text-black-90/80 whitespace-nowrap',
+      render: (row) => <span className="whitespace-nowrap">{row.phone || row.contact || '—'}</span>,
     },
     {
       key: 'role',
       label: 'Role',
-      className: 'text-sm font-medium text-black-90/80 whitespace-nowrap',
+      headerClassName: 'w-[150px]',
+      className: 'text-xs font-medium text-black-90/80 whitespace-nowrap',
+      render: (row) => <span title={row.role}>{row.role}</span>,
     },
     {
       key: 'leads',
-      label: 'Leads',
-      className: 'text-sm font-bold text-black-90 whitespace-nowrap',
+      label: 'Assigned Leads',
+      headerClassName: 'w-[120px]',
+      className: 'text-xs font-bold text-black-90 whitespace-nowrap',
+      render: (row) => <span>{row.assignedLeads ?? row.leads ?? 0}</span>,
     },
     {
       key: 'deals',
-      label: 'Deals',
-      className: 'text-sm font-bold text-secondary whitespace-nowrap',
+      label: 'Active Deals',
+      headerClassName: 'w-[110px]',
+      className: 'text-xs font-bold text-secondary whitespace-nowrap',
+      render: (row) => <span>{row.activeDeals ?? row.deals ?? 0}</span>,
     },
     {
       key: 'status',
       label: 'Status',
+      align: 'center',
+      headerClassName: 'w-[110px]',
+      className: 'text-center whitespace-nowrap',
       render: (row) => (
         <span
-          className={`w-[154px] h-[24px] inline-flex items-center justify-center px-4 py-[2px] rounded-[7px] text-xs font-semibold  ${
+          className={`inline-flex items-center justify-center px-3 py-0.5 rounded-[7px] text-[11px] font-semibold whitespace-nowrap ${
             row.status === 'Active'
               ? 'bg-success/10 text-success'
               : 'bg-gray text-black-90/60'
@@ -145,55 +230,107 @@ export const MyTeam = () => {
     },
     {
       key: 'actions',
-      label: 'Actions',
+      label: 'Action',
       align: 'center',
+      headerClassName: 'w-[90px]',
       className: 'text-center whitespace-nowrap',
       render: (row) => (
-        <div className="flex items-center justify-center">
-          <ViewBtn
-            onClick={() => handleView(row)}
-            title={`View ${row.name}`}
-          />
+        <div className="flex items-center justify-center gap-1.5">
+          <ViewBtn onClick={() => handleView(row)} title={`View details for ${row.name}`} />
         </div>
       ),
     },
   ], [handleView]);
 
   return (
-    <div className="w-full flex-1 flex flex-col min-h-0 select-text">
-      {/* ==============================================================================================================
-          Main Table Container (Occupies 100% available viewport height matching Sidebar)
-      ============================================================================================================== */}
+    <div className="w-full flex-1 flex flex-col min-h-0 select-text gap-3 max-md:min-h-fit">
+      {/* Top 3 KPI Summary Cards (FRD 11.23) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 flex items-center justify-between">
+          <div>
+            <span className="text-[11px] text-black-90/50 font-medium block">Total Team Members</span>
+            <strong className="text-xl font-bold text-black-90">{kpis.totalMembers}</strong>
+          </div>
+          <div className="w-10 h-10 rounded-[7px] bg-primary/10 text-primary flex items-center justify-center">
+            <Users size={20} />
+          </div>
+        </div>
+
+        <div className="p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 flex items-center justify-between">
+          <div>
+            <span className="text-[11px] text-black-90/50 font-medium block">Active Members</span>
+            <strong className="text-xl font-bold text-success">{kpis.activeMembers}</strong>
+          </div>
+          <div className="w-10 h-10 rounded-[7px] bg-success/10 text-success flex items-center justify-center">
+            <UserCheck size={20} />
+          </div>
+        </div>
+
+        <div className="p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 flex items-center justify-between">
+          <div>
+            <span className="text-[11px] text-black-90/50 font-medium block">Inactive Members</span>
+            <strong className="text-xl font-bold text-black-90/60">{kpis.inactiveMembers}</strong>
+          </div>
+          <div className="w-10 h-10 rounded-[7px] bg-gray text-black-90/60 flex items-center justify-center">
+            <UserX size={20} />
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div role="alert" className="rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-4 py-2 text-xs text-alert">
+          {error}
+        </div>
+      )}
+
+      {/* Main Table Container */}
       <TableContainer
+        className="min-h-0 flex-1"
         toolbar={
           <DataTableToolbar
-            searchPlaceholder="Search here..."
+            searchPlaceholder="Search team member by name, code, or email..."
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             filters={[
               {
                 id: 'status',
+                placeholder: 'By Status',
                 value: statusFilter,
-                options: TEAM_STATUS_OPTIONS,
-                onChange: setStatusFilter,
+                options: STATUS_FILTER_OPTIONS,
+                onChange: (v) => { setStatusFilter(v); setCurrentPage(1); },
               },
               {
                 id: 'role',
+                placeholder: 'By Role',
                 value: roleFilter,
-                options: TEAM_ROLE_OPTIONS,
-                onChange: setRoleFilter,
+                options: ROLE_FILTER_OPTIONS,
+                onChange: (v) => { setRoleFilter(v); setCurrentPage(1); },
               },
             ]}
             onResetFilters={handleResetFilters}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
+            actionButton={{
+              label: 'Add Team Member',
+              onClick: () => setIsAddModalOpen(true),
+            }}
+            actions={
+              <button
+                type="button"
+                onClick={handleExport}
+                className="cursor-pointer inline-flex items-center gap-1.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 px-3 py-1.5 text-xs font-semibold text-black-90 hover:bg-gray transition-colors"
+                title="Export team roster to CSV"
+              >
+                <Download size={14} /> Export CSV
+              </button>
+            }
           />
         }
         pagination={
           <Pagination
             currentPage={currentPage}
-            totalEntries={filteredMembers.length}
-            pageSize={pageSize}
+            totalEntries={pagination.total}
+            pageSize={PAGE_SIZE}
             onPageChange={setCurrentPage}
             className="pt-0 border-t-0"
           />
@@ -201,19 +338,18 @@ export const MyTeam = () => {
       >
         <DataTable
           columns={columns}
-          data={paginatedMembers}
+          data={teamMembers}
           rowKey="id"
-          emptyMessage="No team members found."
+          loading={loading}
+          emptyMessage="No team members found matching the current filters."
         />
       </TableContainer>
 
-      {/* ==============================================================================================================
-          View Member Drawer (Image 2)
-      ============================================================================================================== */}
-      <ViewMemberDrawer
-        isOpen={isViewDrawerOpen}
-        onClose={handleCloseDrawer}
-        member={selectedMember}
+      {/* Add Team Member Modal (FRD 11.24) */}
+      <AddTeamMemberModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={loadData}
       />
     </div>
   );

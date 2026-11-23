@@ -2,7 +2,7 @@
 //    DEAL DIRECTORY PAGE
 // ===========================================================================================
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TableContainer } from '../components/common/Table/TableContainer';
 import { DataTableToolbar } from '../components/common/Table/DataTableToolbar';
 import { DataTable } from '../components/common/Table/DataTable';
@@ -20,13 +20,14 @@ import { useToast } from '../hooks/useToast';
 /** Display the authenticated user's Deals using server-backed search and filters. */
 export const Deals = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const toast = useToast();
   const [deals, setDeals] = useState([]);
   const [owners, setOwners] = useState([]);
   const [stats, setStats] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [stageFilter, setStageFilter] = useState('');
-  const [ownerFilter, setOwnerFilter] = useState('');
+  const [ownerFilter, setOwnerFilter] = useState(searchParams.get('ownerId') || searchParams.get('owner') || '');
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +35,14 @@ export const Deals = () => {
   const [error, setError] = useState('');
   const [updatingDealIds, setUpdatingDealIds] = useState([]);
   const pageSize = 10;
+
+  // Sync search and owner parameters from URL if navigating from quick navigation
+  useEffect(() => {
+    const s = searchParams.get('search');
+    const o = searchParams.get('ownerId') || searchParams.get('owner');
+    if (s !== null) setSearchQuery(s);
+    if (o !== null) setOwnerFilter(o);
+  }, [searchParams]);
 
   // Reload API rows whenever the server-side search, filters, or page changes.
   useEffect(() => {
@@ -140,7 +149,7 @@ export const Deals = () => {
   ], [handleDealStageChange, navigate, updatingDealIds]);
 
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col gap-3 select-text">
+    <div className="flex min-h-0 w-full flex-1 flex-col gap-3 select-text max-md:min-h-fit">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
         <StatCard title="Total Pipeline Value" value={formatCurrency(stats?.pipelineValue || 0, '₹')} colorKey="secondary" loading={isLoading} />
         <StatCard title="Weighted Forecast" value={formatCurrency(stats?.weightedForecast || 0, '₹')} colorKey="purple" loading={isLoading} />

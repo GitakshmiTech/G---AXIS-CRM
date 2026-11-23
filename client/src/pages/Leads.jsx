@@ -3,7 +3,7 @@
 //    React primitives, Lucide icons, common data table shell, toolbar, pagination, and multi-mode drawers
 //==================================================================================================================
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Mail,
   MessageSquare,
@@ -35,11 +35,12 @@ const LEAD_STAGE_OPTIONS = LEAD_STAGES.filter((stage) => stage.value !== 'All');
 //==================================================================================================================
 export const Leads = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const toast = useToast();
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [stageFilter, setStageFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [sourceFilter, setSourceFilter] = useState('All');
@@ -47,6 +48,15 @@ export const Leads = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [updatingLeadIds, setUpdatingLeadIds] = useState([]);
   const pageSize = 10;
+
+  // Sync search parameter from URL if navigating with deep links
+  useEffect(() => {
+    const s = searchParams.get('search');
+    if (s !== null) {
+      setSearchQuery(s);
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
 
   // Load API-backed rows when backend-supported search or status filters change.
   useEffect(() => {
@@ -150,14 +160,17 @@ export const Leads = () => {
   //==================================================================================================================
   const filteredLeads = useMemo(() => {
     return leads.filter((item) => {
-      // Search matching (Name, Code, Company, Email)
+      // Search matching (Name, Code, Company, Email, Assigned Executive)
+      const term = searchQuery.toLowerCase().trim();
       const matchesSearch =
-        searchQuery === '' ||
-        (item.name && item.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (item.code && item.code.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        term === '' ||
+        (item.name && item.name.toLowerCase().includes(term)) ||
+        (item.code && item.code.toLowerCase().includes(term)) ||
         (item.companyName &&
-          item.companyName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (item.email && item.email.toLowerCase().includes(searchQuery.toLowerCase()));
+          item.companyName.toLowerCase().includes(term)) ||
+        (item.email && item.email.toLowerCase().includes(term)) ||
+        (item.assignedUserName && item.assignedUserName.toLowerCase().includes(term)) ||
+        (item.assignedUser?.usr_name && item.assignedUser.usr_name.toLowerCase().includes(term));
 
       // Stage Filter
       const matchesStage =
@@ -412,7 +425,7 @@ export const Leads = () => {
   //    RENDER MAIN VIEW
   //==================================================================================================================
   return (
-    <div className="w-full flex-1 flex flex-col min-h-0 select-text">
+    <div className="w-full flex-1 flex flex-col min-h-0 select-text max-md:min-h-fit">
       <TableContainer
         toolbar={
           <DataTableToolbar

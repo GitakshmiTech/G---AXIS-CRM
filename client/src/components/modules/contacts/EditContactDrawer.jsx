@@ -212,7 +212,7 @@ export const EditContactDrawer = memo(({
           <PhoneNumber
             label="Contact Number"
             name="phone"
-            placeholder="98765 43210"
+            placeholder=""
             value={formData.phone}
             onChange={handleChange}
             disabled={isView}

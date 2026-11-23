@@ -98,7 +98,7 @@ export const ProfileCapsule = memo(({
         {/* Dropdown Menu directly under Profile (Matching Figma 100%) */}
         {isOpen && (
           <div
-            className="absolute left-0 right-0 top-full mt-1.5 w-full bg-white-100 rounded-[10px] border border-stroke overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100"
+            className="absolute right-0 top-full mt-1.5 w-40 min-w-[150px] bg-white-100 rounded-[10px] border border-stroke overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100"
           >
             {/* Edit Profile Action */}
             <button
@@ -108,7 +108,7 @@ export const ProfileCapsule = memo(({
               title="Edit Profile"
             >
               <PenLine size={16} className="text-primary shrink-0" />
-              <span>Edit Profile</span>
+              <span className="whitespace-nowrap">Edit Profile</span>
             </button>
 
             {/* Logout Action */}
@@ -119,7 +119,7 @@ export const ProfileCapsule = memo(({
               title="Logout"
             >
               <LogoutIcon size={16} className="text-alert shrink-0" />
-              <span>Logout</span>
+              <span className="whitespace-nowrap">Logout</span>
             </button>
           </div>
         )}
