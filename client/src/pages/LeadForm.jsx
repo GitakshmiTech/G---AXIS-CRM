@@ -1,10 +1,23 @@
 //===========================================================================================
 //    LEAD CREATE, VIEW, AND EDIT PAGE
+//    Enterprise form shell with structured section cards and dynamic BDE assignment
 // ===========================================================================================
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
+import { BackButton } from '../components/common/buttons/BackButton';
 import { AddLeadDrawer } from '../components/modules/leads/AddLeadDrawer';
-import { createLead, deleteLeadDocument, downloadLeadDocument, fetchLead, fetchLeads, updateLead, updateLeadStatus, uploadLeadDocuments, viewLeadDocument } from '../services/leadsService';
+import {
+  createLead,
+  deleteLeadDocument,
+  downloadLeadDocument,
+  fetchLead,
+  fetchLeads,
+  updateLead,
+  updateLeadStatus,
+  uploadLeadDocuments,
+  viewLeadDocument,
+} from '../services/leadsService';
 import { useToast } from '../hooks/useToast';
 import { mapApiValidationErrors } from '../utils/validationUtils';
 
@@ -113,11 +126,42 @@ const LeadForm = () => {
     });
   }, [id, toast]);
 
-  if (isLoading) return <div className="p-6 text-sm text-black-90/60" role="status">Loading lead…</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] w-full">
+        <div className="w-8 h-8 border-4 border-stroke border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-full w-full bg-gray p-4 sm:p-6">
-      <div className="mx-auto min-h-full w-full max-w-5xl rounded-[7px] bg-white-100 border-b-2 border-stroke/80">
+    <div className="min-h-full w-full bg-gray p-3 sm:p-5 lg:p-6 overflow-y-auto no-scrollbar">
+      {/* Breadcrumb & Navigation Bar */}
+      <div className="mx-auto w-full max-w-5xl mb-3 flex items-center justify-between text-xs text-black-90/50">
+        <div className="flex items-center gap-3">
+          <BackButton onClick={() => navigate('/leads')} label="Back to Leads" />
+          <div className="flex items-center gap-1.5 font-medium">
+            <button
+              type="button"
+              onClick={() => navigate('/leads')}
+              className="hover:text-primary transition-colors cursor-pointer"
+            >
+              Lead Management
+            </button>
+            <ChevronRight size={12} className="text-black-90/40" />
+            <span className="text-black-90 font-semibold">
+              {mode === 'create'
+                ? 'Add New Lead'
+                : mode === 'edit'
+                  ? `Edit Lead (${currentLead?.code || ''})`
+                  : `View Lead (${currentLead?.code || ''})`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Form Container Card */}
+      <div className="mx-auto min-h-full w-full max-w-5xl rounded-[7px] bg-white-100 border-b-2 border-stroke/80 overflow-hidden">
         <AddLeadDrawer
           isOpen
           presentation="page"

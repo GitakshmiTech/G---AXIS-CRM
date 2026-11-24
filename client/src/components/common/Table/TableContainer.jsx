@@ -32,8 +32,8 @@ export const TableContainer = React.memo(({
       {/*    Scrollable Table Content or Custom Viewport */}
       {/* ================================================================================================================== */}
       {tableScroll ? (
-        <div className="flex-1 px-3 w-full overflow-hidden min-h-0 max-md:min-h-[300px] flex flex-col">
-          <div className="w-full overflow-auto flex-1 min-h-0 no-scrollbar">
+        <div className="flex-1 px-2 sm:px-3 w-full overflow-hidden min-h-0 max-md:min-h-[300px] flex flex-col">
+          <div className="w-full overflow-auto flex-1 min-h-0 no-scrollbar overscroll-x-contain [-webkit-overflow-scrolling:touch]">
             {children}
           </div>
         </div>

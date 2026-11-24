@@ -77,7 +77,7 @@ export const PillSwitcher = memo(({
       ref={containerRef}
       role="tablist"
       data-ui-style="joined-control"
-      className={`relative inline-flex items-center h-[34px] bg-gray p-1 rounded-[7px] border-b-2 border-stroke/80 shrink-0  ${className}`.trim()}
+      className={`relative inline-flex items-center h-[34px] bg-gray p-1 rounded-[7px] border-b-2 border-stroke/80 shrink-0 max-w-full overflow-x-auto no-scrollbar overscroll-x-contain [-webkit-overflow-scrolling:touch] ${className}`.trim()}
     >
       {/* Hardware-Accelerated Sliding Pill Indicator (Pinned top-1 and bottom-1 for exact vertical centering) */}
       <div

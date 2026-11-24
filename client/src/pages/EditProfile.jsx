@@ -489,7 +489,7 @@ const EditProfile = () => {
           </div>
 
           {/* ---- Tab Switcher ---- */}
-          <div className="flex border-b border-stroke/40">
+          <div className="flex border-b border-stroke/40 overflow-x-auto no-scrollbar overscroll-x-contain">
             <TabButton
               label="Update Profile"
               active={activeTab === 'profile'}

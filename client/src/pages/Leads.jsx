@@ -65,7 +65,12 @@ export const Leads = () => {
     setApiError('');
     fetchLeads({ search: searchQuery, status: stageFilter, source: sourceFilter === 'All' ? '' : sourceFilter, limit: 100 })
       .then(({ rows }) => { if (active) setLeads(rows); })
-      .catch((error) => { if (active) setApiError(error.message || 'Unable to load leads.'); })
+      .catch((error) => {
+        if (active) {
+          setApiError(error.message || 'Unable to load leads.');
+          toast(error.message || 'Unable to load leads.', 'error');
+        }
+      })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [searchQuery, stageFilter, sourceFilter]);
@@ -239,8 +244,8 @@ export const Leads = () => {
       label: 'Code',
       sortable: true,
       sortType: 'text',
-      className: 'w-[155px] pl-4',
-      headerClassName: 'w-[155px]',
+      className: 'w-[110px] pl-4',
+      headerClassName: 'w-[110px]',
       render: (row) => (
         <span title={row.code} className="whitespace-nowrap font-semibold text-black-90">{row.code}</span>
       ),
@@ -250,16 +255,16 @@ export const Leads = () => {
       label: 'Lead Name',
       sortable: true,
       sortType: 'text',
-      className: 'w-[190px] max-w-[190px] pr-3',
-      headerClassName: 'w-[190px]',
+      className: 'w-[155px] max-w-[155px] pr-2',
+      headerClassName: 'w-[155px]',
       render: (row) => (
-        <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex min-w-0 items-center gap-2">
           <img
             src={row.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face'}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover border-none"
+            className="w-7 h-7 rounded-full object-cover border-none shrink-0"
           />
-          <span title={row.name} className="block min-w-0 whitespace-normal break-words font-medium text-black-90">
+          <span title={row.name} className="block min-w-0 truncate font-medium text-black-90">
             {row.name}
           </span>
         </div>
@@ -270,16 +275,16 @@ export const Leads = () => {
       label: 'Company Name',
       sortable: true,
       sortType: 'text',
-      className: 'w-[220px] max-w-[220px] pr-3',
-      headerClassName: 'w-[220px]',
+      className: 'w-[165px] max-w-[165px] pr-2',
+      headerClassName: 'w-[165px]',
       render: (row) => (
-        <div className="flex min-w-0 items-center gap-2.5">
+        <div className="flex min-w-0 items-center gap-2">
           <img
             src={row.companyLogo || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=80&h=80&fit=crop&crop=faces'}
             alt={row.companyName}
             className="w-7 h-7 rounded-full object-cover border-none shrink-0"
           />
-          <span title={row.companyName} className="block min-w-0 whitespace-normal break-words font-medium text-black-90">
+          <span title={row.companyName} className="block min-w-0 truncate font-medium text-black-90">
             {row.companyName}
           </span>
         </div>
@@ -291,8 +296,8 @@ export const Leads = () => {
       sortable: true,
       sortType: 'status',
       align: 'center',
-      className: 'w-[150px]',
-      headerClassName: 'w-[150px]',
+      className: 'w-[130px]',
+      headerClassName: 'w-[130px]',
       render: (row) => (
         <div className="flex w-full justify-center"><DropdownInput
           name={`lead-stage-${row.id}`}
@@ -317,8 +322,9 @@ export const Leads = () => {
       label: 'Priority',
       sortable: true,
       sortType: 'text',
-      className: 'w-[145px]',
-      headerClassName: 'w-[145px]',
+      align: 'center',
+      className: 'w-[110px]',
+      headerClassName: 'w-[110px]',
       render: (row) => {
         const badgeColor =
           row.priority?.toLowerCase() === 'high'
@@ -329,7 +335,7 @@ export const Leads = () => {
 
         return (
           <span
-            className={`w-full max-w-[112px] h-[24px] inline-flex items-center justify-center px-2 py-0.5 rounded-[7px] text-xs font-semibold ${badgeColor}`}
+            className={`w-full max-w-[90px] h-[24px] inline-flex items-center justify-center px-2 py-0.5 rounded-[7px] text-xs font-semibold ${badgeColor}`}
           >
             {row.priority || '—'}
           </span>
@@ -340,32 +346,32 @@ export const Leads = () => {
       key: 'quickContact',
       label: 'Quick Contact',
       align: 'center',
-      className: 'w-[140px]',
-      headerClassName: 'w-[140px]',
+      className: 'w-[95px]',
+      headerClassName: 'w-[95px]',
       render: (row) => (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-1.5">
           {/* WhatsApp Direct Action */}
           <a
             href={`https://wa.me/${(row.phone || '').replace(/[^0-9]/g, '')}`}
             target="_blank"
             rel="noreferrer"
-            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+            className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
             title="Chat on WhatsApp"
           >
             <img
               src={whatsappIcon}
               alt="WhatsApp"
-              className="w-4 h-4 object-contain"
+              className="w-3.5 h-3.5 object-contain"
             />
           </a>
 
           {/* Email Direct Action */}
           <a
             href={`mailto:${row.email}`}
-            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+            className="w-7 h-7 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
             title="Send Email"
           >
-            <Mail size={16} strokeWidth={2} />
+            <Mail size={14} strokeWidth={2} />
           </a>
         </div>
       ),
@@ -374,8 +380,8 @@ export const Leads = () => {
       key: 'createdDate',
       label: 'Created Date',
       sortable: true,
-      className: 'w-[130px]',
-      headerClassName: 'w-[130px]',
+      className: 'w-[110px]',
+      headerClassName: 'w-[110px]',
       render: (row) => (
         <div className="flex flex-col text-[11px] leading-tight">
           <span className="font-medium text-black-90">{row.createdDate}</span>
@@ -387,27 +393,27 @@ export const Leads = () => {
       key: 'actions',
       label: 'Action',
       align: 'center',
-      className: 'pr-4',
-      headerClassName: 'w-[185px]',
+      className: 'w-[155px] pr-4',
+      headerClassName: 'w-[155px]',
       render: (row) => (
-        <div className="flex flex-wrap items-center justify-center gap-1">
+        <div className="flex items-center justify-center gap-1">
           <ViewBtn onClick={() => handleOpenView(row)} title="View Lead Details" />
           <EditBtn onClick={() => handleOpenEdit(row)} title="Edit Lead" />
           <button
             type="button"
             onClick={() => handleOpenComments(row)}
-            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+            className="w-7.5 h-7.5 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
             title="Notes & Comments"
           >
-            <MessageSquare size={16} />
+            <MessageSquare size={14} />
           </button>
           <button
             type="button"
             onClick={() => handleOpenActivity(row)}
-            className="w-8 h-8 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
+            className="w-7.5 h-7.5 rounded-[7px] bg-gray border-b-2 border-stroke/80 flex items-center justify-center text-primary hover:bg-gray/80 transition-colors cursor-pointer shrink-0"
             title="Activity Timeline"
           >
-            <Clock size={16} />
+            <Clock size={14} />
           </button>
         </div>
       ),
@@ -472,14 +478,13 @@ export const Leads = () => {
           />
         }
       >
-        {apiError && <div role="alert" className="mx-4 mt-3 rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-4 py-3 text-sm text-alert">{apiError}</div>}
         <DataTable
           columns={columns}
           data={paginatedLeads}
           rowKey="id"
           loading={loading}
           fixedLayout
-          emptyMessage="No leads found matching current criteria."
+          emptyMessage={apiError ? 'Unable to load leads. Please check connection and retry.' : 'No leads found matching current criteria.'}
         />
       </TableContainer>
 

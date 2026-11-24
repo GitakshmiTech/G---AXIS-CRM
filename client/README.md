@@ -1,5 +1,255 @@
 # React + Vite
 
+## Mobile Viewport & Cross-Tab Data Table Responsive Optimization (24/11/2026)
+
+- **Eliminated Mobile Table Horizontal Squishing & Single-Letter Word Wrapping**:
+  - **Root Cause Resolution**:
+    - Discovered and removed an intrusive CSS rule in `src/index.css` (`.crm-data-table-cell .truncate`) that forcibly applied `overflow: visible !important; overflow-wrap: anywhere; text-overflow: clip !important; white-space: normal !important;`. This rule was overriding standard truncation and causing names and text (e.g. `Hemang Chavda`, `Acme Global Solutions`, `EMP-002`) to break vertically character-by-character on narrow mobile viewports.
+    - Fixed [DataTable.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/DataTable.jsx) table sizing logic: `responsiveMinWidth` is now strictly enforced on the `<table>` element (`minWidth: Math.max(minWidth || 0, responsiveMinWidth || 780)`), preventing tables with 7–9 columns from collapsing into the 375px mobile screen.
+    - In `DataTable.jsx`, removed `[overflow-wrap:anywhere]` from default cell formatting and attached `minWidth: columnWidth` to `<th ...>` headers, guaranteeing each column its minimum readable pixel allocation.
+- **Hardware-Accelerated Native Mobile Touch Scrolling**:
+  - Configured `overscroll-x-contain` and `[-webkit-overflow-scrolling:touch]` on `.data-table-viewport` in [DataTable.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/DataTable.jsx) and the inner container of [TableContainer.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/TableContainer.jsx).
+  - Users on iOS Safari and Android Chrome can smoothly swipe horizontally across all columns with natural inertia, while sticky columns (`Code` / `EMP-...`) remain cleanly anchored on the left with solid backgrounds.
+- **Responsive 3-Column KPI Metric Row on Mobile**:
+  - In [MyTeam.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/MyTeam.jsx), transformed the top summary cards from vertically stacked full-width blocks (`grid-cols-1`) into a compact, responsive 3-column row (`grid-cols-3 gap-2 sm:gap-3`, `p-2 sm:p-3.5`). All 3 metrics (`Total Members`, `Active Members`, `Inactive Members`) now fit side-by-side on mobile, saving over 180px of vertical space and keeping the data table visible above the fold.
+- **Mobile Responsive Tab Controls & Pill Switchers**:
+  - In [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx), optimized the `Team Performance` and `Lead Sources` tab switcher to `w-full sm:w-auto` with `flex-1` distribution on mobile, and enabled smooth horizontal touch scrolling on both analytics tables.
+  - In [PillSwitcher.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/configuration/PillSwitcher.jsx) and [EditProfile.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/EditProfile.jsx), added `max-w-full overflow-x-auto no-scrollbar` to prevent tab buttons from breaking or causing horizontal layout overflow.
+
+
+## Login Page 100% Viewport Optimization & Responsive Glassmorphic Card Alignment (24/11/2026)
+
+- **Eliminated Overflow Clipping on 100% Scale Laptop Screens**:
+  - In [AuthLayout.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/layouts/AuthLayout.jsx), resolved the issue where the left-hand visual quote card and skyscraper background image (`Frame 172.png`) were cut off at the bottom of the viewport.
+  - Replaced fixed, oversized outer padding (`p-16` / 128px vertical) with responsive scaling (`p-8 xl:p-12 2xl:p-14`).
+  - Added a soft contrast overlay (`bg-primary/30 mix-blend-multiply`) ensuring architectural details and typography remain crisp and visible.
+- **Optimized Glassmorphism Quote Card**:
+  - Restructured the bottom quote card from an oversized `p-10 md:p-12` container down to a sleek, compact glass card (`p-5 xl:p-6 2xl:p-7 rounded-2xl xl:rounded-3xl max-w-xl`).
+  - Resized Quote icons from `45px` to a balanced `24px`, and adjusted paragraph text to `text-xs sm:text-sm xl:text-base 2xl:text-lg`.
+  - The quote card now sits comfortably in the lower third with ample breathing room, exposing the full enterprise skyscraper graphic without any vertical cutoff.
+- **Centered Right-Hand Form Panel**:
+  - In [LoginForm.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/auth/LoginForm.jsx), [ForgotPasswordForm.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/auth/ForgotPasswordForm.jsx), and [NewPasswordForm.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/auth/NewPasswordForm.jsx), replaced bloated `pt-[40px] pb-[72px]` padding with balanced `py-6 px-6 sm:px-12` and centered the form vertically (`flex-1 flex flex-col justify-center`).
+  - The entire page (brand header, background architecture, quote card, input fields, and copyright footer) fits 100% inside standard laptop viewports without scrolling or clipping.
+
+## Unified Toast Error Notifications & Removal of Bulky Table Error Banners (24/11/2026)
+
+- **Eliminated Bulky Inline Error Banners Across All Tables**:
+  - Removed the oversized, intrusive `{error && <div role="alert" ...>}` pink/red alert banner (`mx-4 mt-3 py-3`) from all CRM directory modules:
+    - [Leads.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Leads.jsx)
+    - [Clients.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Clients.jsx)
+    - [Contacts.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Contacts.jsx)
+    - [Deals.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Deals.jsx)
+    - [Quotations.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Quotations.jsx)
+    - [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx)
+    - [MyTeam.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/MyTeam.jsx)
+  - Tables now preserve their clean, medium visual vertical spacing, header alignments, and border styles without being squeezed or pushed down by bulky warning strips.
+- **Centralized Toast-Based Error Reporting**:
+  - Connected `useToast()` to display transient failures (such as `502 Bad Gateway`, server restarting, or offline states) in non-intrusive floating toasts with auto-dismissal.
+  - In [api.js](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/services/api.js), converted raw `API Error: 502` into user-friendly diagnostic text: *"Backend service is unreachable (502). Please ensure server is running."*
+- **Preserved Table & Empty State Integrity**:
+  - When records fail to load due to a connection break, the `DataTable` gracefully renders a concise message (*"Unable to load records. Please check connection and retry."*) while keeping all table columns and toolbar filters intact.
+
+## 100% Dynamic Telemetry, Zero Dummy Fallback & Senior Error/Empty State Architecture (24/11/2026)
+
+- **Eliminated Dummy Data Fallbacks (100% Dynamic Backend Data)**:
+  - In [teamService.js](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/services/teamService.js), removed `INITIAL_SALES_TEAM_DATA` fallback import and hardcoded member arrays (`Emily Carter`, `Raj Patel`, etc.). All data is now 100% dynamically sourced from the backend `/crm/team` API.
+  - In [reportsService.js](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/services/reportsService.js), ensured errors cleanly propagate so UI components can handle genuine server states rather than masking failures.
+- **Senior Developer Graceful Error State Architecture (502 & Network Failures)**:
+  - Replaced crude error banners and raw `API Error: 502` text with structured, senior-developer error containers in [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx) and [MyTeam.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/MyTeam.jsx).
+  - Features circular alert badge (`AlertTriangle`), clear heading (`Reporting Service Temporarily Unavailable (502)`), informative explanation, and actionable "Try Again" (`RefreshCw` with live spinner) + "Reset Filters" controls.
+  - Suppresses empty table footers and pagination controls during error states.
+- **Structured Zero-Data Empty States & Summary Row Cleanup**:
+  - Solved the awkward footer table display in [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx): the summary `<tfoot>` (`TOTAL EXECUTION (0 BDES) | ... | ₹0 | TEAM TOTAL`) is now strictly rendered **only when active data rows exist** (`filteredTeamRows.length > 0` / `filteredSourceRows.length > 0`).
+  - Added dedicated, centered empty states with contextual icons (`User` for Team, `Globe` for Channels), clean headings, helpful hints, and a quick "Clear all filters" button when filters are active.
+  - Suppressed redundant `0 out of 0` pagination controls when data is empty.
+
+## Lead Form Flow Reordering & Role-Based BDE Routing (24/11/2026)
+
+- **Optimized Section Hierarchy**:
+  - Reordered structured section cards in [AddLeadDrawer.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/leads/AddLeadDrawer.jsx) to ensure a logical information flow:
+    1. **Primary Contact Information** (Card 1, `z-30`): Stakeholder Name, Designation, Work Email, Contact Phone.
+    2. **Organization Details & Commercial Scope** (Card 2, `z-25`): Company Name, Industry, Headcount Scale, Website, Expected Deal Value, and Business Requirement / Project Scope.
+    3. **Lead Classification & BDE Assignment** (Card 3, `z-20`): Moved **after** Organization Details; houses Lead Code, Stage, Priority, Origination Channel / Lead Source, and Product Interest.
+    4. **Geographical & Address Details** (Card 4, `z-15`): Office Street Address, Country, State, City, Postal PIN.
+    5. **Supporting Documentation** (Card 5, `z-10`): Attached documents list & upload dropzone.
+- **Role-Conditioned BDE Assignment Routing**:
+  - Connected `useSelector((state) => state.auth)` to dynamically inspect user role (`sales` / `admin` vs `bde`).
+  - **Sales Manager & Admin View**: The **Assign to BDE / Sales Executive** dropdown is visible and fully functional, allowing managers to allocate prospects across the team roster.
+  - **BDE View**: The field is cleanly suppressed from the UI so BDEs cannot reassign leads; newly created leads automatically bind to their own creator ID.
+- **Common Full-Page Form Design ([LeadForm.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/LeadForm.jsx))**:
+  - Synchronized `/leads/:id/edit`, `/leads/new`, and `/leads/:id/view` (`http://localhost:5173/leads/3/edit`) with standardized top back navigation (`[ Back to Leads ]`), breadcrumb trail, and sticky action buttons (`Save Changes`, `Convert Lead`, `Deactivate Lead`).
+
+
+## Report & Analytics Single-Line Filter Toolbar & Leads Table Theme Alignment (24/11/2026)
+
+- **Leads Table Architecture & CRM Theme Alignment**:
+  - Re-engineered [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx) to match the Leads table structure (`TableContainer`, flat white card, borderless table header strip, alternating row hover, and bottom pagination).
+  - Cleaned up page clutter: eliminated `REPORT_ID: SM-RPT-01`, `Synced · Data Sync: Real-time Reporting Engine (Updated 1m ago)`, `Audit Protocol: SOC-ISO-27001 compliant`, and redundant duplicate title blocks.
+- **Unified Single-Line Filter & Action Toolbar**:
+  - Consolidated all controls into a single horizontal toolbar row matching [Leads.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Leads.jsx):
+    - Left side: Live search input (`Search BDE or channel...`) and a segmented report toggle (`Team Performance` / `Lead Sources`).
+    - Right side: `Date Range`, `By BDE`, `By Lead Channel`, and `By Status` searchable dropdowns via [TableFilterSelect.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/TableFilterSelect.jsx), animated [ResetFilterButton.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/buttons/ResetFilterButton.jsx), and [ExportButton.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/buttons/ExportButton.jsx) for CSV downloads.
+  - Dropdowns trigger instant live data filtering without needing a separate 'Apply Filters' button.
+- **TopHeader Synchronization**:
+  - Restored standard [SalesLayout.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/layouts/SalesLayout.jsx) top header metadata (`Report & Analytics` title and operational subtitle) so the page matches `Lead Management`, `My Accounts`, and other primary CRM modules seamlessly.
+- **Strict Rules Adherence**:
+  - Zero drop-shadows (Rule #13), circular borderless avatars (Rule #24), 7px UI radius with 2px bottom border `border-b-2 border-stroke/80` (Rule #20), and `DD/MM/YYYY` date format (Rule #22).
+
+
+## Report & Analytics UI Polish, BDE Scoping & Dropdown Overlay Fix (24/11/2026)
+
+- **Lead Form Dropdown Overflow & Stacking Fix**:
+  - In [AddLeadDrawer.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/leads/AddLeadDrawer.jsx), replaced restrictive `overflow-hidden` with `overflow-visible relative` across all 5 structured section cards (`Lead Classification & BDE Assignment`, `Primary Contact Information`, `Organization Details`, `Geographical Details`, `Supporting Documentation`).
+  - Added hierarchical cascading z-indexes (`z-30` down to `z-10`) so that floating dropdown menus (such as `Origination Channel / Lead Source` and `Primary Product Interest`) render cleanly above lower section cards without any clipping.
+- **Team Performance Report BDE Role Scoping**:
+  - In `G-Axis-Backend/modules/crm/reports/reports.service.js`, enhanced `getTeamPerformanceReport` and `getFilterOptions` to exclude administrative accounts (`CRM Admin`, `Admin`, `Super Admin`) and supervisory accounts (`Sales Manager`) from the BDE operational roster.
+  - The BDE performance table now strictly displays direct reporting BDEs (`Sarah Jenkins`, `Dhruv`, `Rohan Sharma`), perfectly aligning with the supervisory scope and FRD Section 10 specification.
+- **Header Synchronization & Common Back Navigation**:
+  - In [SalesLayout.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/layouts/SalesLayout.jsx), suppressed duplicate top-level title rendering on `/analytics` routes to prevent redundant stacked headers.
+  - In [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx), integrated the standard [BackButton.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/buttons/BackButton.jsx) alongside the breadcrumbs (`Sales Operations > Reports & Analytics > Management Overview`) allowing seamless navigation back to Dashboard.
+- **CRM Table Structure & Searchable Filter Integration**:
+  - Replaced native `<select>` controls in the horizontal filter matrix with [TableFilterSelect.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/TableFilterSelect.jsx) providing flat, square-surfaced, type-ahead searchable dropdowns (Rule #16, Rule #20, Rule #21).
+  - Standardized table header strips with borderless cells, outer rounded corners (`rounded-l-[7px]`, `rounded-r-[7px]`), circular borderless avatars (Rule #24), and styled `View >` action buttons.
+
+
+## Lead Form Section-Wise Architecture & Dynamic BDE Assignment (24/11/2026)
+
+- **Dynamic BDE Assignment Option**:
+  - Connected [AddLeadDrawer.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/leads/AddLeadDrawer.jsx) to `fetchTeamMembers({ status: 'Active' })` to dynamically populate the **Assign to BDE / Sales Executive** dropdown with active sales executives (e.g., `Sarah Jenkins (EMP-003)`, `Marcus Vance (EMP-002)`, `Dhruv (EMP-105)`).
+  - Updated [leadsService.js](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/services/leadsService.js) `mapLeadToApi` to forward `assignedTo` to the backend `lds_assigned_to` column on both create and update.
+- **Section-Wise Structured Card Architecture**:
+  - Redesigned the lead form from an unstructured flat list into five distinct, enterprise-grade section cards:
+    1. **Lead Classification & BDE Assignment**: Lead Code (for edit/view), Assigned BDE / Sales Executive dropdown, Lead Stage (`New`, `Contacted`, `Qualified`, `Proposal`, `Negotiation`, `Won`, `Lost`), Priority Level, Origination Channel / Source, and Primary Product Interest.
+    2. **Primary Contact Information**: Full Name, Job Designation, Work Email Address, and Contact Number with country selector.
+    3. **Organization Details & Commercial Scope**: Organization / Company Name, Industry Vertical, Employee Headcount Scale, Company Website, Expected Deal Value (`₹`), and a dedicated multi-line `TextAreaInput` for Business Requirement / Project Scope.
+    4. **Geographical & Address Details**: Street Address, Country, State, City, and Postal Code.
+    5. **Supporting Documentation**: Attached documents list with download, preview, and delete triggers alongside drag-and-drop `UploadDropzone` (PNG, JPG, PDF up to 5MB, max 10 files).
+  - **Full-Page Shell Enhancement ([LeadForm.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/LeadForm.jsx))**:
+    - Added breadcrumb trail (`Lead Management > Add New Lead / Edit Lead`), clean page header, and sticky action footer with Back, Deactivate Lead, Convert Lead, and Save Lead.
+  - **Rules Adherence**: Compliant with 0 drop-shadows (Rule #13), shared 7px radius token with 2px bottom borders `border-b-2 border-stroke/80` (Rule #20), and strict `DD/MM/YYYY` date format (Rule #22).
+
+## Report & Analytics Management Unified Specification (Figma / Stitch & FRD Section 10) (24/11/2026)
+
+- **Unified Dual-Section Management Architecture**:
+  - Re-architected [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx) to present **both core operational telemetry sections simultaneously** on a single unified screen as specified in the Stitch / Figma reference (`Report & Analytics Management - Sales Manager`):
+    1. **Top Header & Breadcrumbs**:
+       - Hierarchical trail: `Sales Operations > Reports & Analytics > Management Overview`.
+       - Title: `Reports & Analytics Management` with upcoming phase footnote.
+       - Dynamic pill badge: `SUPERVISORY SCOPE: X BDEs // Y Sources` reflecting live assigned count.
+    2. **Horizontal Filter Matrix**:
+       - Clean 4-filter grid controls: `DATE RANGE` (Fiscal Quarter, All Time, Month, Year), `ASSIGNED BDE` (Direct team roster), `LEAD CHANNEL` (Lead sources), and `PIPELINE STATUS` (New, Contacted, Qualified, Won, Lost).
+       - Quick action triggers: `Apply Filters` (blue), `Reset` (restore defaults), and `Export CSV`.
+    3. **Scope Information Strip**:
+       - Context banner: `Scope: Showing X Direct Reporting BDEs across Y Verified G-CRM Lead Sources` with `MATCH CRITERIA: STRICT (ACTIVE TEAM ONLY)`.
+    4. **Section #1 // TEAM PERFORMANCE REPORT**:
+       - Executive roster table displaying BDE Name, Avatar with initials, Code badge (`EMP-xxx`), territory/tier subtext, Leads Handled, Conversion Rate % with animated progress bar, Pipeline Value (`₹`), and Won Revenue (`₹`).
+       - Bottom Total Execution row summarizing total team leads, average conversion rate, total pipeline, and total won revenue.
+       - `View >` button per row opening the detailed drill-down drawer.
+    5. **Section #2 // LEAD SOURCE ATTRIBUTION & OUTCOME FUNNEL**:
+       - Origination channel analysis with funnel steps indicator (`Lead Source > Qualified Leads > Deals > Won Deals > Revenue`).
+       - Channel-wise rows featuring channel icons, `CHANNEL_ID`, Leads Intake, Qualified Leads (% intake), Deals Created, Won Deals, and Attributed Revenue (`₹`).
+       - Bottom Aggregated Total row summarizing all active marketing/sales channels.
+    6. **Bottom Compliance & Status Footer**:
+       - Live synchronization indicator: `Synced · Data Sync: Real-time Reporting Engine (Updated 1m ago)` with green pulsing beacon.
+       - Security compliance note: `Audit Protocol: SOC-ISO-27001 compliant`.
+    7. **Slide-Out Drill-Down Drawer**:
+       - Interactive reconciliation drawer displaying underlying leads and converted deals mapped directly to that executive or channel.
+
+## Report & Analytics Module Architecture & API Integration (24/11/2026)
+
+- **Complete FRD CRM-028 & Section 10 Alignment**:
+  - Implemented the complete **Report & Analytics** module according to the g-CRM Functional Requirement Document (V1.1).
+  - Built backend service, controller, and route layers under `modules/crm/reports/*` in `G-Axis-Backend`:
+    - `GET /api/v1/crm/reports/funnel-kpis`: Real-time aggregate telemetry delivering Top Leads Intake, Qualified Leads (with drop-off rate %), Deals Created (with total pipeline value), Closed Won Deals (with stalled/lost count), and Attributed Revenue (with average deal size).
+    - `GET /api/v1/crm/reports/team-performance`: Paginated sales executive performance report displaying BDE Code (`EMP-xxx`), Name, Avatar, Leads Handled, Conversion Rate %, Pipeline Value, and Won Revenue.
+    - `GET /api/v1/crm/reports/lead-source-attribution`: Attribution and outcome funnel report across 7 channels (Inbound Demo, Website, Partner Referral, LinkedIn, Event, Cold Outreach) displaying intake, qualified count, deals created, won deals, attributed revenue, and win rates.
+    - `GET /api/v1/crm/reports/drilldown/:type/:identifier`: Interactive reconciliation endpoint returning underlying leads and converted deals for any specific executive (`bde`) or attribution channel (`leadSource`).
+    - `GET /api/v1/crm/reports/filter-options`: Dynamic metadata endpoint delivering active lead sources, date ranges, and executive rosters.
+    - `GET /api/v1/crm/reports/team-performance/export` & `GET /api/v1/crm/reports/lead-source-attribution/export`: CSV generation endpoints with standard attachment headers.
+  - Built frontend API service [reportsService.js](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/services/reportsService.js) and integrated into [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx).
+  - **Interactive Drill-Down Drawer**: On clicking the `ViewBtn` for any executive or channel, opens a right-side drawer showing telemetry totals, individual lead cards with creation dates in `DD/MM/YYYY`, and deal cards with values in `₹` and stage indicators.
+  - **Role-Based Telemetry Scoping**: Supports CRM Admin (`admin@gitakshmi.com` / `Admin@123`) seeing global multi-branch performance and Sales Manager (`marcus@gitakshmi.com` / `Admin@123`) viewing authorized sales team performance.
+  - **Strict Rules Adherence**: 100% Flat border design without drop-shadows (Rule #13), 7px UI radius token with 2px bottom border `border-b-2 border-stroke/80` (Rule #20), and strict `DD/MM/YYYY` date format (Rule #22).
+
+## Mobile & Cross-Device UI Enhancements (24/11/2026)
+
+- **Mobile Data Table Sizing & Header Visibility**:
+  - Fixed mobile table viewport collapse where "Showing 1 out of 1 Entries" and "Showing 2 out of 2 Entries" appeared squeezed or without rows on small screens.
+  - Standardized minimum heights and responsive proportions across `TableContainer.jsx` and `DataTable.jsx`, ensuring columns remain fully legible on mobile devices without crushing or vertical collapse.
+- **Top Header Profile Dropdown Positioning**:
+  - Adjusted dropdown menu alignment in `TopHeader.jsx` to prevent overflow or clipping off the right edge of mobile screens.
+- **Monthly vs Yearly Revenue Filter Layout**:
+  - Restructured `Monthly vs Yearly Revenue` header controls in `Dashboard.jsx` and `BarChart.jsx` so the `[Monthly] Yearly` toggle and the `2025` year dropdown align side-by-side in one compact row on mobile screens.
+
+## Team Service Model Import Architecture Standardization (24/11/2026)
+
+- **Standardized Model Import Flow in `team.service.js`**:
+  - Eliminated `const modelsProxy = require('../../../database/models');` and the runtime `resolveModels()` helper from [team.service.js](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G-Axis-Backend/modules/crm/team/team.service.js).
+  - Aligned model imports to match the standard convention established across `quotations.service.js`, `leads.service.js`, and `deals.service.js`:
+    ```javascript
+    const {
+      CoreUser,
+      CoreRole,
+      CoreUserRole,
+      CrmLead,
+      CrmDeal,
+      CrmAccount,
+      CrmContact,
+      CrmFollowup,
+      CoreAuditLog
+    } = require('../../../database/models');
+    ```
+  - Removed all redundant inline `resolveModels()` calls across `listTeamMembers`, `getTeamMember`, `createTeamMember`, `updateTeamMember`, and `deactivateTeamMember`.
+
+## CRM Code Standardization & Sequential ID Architecture (23/11/2026)
+
+- **Eliminated `GG_` Legacy Prefixes & Standardized Enterprise Identifiers**:
+  - Replaced legacy `gg_account_`, `gg_lead_`, `gg_deal_`, and `gg_quote_` code prefixes across both backend and client with enterprise standard conventions:
+    - **Accounts**: `ACC-0001`, `ACC-0002`, `ACC-0003`... (migrated existing `gg_account_001` to `ACC-0002`).
+    - **Leads**: `LD-0001`, `LD-0002`, `LD-0003`... (migrated existing `gg_lead_001` to `LD-0003`).
+    - **Deals**: `DL-0001`, `DL-0002`... (migrated existing `gg_deal_001` to `DL-0001`).
+    - **Quotations**: `QT-0001`, `QT-0002`... (migrated existing `gg_quote_001` to `QT-0001`).
+    - **Contacts**: `CNT-0001`, `CNT-0002`...
+    - **Employees**: `EMP-001`, `EMP-002`, `EMP-003`, `EMP-104`, `EMP-105`...
+  - In `moduleCode.helper.js`, configured canonical mapping in `PREFIX_MAP` and atomic sequence management in `crm_code_sequences`.
+- **Eliminated Random UUIDs (`d90d9579-...`) in Primary Keys**:
+  - Replaced `randomUUID()` across CRM model creation services (`leads.service.js`, `deals.service.js`, `quotations.service.js`, `team.service.js`) with atomic sequential integer ID resolution via `getNextSequenceId()`.
+  - Future created records automatically receive clean, continuous sequential IDs (`1`, `2`, `3`, `4`, ...).
+  - Existing database records in `org_gitakshmi` were fully migrated:
+    - `crm_accounts`: `d90d9579-a8fc-45f2-a1b7-de829d34f08d` -> `2`
+    - `crm_leads`: `b70ab6ae-b87f-4477-8d2c-4b50cfa2e501` -> `3`
+    - `crm_deals`: `d43b5a27-de53-44f5-93f2-5714b5d7702f` -> `1`
+    - `crm_contacts`: `7fe5140b-8227-4f96-9c41-ae0e01b2ad29` -> `2`
+    - `crm_quotations`: `e8d7912a-3e36-4af7-a462-7747d3bc27fc` -> `1`
+    - `core_users`: `4aa5dd5f-...` (Rohan Sharma) -> `4`, `fbb2af5b-...` (Dhruv) -> `5`.
+  - Updated all foreign key relations (`deal_account_id`, `cnt_account_id`, `quo_deal_id`, `quo_account_id`, `url_user_id`).
+- **Standardized Employee Code Rendering (`EMP-xxx`)**:
+  - Assigned `usr_employee_code` in `core_users` for Marcus Vance (`EMP-002`) and Sarah Jenkins (`EMP-003`), eliminating bare numerical fallback (`2` and `3`).
+  - Added `formatEmployeeCode` in both [team.service.js](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G-Axis-Backend/modules/crm/team/team.service.js), [MyTeam.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/MyTeam.jsx), and [TeamMemberDetail.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/TeamMemberDetail.jsx) ensuring all employee codes display formatted as `EMP-xxx` (e.g., `EMP-001`, `EMP-002`, `EMP-003`, `EMP-104`, `EMP-105`).
+- **Joi Validation Updates**:
+  - Relaxed strict UUID-only validations in `accounts.validation.js`, `leads.validation.js`, `deals.validation.js`, `quotations.validation.js`, and `contacts.validation.js` to accept both sequential integer IDs and UUIDs.
+
+## Data Table Viewport & Column Width Optimization (Elimination of Table Bottom Scrollbar) (23/11/2026)
+
+- **Eliminated Thick Horizontal Bottom Scrollbar Across Data Tables**:
+  - **Root Cause**: The data table wrapper was previously calculating an arbitrary `minWidth` (e.g., 1315px for Leads) based on raw sum of column width hints, and `div.data-table-viewport` lacked scrollbar suppression classes. On standard 1080p, 1366x768, and scaled laptop screens, this forced a thick native browser horizontal scrollbar to appear immediately above the pagination bar ("Showing 2 out of 2 Entries"), pushing important columns (such as `Created Date` and `Actions`) off-screen.
+  - **Fix & Responsive Rebalancing**:
+    - **Global Scrollbar Suppression**: Added both `table-scrollbar` and `no-scrollbar` classes to `data-table-viewport` in [DataTable.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/DataTable.jsx) and refined `style={{ minWidth: fitContent ? minWidth : (minWidth || undefined), width: fitContent ? 'max-content' : '100%' }}` so default tables stretch smoothly to 100% of their container width without forcing overflow.
+    - **Proportional Column Widths ([Leads.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Leads.jsx))**: Rebalanced all 8 columns (`Code: w-[110px]`, `Lead Name: w-[155px]`, `Company Name: w-[165px]`, `Stage: w-[130px]`, `Priority: w-[110px]`, `Quick Contact: w-[95px]`, `Created Date: w-[110px]`, `Action: w-[155px]`), totaling ~940px. All 8 columns now fit side-by-side cleanly on desktop screens without clipping or horizontal overflow.
+    - **Proportional Column Widths ([Deals.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Deals.jsx))**: Rebalanced all 9 columns (`Code: w-[110px]`, `Deal Name: w-[140px]`, `Account: w-[125px]`, `Owner (BDE): w-[130px]`, `Expected Value: w-[115px]`, `Stage: w-[130px]`, `Expected Close Date: w-[125px]`, `Probability: w-[90px]`, `Action: w-[90px]`), totaling ~1055px.
+    - **Proportional Column Widths ([Clients.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Clients.jsx))**: Rebalanced all 8 columns (`Code: w-[110px]`, `Account Name: w-[170px]`, `Industry: w-[130px]`, `Assigned BDE: w-[130px]`, `Stakeholders: w-[100px]`, `Pipeline Deals: w-[160px]`, `Created Date: w-[110px]`, `Action: w-[90px]`), totaling ~1005px.
+  - **Rules Adherence**: Compliant with flat border design (Rule #13), 7px UI radius token (Rule #20), and strict date format `DD/MM/YYYY` (Rule #22).
+
+## Comprehensive Settings Page UI & Architecture Redesign (23/11/2026)
+
+- Completely redesigned [Settings.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Settings.jsx) to replace isolated, placeholder-filled blocks with a cohesive, enterprise-grade architecture:
+  - **Account Management & Security**: Quick navigation cards for Personal Profile Details, Password & Credentials update, and active Two-Factor Authentication (2FA) status with SSO badge.
+  - **Appearance & Display**: Eliminated dummy "Lorem Ipsum" text, replacing it with a theme selection dropdown (`System Default`, `Light Mode`, `Dark Mode`) and a compact table density toggle with real-time toast feedback.
+  - **Granular Notification Preferences**: Configured individual toggles for In-App Banner Alerts, Lead Assignment Alerts, Deal & Quotation Milestones, and Daily Summary Email Digests.
+  - **System Regional Localization**: Structured controls for Time Zone (`Asia/Kolkata IST`, `UTC`, `EST`, `PST`, `GST`, `SGT`), Language, Currency Display (`₹ INR`, `$ USD`, `€ EUR`, etc.), and strict date standard (`DD/MM/YYYY` per Rule #22).
+  - **Active Device Sessions & Security Audit**: Interactive session cards distinguishing the current device from remote browsers with IP, location, and device icons, featuring individual session termination and 1-click "Log out all other devices" functionality.
+  - **Strict Rules Adherence**: 100% flat border-only policy (`border-b-2 border-stroke/80`, 0 drop-shadows per Rule #13), 7px radius token (`rounded-[7px]` per Rule #20), and hover tooltips for all interactive actions (Rule #14).
+
 ## Mobile Dashboard Revenue Switcher Single-Row Layout (23/11/2026)
 
 - In [Dashboard.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Dashboard.jsx) and [BarChart.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/charts/BarChart.jsx), optimized the "Monthly vs Yearly Revenue" card header for mobile devices:

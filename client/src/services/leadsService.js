@@ -93,6 +93,7 @@ export const mapLeadToApi = (form = {}) => ({
   industryId: form.industryId || (/^[\da-f-]{36}$/i.test(form.industry || '') ? form.industry : undefined),
   cityId: form.cityId || (/^[\da-f-]{36}$/i.test(form.city || '') ? form.city : undefined),
   expectedValue: form.expectedValue || undefined,
+  assignedTo: form.assignedTo || undefined,
   requirement: [
     ['Requirement', form.requirement], ['Priority', form.priority], ['Product Interest', form.productInterest],
     ['Designation', form.designation], ['Address', form.address], ['Country', form.country],

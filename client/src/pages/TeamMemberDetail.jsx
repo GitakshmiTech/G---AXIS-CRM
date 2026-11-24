@@ -182,7 +182,8 @@ export const TeamMemberDetail = () => {
   }, [detail]);
 
   const memberName = detail?.name || 'Team Member';
-  const memberCode = detail?.code || detail?.id || '—';
+  const rawCode = detail?.code || detail?.id || '';
+  const memberCode = rawCode ? (/^\d+$/.test(String(rawCode).trim()) ? `EMP-${String(rawCode).trim().padStart(3, '0')}` : rawCode) : '—';
   const memberInitials = useMemo(() => {
     return memberName
       .split(' ')

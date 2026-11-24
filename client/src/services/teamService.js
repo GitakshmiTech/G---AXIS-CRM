@@ -1,9 +1,8 @@
 //===========================================================================================
 //    SALES TEAM API SERVICE
-//    Connects to backend /crm/team API with robust local fallback for resilience
+//    Connects to backend /crm/team API (100% Dynamic - Zero Dummy Fallback)
 // ===========================================================================================
 import { apiClient } from './api';
-import { INITIAL_SALES_TEAM_DATA } from '../constants/salesTeamConstants';
 
 const TEAM_ENDPOINT = '/crm/team';
 const unwrap = (response) => response?.data ?? response;
@@ -23,82 +22,31 @@ export const fetchTeamMembers = async ({
   role = 'All',
   signal,
 } = {}) => {
-  try {
-    const query = new URLSearchParams({ page: String(page), limit: String(limit) });
-    if (search.trim()) query.set('search', search.trim());
-    if (status && status !== 'All') query.set('status', status.toLowerCase());
-    if (role && role !== 'All') query.set('role', role);
+  const query = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (search.trim()) query.set('search', search.trim());
+  if (status && status !== 'All') query.set('status', status.toLowerCase());
+  if (role && role !== 'All') query.set('role', role);
 
-    const response = await apiClient(`${TEAM_ENDPOINT}?${query}`, { signal });
-    const payload = getPayload(response);
+  const response = await apiClient(`${TEAM_ENDPOINT}?${query}`, { signal });
+  const payload = getPayload(response);
 
-    return {
-      kpis: payload?.kpis || {
-        totalMembers: payload?.pagination?.total || 0,
-        activeMembers: (payload?.rows || []).filter((r) => r.status === 'Active').length,
-        inactiveMembers: (payload?.rows || []).filter((r) => r.status === 'Inactive').length,
-      },
-      rows: payload?.rows || [],
-      pagination: payload?.pagination || { page, limit, total: (payload?.rows || []).length, totalPages: 1 },
-    };
-  } catch (err) {
-    // Graceful offline fallback
-    if (err?.name === 'AbortError') throw err;
-    console.warn('Backend team API unavailable, using offline fallback data:', err.message);
-
-    const filtered = INITIAL_SALES_TEAM_DATA.filter((item) => {
-      const matchSearch = !search.trim() ||
-        item.name.toLowerCase().includes(search.toLowerCase()) ||
-        item.code.toLowerCase().includes(search.toLowerCase()) ||
-        item.email.toLowerCase().includes(search.toLowerCase());
-      const matchStatus = status === 'All' || item.status.toLowerCase() === status.toLowerCase();
-      const matchRole = role === 'All' || item.role.toLowerCase() === role.toLowerCase();
-      return matchSearch && matchStatus && matchRole;
-    });
-
-    const offset = (page - 1) * limit;
-    return {
-      kpis: {
-        totalMembers: INITIAL_SALES_TEAM_DATA.length,
-        activeMembers: INITIAL_SALES_TEAM_DATA.filter((i) => i.status === 'Active').length,
-        inactiveMembers: INITIAL_SALES_TEAM_DATA.filter((i) => i.status !== 'Active').length,
-      },
-      rows: filtered.slice(offset, offset + limit),
-      pagination: {
-        page,
-        limit,
-        total: filtered.length,
-        totalPages: Math.ceil(filtered.length / limit) || 1,
-      },
-    };
-  }
+  return {
+    kpis: payload?.kpis || {
+      totalMembers: payload?.pagination?.total || (payload?.rows || []).length,
+      activeMembers: (payload?.rows || []).filter((r) => String(r.status).toLowerCase() === 'active').length,
+      inactiveMembers: (payload?.rows || []).filter((r) => String(r.status).toLowerCase() !== 'active').length,
+    },
+    rows: payload?.rows || [],
+    pagination: payload?.pagination || { page, limit, total: (payload?.rows || []).length, totalPages: 1 },
+  };
 };
 
 /**
  * Fetch detailed profile, supervisor, and live telemetry for a single team member (FRD 11.25)
  */
 export const fetchTeamMemberDetail = async (id) => {
-  try {
-    const response = await apiClient(`${TEAM_ENDPOINT}/${encodeURIComponent(id)}`);
-    return getPayload(response);
-  } catch (err) {
-    console.warn('Backend team detail API unavailable, using offline fallback:', err.message);
-    const item = INITIAL_SALES_TEAM_DATA.find((m) => m.id === id) || INITIAL_SALES_TEAM_DATA[0];
-    return {
-      ...item,
-      supervisor: { id: '2', name: 'Marcus Vance', designation: 'Sales Manager' },
-      workSummary: {
-        assignedLeads: item.leads || 15,
-        activeDeals: item.deals || 4,
-        managedAccounts: Math.round((item.leads || 15) / 2),
-        linkedContacts: Math.round((item.leads || 15) * 1.5),
-        pendingFollowups: 3,
-        conversionRate: 26.5,
-        activePipelineValue: 245000,
-        wonRevenue: 120000,
-      },
-    };
-  }
+  const response = await apiClient(`${TEAM_ENDPOINT}/${encodeURIComponent(id)}`);
+  return getPayload(response);
 };
 
 /**

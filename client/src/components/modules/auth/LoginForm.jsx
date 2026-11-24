@@ -56,10 +56,10 @@ export const LoginForm = memo(() => {
   );
 
   return (
-    <div className="flex flex-col pt-[40px] pb-[72px] px-[24px] sm:px-[48px] gap-[30px] w-full">
+    <div className="flex flex-col py-6 px-6 sm:px-12 gap-6 w-full max-w-[440px] mx-auto">
       {/* Header / Titles */}
       <div className="text-center">
-        <h1 className="text-[26px] md:text-[28px] font-bold text-black-90 tracking-tight leading-tight">
+        <h1 className="text-2xl md:text-[26px] font-bold text-black-90 tracking-tight leading-tight">
           Sign in to your account
         </h1>
         <p className="text-xs sm:text-sm text-black-90/60 font-medium mt-1">
@@ -68,7 +68,7 @@ export const LoginForm = memo(() => {
       </div>
 
       {/* Form Card */}
-      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
         {/* Email Input */}
         <EmailInput
           value={email}

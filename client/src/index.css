@@ -105,14 +105,11 @@
 }
 
 /* ================================================================================================================== */
-/*    Keep full values readable inside responsive CRM tables */
+/*    Keep full values readable inside responsive CRM tables with smooth horizontal touch scroll */
 /* ================================================================================================================== */
-.crm-data-table-cell .truncate {
-  max-width: 100%;
-  overflow: visible !important;
-  overflow-wrap: anywhere;
-  text-overflow: clip !important;
-  white-space: normal !important;
+.data-table-viewport {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 [data-ui-style="table-stage-select"] input,

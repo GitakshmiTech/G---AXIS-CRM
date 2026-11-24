@@ -37,7 +37,19 @@ export const apiClient = async (endpoint, options = {}) => {
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const error = new Error(errorBody.error || errorBody.message || `API Error: ${response.status}`);
+    let msg = errorBody.error || errorBody.message;
+    if (!msg) {
+      if (response.status === 502) {
+        msg = 'Backend service is unreachable (502).';
+      } else if (response.status === 503) {
+        msg = 'Service temporarily unavailable (503).';
+      } else if (response.status === 504) {
+        msg = 'Gateway timeout (504).';
+      } else {
+        msg = `Request failed (${response.status})`;
+      }
+    }
+    const error = new Error(msg);
     error.status = response.status;
     error.data = errorBody;
     throw error;

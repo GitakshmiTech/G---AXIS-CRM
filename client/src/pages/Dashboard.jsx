@@ -136,9 +136,8 @@ export const Dashboard = memo(() => {
               <span>{timeFilter}</span>
               <ChevronDown
                 size={14}
-                className={`text-black-90/70 transition-transform duration-200 ${
-                  isFilterDropdownOpen ? 'rotate-180' : ''
-                }`}
+                className={`text-black-90/70 transition-transform duration-200 ${isFilterDropdownOpen ? 'rotate-180' : ''
+                  }`}
               />
             </button>
 
@@ -156,11 +155,10 @@ export const Dashboard = memo(() => {
                       setTimeFilter(option);
                       setIsFilterDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer rounded-none ${
-                      timeFilter === option
+                    className={`w-full text-left px-2.5 py-1.5 text-xs font-medium transition-colors cursor-pointer rounded-none ${timeFilter === option
                         ? 'text-primary bg-primary/10 font-bold'
                         : 'text-black-90 hover:bg-gray/50'
-                    }`}
+                      }`}
                   >
                     <span className="truncate whitespace-nowrap">{option}</span>
                   </button>
@@ -206,11 +204,10 @@ export const Dashboard = memo(() => {
                   type="button"
                   data-ui-style="filter-tab"
                   onClick={() => setRevenueTab('Monthly')}
-                  className={`px-2.5 sm:px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
-                    revenueTab === 'Monthly'
+                  className={`px-2.5 sm:px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${revenueTab === 'Monthly'
                       ? 'font-bold bg-primary text-white-100'
                       : 'font-medium text-black-90 hover:text-black-90'
-                  }`}
+                    }`}
                 >
                   Monthly
                 </button>
@@ -218,11 +215,10 @@ export const Dashboard = memo(() => {
                   type="button"
                   data-ui-style="filter-tab"
                   onClick={() => setRevenueTab('Yearly')}
-                  className={`px-2.5 sm:px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${
-                    revenueTab === 'Yearly'
+                  className={`px-2.5 sm:px-3 py-1 rounded-[5px] text-xs transition-colors cursor-pointer ${revenueTab === 'Yearly'
                       ? 'font-bold bg-primary text-white-100'
                       : 'font-medium text-black-90 hover:text-black-90'
-                  }`}
+                    }`}
                 >
                   Yearly
                 </button>

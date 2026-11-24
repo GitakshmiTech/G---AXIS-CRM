@@ -5,7 +5,7 @@
 // ===========================================================================================
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserCheck, UserX, Download } from 'lucide-react';
+import { Users, UserCheck, UserX, Download, AlertTriangle, RefreshCw } from 'lucide-react';
 import { TableContainer } from '../components/common/Table/TableContainer';
 import { DataTableToolbar } from '../components/common/Table/DataTableToolbar';
 import { DataTable } from '../components/common/Table/DataTable';
@@ -81,6 +81,7 @@ export const MyTeam = () => {
       .catch((err) => {
         if (err.name === 'AbortError') return;
         setError(err.message || 'Unable to load team members.');
+        toast(err.message || 'Unable to load team members.', 'error');
       })
       .finally(() => setLoading(false));
 
@@ -145,7 +146,12 @@ export const MyTeam = () => {
       label: 'Code',
       headerClassName: 'w-[90px]',
       className: 'font-bold text-black-90 text-xs whitespace-nowrap',
-      render: (row) => <span title={row.code}>{row.code}</span>,
+      render: (row) => {
+        const displayCode = row.code && /^\d+$/.test(String(row.code).trim())
+          ? `EMP-${String(row.code).trim().padStart(3, '0')}`
+          : (row.code || '—');
+        return <span title={displayCode} className="font-semibold text-black-90">{displayCode}</span>;
+      },
     },
     {
       key: 'name',
@@ -245,43 +251,37 @@ export const MyTeam = () => {
   return (
     <div className="w-full flex-1 flex flex-col min-h-0 select-text gap-3 max-md:min-h-fit">
       {/* Top 3 KPI Summary Cards (FRD 11.23) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 flex items-center justify-between">
-          <div>
-            <span className="text-[11px] text-black-90/50 font-medium block">Total Team Members</span>
-            <strong className="text-xl font-bold text-black-90">{kpis.totalMembers}</strong>
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="p-2 sm:p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 flex items-center justify-between">
+          <div className="min-w-0 pr-1">
+            <span className="text-[10px] sm:text-[11px] text-black-90/50 font-medium block truncate">Total Members</span>
+            <strong className="text-base sm:text-xl font-bold text-black-90">{kpis.totalMembers}</strong>
           </div>
-          <div className="w-10 h-10 rounded-[7px] bg-primary/10 text-primary flex items-center justify-center">
-            <Users size={20} />
-          </div>
-        </div>
-
-        <div className="p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 flex items-center justify-between">
-          <div>
-            <span className="text-[11px] text-black-90/50 font-medium block">Active Members</span>
-            <strong className="text-xl font-bold text-success">{kpis.activeMembers}</strong>
-          </div>
-          <div className="w-10 h-10 rounded-[7px] bg-success/10 text-success flex items-center justify-center">
-            <UserCheck size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[7px] bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <Users size={16} className="sm:w-5 sm:h-5" />
           </div>
         </div>
 
-        <div className="p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 flex items-center justify-between">
-          <div>
-            <span className="text-[11px] text-black-90/50 font-medium block">Inactive Members</span>
-            <strong className="text-xl font-bold text-black-90/60">{kpis.inactiveMembers}</strong>
+        <div className="p-2 sm:p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 flex items-center justify-between">
+          <div className="min-w-0 pr-1">
+            <span className="text-[10px] sm:text-[11px] text-black-90/50 font-medium block truncate">Active Members</span>
+            <strong className="text-base sm:text-xl font-bold text-success">{kpis.activeMembers}</strong>
           </div>
-          <div className="w-10 h-10 rounded-[7px] bg-gray text-black-90/60 flex items-center justify-center">
-            <UserX size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[7px] bg-success/10 text-success flex items-center justify-center shrink-0">
+            <UserCheck size={16} className="sm:w-5 sm:h-5" />
+          </div>
+        </div>
+
+        <div className="p-2 sm:p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-white-100 flex items-center justify-between">
+          <div className="min-w-0 pr-1">
+            <span className="text-[10px] sm:text-[11px] text-black-90/50 font-medium block truncate">Inactive Members</span>
+            <strong className="text-base sm:text-xl font-bold text-black-90/60">{kpis.inactiveMembers}</strong>
+          </div>
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[7px] bg-gray text-black-90/60 flex items-center justify-center shrink-0">
+            <UserX size={16} className="sm:w-5 sm:h-5" />
           </div>
         </div>
       </div>
-
-      {error && (
-        <div role="alert" className="rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-4 py-2 text-xs text-alert">
-          {error}
-        </div>
-      )}
 
       {/* Main Table Container */}
       <TableContainer
@@ -327,13 +327,15 @@ export const MyTeam = () => {
           />
         }
         pagination={
-          <Pagination
-            currentPage={currentPage}
-            totalEntries={pagination.total}
-            pageSize={PAGE_SIZE}
-            onPageChange={setCurrentPage}
-            className="pt-0 border-t-0"
-          />
+          teamMembers.length > 0 ? (
+            <Pagination
+              currentPage={currentPage}
+              totalEntries={pagination.total}
+              pageSize={PAGE_SIZE}
+              onPageChange={setCurrentPage}
+              className="pt-0 border-t-0"
+            />
+          ) : null
         }
       >
         <DataTable
@@ -341,7 +343,7 @@ export const MyTeam = () => {
           data={teamMembers}
           rowKey="id"
           loading={loading}
-          emptyMessage="No team members found matching the current filters."
+          emptyMessage={error ? 'Unable to load team members. Please check connection and retry.' : 'No team members found matching the current filters.'}
         />
       </TableContainer>
 

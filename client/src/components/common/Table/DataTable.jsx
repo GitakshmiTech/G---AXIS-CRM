@@ -11,8 +11,8 @@ const getColumnWidth = (column) => {
   const pixelMatch = String(widthHint).match(/w-\[(\d+(?:\.\d+)?)px\]/);
   const scaleMatch = String(widthHint).match(/\bw-(\d+)\b/);
   const hintedWidth = pixelMatch ? Number(pixelMatch[1]) : scaleMatch ? Number(scaleMatch[1]) * 4 : 120;
-  const labelWidth = String(column.label || '').length * 7 + (column.sortable ? 44 : 24);
-  return Math.max(hintedWidth, labelWidth);
+  const labelWidth = String(column.label || '').length * 8 + (column.sortable ? 44 : 28);
+  return Math.max(hintedWidth, labelWidth, 90);
 };
 
 //==================================================================================================================
@@ -132,8 +132,12 @@ export const DataTable = ({
 
   // Preserve readable baseline widths and allow horizontal scrolling only when the viewport is narrower.
   const responsiveMinWidth = useMemo(() => {
-    if (fitContent) return minWidth;
-    return columns.reduce((total, column) => total + getColumnWidth(column), 0);
+    if (fitContent) return minWidth || undefined;
+    const computed = columns.reduce((total, column) => total + getColumnWidth(column), 0);
+    if (minWidth && minWidth > 0) {
+      return Math.max(minWidth, computed);
+    }
+    return Math.max(computed, 780);
   }, [columns, fitContent, minWidth]);
 
   // Keep width constraints at the table column level so legacy page classes cannot force overflow.
@@ -146,10 +150,19 @@ export const DataTable = ({
     //    RESPONSIVE TABLE WRAPPER
     // ==================================================================================================================
     <div
-      className={`data-table-viewport w-full overflow-x-auto min-h-[350px] ${maxHeight ? 'overflow-y-auto no-scrollbar' : ''} ${className}`}
+      className={`data-table-viewport w-full overflow-x-auto min-h-[350px] table-scrollbar overscroll-x-contain [-webkit-overflow-scrolling:touch] ${maxHeight ? 'overflow-y-auto no-scrollbar' : ''} ${className}`}
       style={maxHeight ? { maxHeight } : undefined}
     >
-      <table aria-busy={loading} className={`${fitContent ? 'w-max' : 'w-full'} text-left border-separate border-spacing-0 ${fixedLayout ? 'table-fixed' : ''}`} style={{ minWidth: fitContent ? minWidth : responsiveMinWidth, width: fitContent ? 'max-content' : '100%' }}>
+      <table
+        aria-busy={loading}
+        className={`${fitContent ? 'w-max' : 'w-full'} text-left border-separate border-spacing-0 ${fixedLayout ? 'table-fixed' : ''}`}
+        style={{
+          minWidth: fitContent
+            ? (minWidth || 'max-content')
+            : `${responsiveMinWidth}px`,
+          width: fitContent ? 'max-content' : '100%',
+        }}
+      >
         {/* Table Column Headers */}
         <thead className="sticky top-0 z-10 bg-gray">
           <tr className="bg-gray text-[11px] font-semibold text-black capitalize tracking-wider">
@@ -159,9 +172,9 @@ export const DataTable = ({
                 <th
                   key={column.key}
                   onClick={() => column.sortable && handleSortToggle(column)}
-                  style={!fitContent ? { width: columnWidths[index] } : undefined}
+                  style={!fitContent ? { width: columnWidths[index], minWidth: `${getColumnWidth(column)}px` } : undefined}
                   className={`sticky top-0 overflow-hidden bg-gray py-2 px-2 first:pl-4 last:pr-4 first:rounded-l-lg last:rounded-r-lg relative ${
-                    isFirst ? 'left-0 z-20' : 'z-10'
+                    isFirst ? 'left-0 z-20 bg-gray' : 'z-10'
                   } ${column.sortable ? 'cursor-pointer  group' : ''} ${responsiveCellClass(column.headerClassName || '')}`}
                 >
                   <div
@@ -227,7 +240,7 @@ export const DataTable = ({
                     return (
                       <td
                         key={column.key}
-                        className={`crm-data-table-cell align-middle whitespace-normal break-words [overflow-wrap:anywhere] py-3 px-2 first:pl-4 last:pr-4 ${
+                        className={`crm-data-table-cell align-middle py-3 px-2 first:pl-4 last:pr-4 ${
                           isFirst
                             ? 'sticky left-0 z-[5] bg-white-100 group-hover:bg-[#FBFCFE]'
                             : ''

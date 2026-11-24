@@ -114,11 +114,10 @@ export const BarChart = React.memo(({
                   >
                     {/* Metric Value Label on Top of Bar */}
                     <span
-                      className={`text-[10px] sm:text-xs font-semibold text-black-90 mb-1.5 transition-all duration-500 whitespace-nowrap ${
-                        isAnimated
+                      className={`text-[10px] sm:text-xs font-semibold text-black-90 mb-1.5 transition-all duration-500 whitespace-nowrap ${isAnimated
                           ? 'opacity-100 translate-y-0'
                           : 'opacity-0 translate-y-2'
-                      }`}
+                        }`}
                       style={{ transitionDelay: `${index * 60 + 200}ms` }}
                     >
                       {formatTopValue ? formatTopValue(itemValue, item) : item.displayValue ?? itemValue}

@@ -16,11 +16,13 @@ import { downloadBlob } from '../utils/exportUtils';
 import { getContactWhatsAppUrl } from '../utils/contactUtils';
 import { exportContacts, fetchContacts } from '../services/contactsService';
 import { formatCurrency } from '../utils/formatters';
+import { useToast } from '../hooks/useToast';
 
 /** Display contacts with server-backed search, pagination, export, and page navigation. */
 const Contacts = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const toast = useToast();
   const [contacts, setContacts] = useState([]);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [viewMode, setViewMode] = useState('list');
@@ -54,6 +56,7 @@ const Contacts = () => {
           setContacts([]);
           setPagination({ page: currentPage, limit: pageSize, total: 0, totalPages: 1 });
           setError(requestError.message || 'Unable to load contacts.');
+          toast(requestError.message || 'Unable to load contacts.', 'error');
         })
         .finally(() => { if (active) setIsLoading(false); });
     }, searchQuery.trim() ? 250 : 0);
@@ -163,9 +166,8 @@ const Contacts = () => {
         onPageChange={setCurrentPage}
         className="pt-0 border-t-0"
       />}>
-        {error && <div role="alert" className="mx-4 mt-3 rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-4 py-3 text-sm text-alert">{error}</div>}
         {isExporting && <div role="status" className="px-4 py-2 text-xs text-black-90/60">Preparing contact export…</div>}
-        <DataTable columns={columns} data={contacts} rowKey="id" loading={isLoading} emptyMessage="No contacts found matching the current search criteria." />
+        <DataTable columns={columns} data={contacts} rowKey="id" loading={isLoading} emptyMessage={error ? 'Unable to load contacts. Please check connection and retry.' : 'No contacts found matching the current search criteria.'} />
       </TableContainer>
     </div>
   );

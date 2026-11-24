@@ -63,6 +63,7 @@ export const Deals = () => {
           setDeals([]);
           setPagination({ page: currentPage, limit: pageSize, total: 0, totalPages: 1 });
           setError(requestError.message || 'Unable to load deals.');
+          toast(requestError.message || 'Unable to load deals.', 'error');
         })
         .finally(() => { if (active) setIsLoading(false); });
     }, searchQuery.trim() ? 250 : 0);
@@ -110,11 +111,11 @@ export const Deals = () => {
   ], [owners]);
   const columns = useMemo(() => [
     {
-      key: 'code', label: 'Code', sortable: true, sortType: 'text', className: 'w-[155px] pl-4', headerClassName: 'w-[155px]',
+      key: 'code', label: 'Code', sortable: true, sortType: 'text', className: 'w-[110px] pl-4', headerClassName: 'w-[110px]',
       render: (row) => <span title={row.code} className="whitespace-nowrap font-semibold text-black-90">{row.code || '—'}</span>,
     },
     {
-      key: 'title', label: 'Deal Name', sortable: true, sortType: 'text', className: 'w-[145px] max-w-[145px]', headerClassName: 'w-[145px]',
+      key: 'title', label: 'Deal Name', sortable: true, sortType: 'text', className: 'w-[140px] max-w-[140px]', headerClassName: 'w-[140px]',
       render: (row) => <span title={row.title} className="block whitespace-normal break-words font-semibold text-black-90">{row.title || '—'}</span>,
     },
     {
@@ -122,28 +123,28 @@ export const Deals = () => {
       render: (row) => <span title={row.companyName} className="block whitespace-normal break-words text-xs font-medium text-black-90">{row.companyName || '—'}</span>,
     },
     {
-      key: 'assignedBde', label: 'Owner (BDE)', sortable: true, sortType: 'text', className: 'w-[145px]', headerClassName: 'w-[145px]',
+      key: 'assignedBde', label: 'Owner (BDE)', sortable: true, sortType: 'text', className: 'w-[130px]', headerClassName: 'w-[130px]',
       render: (row) => <span title={row.assignedBde} className="block whitespace-normal break-words text-xs font-semibold text-black-90">{row.assignedBde}</span>,
     },
     {
-      key: 'value', label: 'Expected Value', sortable: true, sortType: 'number', className: 'w-[135px]', headerClassName: 'w-[135px]',
+      key: 'value', label: 'Expected Value', sortable: true, sortType: 'number', className: 'w-[115px]', headerClassName: 'w-[115px]',
       render: (row) => <span title={row.expectedValue} className="block break-all text-xs font-semibold text-black-90">{row.expectedValue}</span>,
     },
     {
       key: 'stage', label: 'Stage', sortable: true, sortType: 'text', align: 'center',
-      className: 'w-[140px]', headerClassName: 'w-[140px]',
+      className: 'w-[130px]', headerClassName: 'w-[130px]',
       render: (row) => <div className="flex w-full justify-center"><DropdownInput name={`deal-stage-${row.id}`} value={row.stageValue || ''} options={CONVERSION_DEAL_STAGE_OPTIONS} onChange={(event) => handleDealStageChange(row, event.target.value)} disabled={updatingDealIds.includes(row.id)} aria-label={`Change stage for ${row.title}`} title="Change deal stage" containerClassName="w-fit min-w-0" containerDataUiStyle="table-stage-select" fitContent dropdownMenuClassName="right-auto w-max min-w-[10rem]" dropdownOptionLabelClassName="overflow-visible" chevronButtonClassName="absolute right-1 top-1/2 -translate-y-1/2 cursor-pointer p-0.5 focus:outline-none" selectClassName="h-7 px-2 pr-6 bg-transparent border-0 rounded-none text-xs text-black-90 font-semibold shadow-none focus:outline-none focus:shadow-none cursor-pointer transition-colors hover:text-primary disabled:cursor-wait" /></div>,
     },
     {
-      key: 'closeDate', label: 'Expected Close Date', sortable: true, sortType: 'text', align: 'center', className: 'w-[165px]', headerClassName: 'w-[165px]',
+      key: 'closeDate', label: 'Expected Close Date', sortable: true, sortType: 'text', align: 'center', className: 'w-[125px]', headerClassName: 'w-[125px]',
       render: (row) => <span className="text-xs font-semibold text-primary">{row.expectedCloseDate}</span>,
     },
     {
-      key: 'probability', label: 'Probability', sortable: true, sortType: 'number', className: 'w-[100px]', headerClassName: 'w-[100px]',
+      key: 'probability', label: 'Probability', sortable: true, sortType: 'number', className: 'w-[90px]', headerClassName: 'w-[90px]',
       render: (row) => <span className="text-xs font-medium text-black-90">{row.probability === '' ? '—' : `${row.probability}%`}</span>,
     },
     {
-      key: 'actions', label: 'Action', align: 'center', className: 'w-[95px] pr-4', headerClassName: 'w-[95px]',
+      key: 'actions', label: 'Action', align: 'center', className: 'w-[90px] pr-4', headerClassName: 'w-[90px]',
       render: (row) => <div className="flex items-center justify-center gap-1.5"><ViewBtn onClick={() => navigate(`/deals/${encodeURIComponent(row.id)}/view`)} title="View Deal Details" /><EditBtn onClick={() => navigate(`/deals/${encodeURIComponent(row.id)}/edit`)} title="Edit Deal" /></div>,
     },
   ], [handleDealStageChange, navigate, updatingDealIds]);
@@ -175,9 +176,8 @@ export const Deals = () => {
         onPageChange={setCurrentPage}
         className="pt-0 border-t-0"
       />}>
-        {error && <div role="alert" className="mx-4 mt-3 rounded-[7px] border-b-2 border-stroke/80 bg-alert/10 px-4 py-3 text-sm text-alert">{error}</div>}
         {isExporting && <div role="status" className="px-4 py-2 text-xs text-black-90/60">Preparing deal export…</div>}
-        <DataTable columns={columns} data={deals} rowKey="id" fixedLayout loading={isLoading} emptyMessage="No deals found matching the current search criteria." />
+        <DataTable columns={columns} data={deals} rowKey="id" fixedLayout loading={isLoading} emptyMessage={error ? 'Unable to load deals. Please check connection and retry.' : 'No deals found matching the current search criteria.'} />
       </TableContainer>
     </div>
   );

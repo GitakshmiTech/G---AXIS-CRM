@@ -36,9 +36,9 @@ export const ForgotPasswordForm = memo(() => {
   );
 
   return (
-    <div className="flex flex-col pt-[40px] pb-[72px] px-[24px] sm:px-[48px] gap-[30px] w-full">
+    <div className="flex flex-col py-6 px-6 sm:px-12 gap-6 w-full max-w-[440px] mx-auto">
       <div className="text-center">
-        <h1 className="text-[26px] md:text-[28px] font-bold text-black-90 tracking-tight leading-tight">
+        <h1 className="text-2xl md:text-[26px] font-bold text-black-90 tracking-tight leading-tight">
           Forgot Password
         </h1>
         <p className="text-xs sm:text-sm text-black-90/60 font-medium mt-1">
@@ -46,7 +46,7 @@ export const ForgotPasswordForm = memo(() => {
         </p>
       </div>
 
-      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+      <form ref={formRef} noValidate onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
 
         {submitted && (
           <div className="p-3 text-xs font-semibold text-success bg-success/10 border-b-2 border-stroke/80 rounded-[7px] text-center">
