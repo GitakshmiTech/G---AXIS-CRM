@@ -172,13 +172,25 @@ export const TableFilterSelect = React.memo(({
     [disabled, isOpen, normalizedOptions, highlightedIndex, handleSelect, typeaheadBuffer, filterId, shouldShowAll, allValue]
   );
 
-  const isAllActive = !value || value === '' || value === 'All' || value === allValue;
+  // Extract clean string/number value even if an event object was inadvertently passed as value
+  const cleanValue = useMemo(() => {
+    if (value && typeof value === 'object' && 'target' in value) {
+      return value.target?.value ?? '';
+    }
+    return value;
+  }, [value]);
+
+  const isAllActive = !cleanValue || cleanValue === '' || cleanValue === 'All' || cleanValue === allValue;
 
   const displayLabel = useMemo(() => {
     if (isAllActive) return effectivePlaceholder;
-    const match = normalizedOptions.find((opt) => opt.value === value);
-    return match ? match.label : value;
-  }, [value, normalizedOptions, effectivePlaceholder, isAllActive]);
+    const match = normalizedOptions.find((opt) => String(opt.value) === String(cleanValue));
+    if (match) return match.label;
+    if (typeof cleanValue === 'string' || typeof cleanValue === 'number') {
+      return String(cleanValue);
+    }
+    return effectivePlaceholder;
+  }, [cleanValue, normalizedOptions, effectivePlaceholder, isAllActive]);
 
   return (
     <div

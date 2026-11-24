@@ -20,6 +20,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { TableContainer } from '../components/common/Table/TableContainer';
+import { DataTable } from '../components/common/Table/DataTable';
 import { TableFilterSelect } from '../components/common/Table/TableFilterSelect';
 import { ResetFilterButton } from '../components/common/buttons/ResetFilterButton';
 import { ExportButton } from '../components/common/buttons/ExportButton';
@@ -246,28 +247,47 @@ export const ReportAnalytics = memo(() => {
     }
   }, [dateFilter]);
 
-  // Filtered rows by search query
+  // Filtered rows by search query and active BDE/Source filters
   const filteredTeamRows = useMemo(() => {
-    if (!searchQuery.trim()) return teamRows;
+    let rows = teamRows;
+    if (bdeFilter && bdeFilter !== 'All') {
+      rows = rows.filter(
+        (r) =>
+          String(r.id) === String(bdeFilter) ||
+          String(r.bdeId) === String(bdeFilter) ||
+          String(r.code).toLowerCase() === String(bdeFilter).toLowerCase() ||
+          String(r.name).toLowerCase() === String(bdeFilter).toLowerCase()
+      );
+    }
+    if (!searchQuery.trim()) return rows;
     const q = searchQuery.toLowerCase().trim();
-    return teamRows.filter(
+    return rows.filter(
       (r) =>
         r.name?.toLowerCase().includes(q) ||
         r.code?.toLowerCase().includes(q) ||
         r.role?.toLowerCase().includes(q) ||
         r.email?.toLowerCase().includes(q)
     );
-  }, [teamRows, searchQuery]);
+  }, [teamRows, bdeFilter, searchQuery]);
 
   const filteredSourceRows = useMemo(() => {
-    if (!searchQuery.trim()) return leadSourceRows;
+    let rows = leadSourceRows;
+    if (sourceFilter && sourceFilter !== 'All') {
+      rows = rows.filter(
+        (r) =>
+          String(r.source).toLowerCase() === String(sourceFilter).toLowerCase() ||
+          String(r.id) === String(sourceFilter) ||
+          String(r.channelId).toLowerCase() === String(sourceFilter).toLowerCase()
+      );
+    }
+    if (!searchQuery.trim()) return rows;
     const q = searchQuery.toLowerCase().trim();
-    return leadSourceRows.filter(
+    return rows.filter(
       (r) =>
         r.source?.toLowerCase().includes(q) ||
         getChannelCode(r.source).toLowerCase().includes(q)
     );
-  }, [leadSourceRows, searchQuery]);
+  }, [leadSourceRows, sourceFilter, searchQuery]);
 
   // Aggregated Team Execution Totals
   const teamTotals = useMemo(() => {
@@ -323,17 +343,301 @@ export const ReportAnalytics = memo(() => {
     };
   }, [filteredSourceRows]);
 
+  // Paginated slices for table views
+  const paginatedTeamRows = useMemo(() => {
+    const start = (teamPage - 1) * pageSize;
+    return filteredTeamRows.slice(start, start + pageSize);
+  }, [filteredTeamRows, teamPage, pageSize]);
+
+  const paginatedSourceRows = useMemo(() => {
+    const start = (sourcesPage - 1) * pageSize;
+    return filteredSourceRows.slice(start, start + pageSize);
+  }, [filteredSourceRows, sourcesPage, pageSize]);
+
+  // Team performance columns definition for reusable DataTable
+  const teamColumns = useMemo(
+    () => [
+      {
+        key: 'name',
+        label: 'Executive Name',
+        sortable: true,
+        className: 'w-[190px]',
+        headerClassName: 'w-[190px]',
+        render: (bde) => (
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border-none select-none">
+              {getInitials(bde.name)}
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-semibold text-black-90 text-xs sm:text-sm truncate" title={bde.name}>
+                {bde.name}
+              </span>
+              <span className="text-[11px] text-black-90/50 truncate" title={bde.email}>
+                {bde.email}
+              </span>
+            </div>
+          </div>
+        ),
+      },
+      {
+        key: 'code',
+        label: 'Code',
+        sortable: true,
+        className: 'w-[100px]',
+        headerClassName: 'w-[100px]',
+        render: (bde) => (
+          <span title={bde.code} className="whitespace-nowrap font-semibold text-black-90 text-xs">
+            {bde.code || '—'}
+          </span>
+        ),
+      },
+      {
+        key: 'role',
+        label: 'Role',
+        sortable: true,
+        className: 'w-[130px]',
+        headerClassName: 'w-[130px]',
+        render: (bde) => (
+          <span className="text-xs text-black-90/80 font-medium">{bde.role || 'BDE'}</span>
+        ),
+      },
+      {
+        key: 'leadsHandled',
+        label: 'Leads Handled',
+        sortable: true,
+        sortType: 'number',
+        className: 'w-[130px]',
+        headerClassName: 'w-[130px]',
+        render: (bde) => {
+          const handledCount =
+            Number(bde.leadsHandledCount) ||
+            Number(String(bde.leadsHandled || '').replace(/\D/g, '')) ||
+            0;
+          return (
+            <div className="flex flex-col">
+              <span className="font-semibold text-black-90 text-xs">{handledCount} leads</span>
+              <span className="text-[10px] text-black-90/50">
+                {handledCount > 0 ? `${handledCount} processed` : '0 processed'}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        key: 'conversionRate',
+        label: 'Conversion Rate',
+        sortable: true,
+        sortType: 'number',
+        className: 'w-[150px]',
+        headerClassName: 'w-[150px]',
+        render: (bde) => {
+          const convVal =
+            Number(bde.conversionRateValue) ||
+            Number(String(bde.conversionRate || '').replace(/[^0-9.]/g, '')) ||
+            0;
+          return (
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-black-90 text-xs">{convVal.toFixed(1)}%</span>
+                <div className="w-14 sm:w-16 h-1.5 bg-gray rounded-full overflow-hidden shrink-0">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all"
+                    style={{ width: `${Math.min(100, Math.max(0, convVal))}%` }}
+                  />
+                </div>
+              </div>
+              <span className="text-[10px] text-success font-medium">
+                {convVal >= 20 ? 'On-target' : convVal > 0 ? 'Approaching target' : 'Pending activity'}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        key: 'pipelineValue',
+        label: 'Pipeline Value',
+        sortable: true,
+        sortType: 'number',
+        className: 'w-[120px]',
+        headerClassName: 'w-[120px]',
+        render: (bde) => (
+          <span className="font-bold text-black-90 text-xs">{bde.pipelineValue || '₹0'}</span>
+        ),
+      },
+      {
+        key: 'wonRevenue',
+        label: 'Won Revenue',
+        sortable: true,
+        sortType: 'number',
+        className: 'w-[120px]',
+        headerClassName: 'w-[120px]',
+        render: (bde) => (
+          <span className="font-bold text-success text-xs">{bde.wonRevenue || '₹0'}</span>
+        ),
+      },
+      {
+        key: 'actions',
+        label: 'Action',
+        align: 'center',
+        className: 'w-[80px]',
+        headerClassName: 'w-[80px]',
+        render: (bde) => (
+          <div className="flex items-center justify-center">
+            <ViewBtn
+              onClick={() =>
+                handleOpenDrilldown('bde', bde.id, bde.name, { code: bde.code, role: bde.role })
+              }
+              title={`View drill-down records for ${bde.name}`}
+            />
+          </div>
+        ),
+      },
+    ],
+    [handleOpenDrilldown]
+  );
+
+  // Lead Source attribution columns definition for reusable DataTable
+  const sourceColumns = useMemo(
+    () => [
+      {
+        key: 'source',
+        label: 'Lead Channel',
+        sortable: true,
+        className: 'w-[190px]',
+        headerClassName: 'w-[190px]',
+        render: (src) => {
+          const Icon = getSourceIcon(src.source);
+          return (
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-full bg-secondary/10 border-none text-secondary flex items-center justify-center shrink-0">
+                <Icon size={14} />
+              </div>
+              <span className="font-semibold text-black-90 text-xs sm:text-sm truncate" title={src.source}>
+                {src.source}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        key: 'channelId',
+        label: 'Channel ID',
+        sortable: true,
+        className: 'w-[100px]',
+        headerClassName: 'w-[100px]',
+        render: (src, idx) => {
+          const channelCode = getChannelCode(src.source, idx + 1);
+          return (
+            <span title={channelCode} className="whitespace-nowrap font-semibold text-black-90 text-xs">
+              {channelCode}
+            </span>
+          );
+        },
+      },
+      {
+        key: 'leadsIntake',
+        label: 'Leads Intake',
+        sortable: true,
+        sortType: 'number',
+        className: 'w-[110px]',
+        headerClassName: 'w-[110px]',
+        render: (src) => (
+          <span className="font-semibold text-black-90 text-xs">
+            {Number(src.leadsIntake || 0).toLocaleString('en-IN')} leads
+          </span>
+        ),
+      },
+      {
+        key: 'qualifiedLeads',
+        label: 'Qualified Leads',
+        sortable: true,
+        sortType: 'number',
+        className: 'w-[130px]',
+        headerClassName: 'w-[130px]',
+        render: (src) => {
+          const intake = Number(src.leadsIntake) || 0;
+          const qual = Number(src.qualifiedLeads) || 0;
+          const rate = intake > 0 ? ((qual / intake) * 100).toFixed(1) : '0.0';
+          return (
+            <span className="font-semibold text-black-90 text-xs">
+              {qual} <span className="text-black-90/50 font-normal">({rate}%)</span>
+            </span>
+          );
+        },
+      },
+      {
+        key: 'dealsCreated',
+        label: 'Deals Created',
+        sortable: true,
+        sortType: 'number',
+        className: 'w-[110px]',
+        headerClassName: 'w-[110px]',
+        render: (src) => (
+          <span className="font-semibold text-black-90 text-xs">
+            {Number(src.dealsCreated || 0).toLocaleString('en-IN')}
+          </span>
+        ),
+      },
+      {
+        key: 'wonDeals',
+        label: 'Won Deals',
+        sortable: true,
+        sortType: 'number',
+        className: 'w-[100px]',
+        headerClassName: 'w-[100px]',
+        render: (src) => (
+          <span className="font-bold text-primary text-xs">
+            {Number(src.wonDeals || 0).toLocaleString('en-IN')}
+          </span>
+        ),
+      },
+      {
+        key: 'attributedRevenue',
+        label: 'Attributed Revenue',
+        sortable: true,
+        sortType: 'number',
+        align: 'right',
+        className: 'w-[130px]',
+        headerClassName: 'w-[130px]',
+        render: (src) => (
+          <span className="font-bold text-success text-xs">{src.attributedRevenue || '₹0'}</span>
+        ),
+      },
+      {
+        key: 'actions',
+        label: 'Action',
+        align: 'center',
+        className: 'w-[80px]',
+        headerClassName: 'w-[80px]',
+        render: (src, idx) => {
+          const channelCode = getChannelCode(src.source, idx + 1);
+          return (
+            <div className="flex items-center justify-center">
+              <ViewBtn
+                onClick={() =>
+                  handleOpenDrilldown('leadSource', src.source, `Channel: ${src.source}`, { channelCode })
+                }
+                title={`View leads & deals for ${src.source}`}
+              />
+            </div>
+          );
+        },
+      },
+    ],
+    [handleOpenDrilldown]
+  );
+
   return (
     <div className="w-full flex-1 flex flex-col min-h-0 select-text max-md:min-h-fit">
       <TableContainer
         toolbar={
           <div className="w-full flex flex-col gap-2.5">
             {/* Standard Desktop & Tablet One-Line Toolbar (Matching Leads Page) */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 flex-wrap w-full">
-              {/* Left Controls: Search & Report Segmented Tab Toggle */}
-              <div className="flex items-center gap-2.5 flex-wrap flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2.5 w-full flex-nowrap overflow-x-auto no-scrollbar py-0.5">
+              {/* Left Controls: Search & Report Segmented Tab Toggle (Strictly in one row) */}
+              <div className="flex items-center gap-2 shrink-0 flex-nowrap">
                 {/* Search Input Bar */}
-                <div className="relative min-w-[200px] sm:min-w-[240px]">
+                <div className="relative w-[170px] sm:w-[190px] lg:w-[210px] shrink-0">
                   <Search
                     size={15}
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-black-90/50 pointer-events-none"
@@ -343,19 +647,19 @@ export const ReportAnalytics = memo(() => {
                     placeholder="Search BDE or channel..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs font-medium text-black-90 placeholder:text-black-90/40 placeholder:select-none focus:outline-none transition-all"
+                    className="w-full pl-9 pr-3 py-1.5 sm:py-2 bg-gray border-b-2 border-stroke/80 rounded-[7px] text-xs font-medium text-black-90 placeholder:text-black-90/40 placeholder:select-none focus:outline-none transition-all"
                   />
                 </div>
 
                 {/* Report Switcher Tabs (One-click toggle between Team & Sources) */}
                 <div
-                  className="inline-flex rounded-[7px] bg-gray p-0.5 border-b-2 border-stroke/80 shrink-0 w-full sm:w-auto"
+                  className="inline-flex rounded-[7px] bg-gray p-0.5 border-b-2 border-stroke/80 shrink-0"
                   data-ui-style="joined-control"
                 >
                   <button
                     type="button"
                     onClick={() => setActiveTab('team')}
-                    className={`flex-1 sm:flex-none text-center px-3 py-1.5 text-xs font-semibold rounded-[5px] transition-colors cursor-pointer ${
+                    className={`whitespace-nowrap px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-[5px] transition-colors cursor-pointer ${
                       activeTab === 'team'
                         ? 'bg-primary text-white-100 shadow-none'
                         : 'text-black-90/70 hover:text-black-90'
@@ -366,7 +670,7 @@ export const ReportAnalytics = memo(() => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('sources')}
-                    className={`flex-1 sm:flex-none text-center px-3 py-1.5 text-xs font-semibold rounded-[5px] transition-colors cursor-pointer ${
+                    className={`whitespace-nowrap px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-[5px] transition-colors cursor-pointer ${
                       activeTab === 'sources'
                         ? 'bg-primary text-white-100 shadow-none'
                         : 'text-black-90/70 hover:text-black-90'
@@ -378,7 +682,7 @@ export const ReportAnalytics = memo(() => {
               </div>
 
               {/* Right Filter & Action Controls (All in ONE line matching Leads) */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-nowrap">
                 {/* 1. Date Range Filter */}
                 <TableFilterSelect
                   id="filter-date-range"
@@ -386,7 +690,12 @@ export const ReportAnalytics = memo(() => {
                   value={dateFilter}
                   placeholder="Date Range"
                   options={filterOptions.dateRangeOptions}
-                  onChange={setDateFilter}
+                  onChange={(e) => {
+                    const val = e && typeof e === 'object' && 'target' in e ? e.target.value : e;
+                    setDateFilter(val);
+                    setTeamPage(1);
+                    setSourcesPage(1);
+                  }}
                   showAllOption={false}
                 />
 
@@ -398,7 +707,11 @@ export const ReportAnalytics = memo(() => {
                     value={bdeFilter}
                     placeholder="By BDE"
                     options={filterOptions.bdeOptions}
-                    onChange={setBdeFilter}
+                    onChange={(e) => {
+                      const val = e && typeof e === 'object' && 'target' in e ? e.target.value : e;
+                      setBdeFilter(val);
+                      setTeamPage(1);
+                    }}
                     showAllOption={false}
                   />
                 )}
@@ -411,7 +724,11 @@ export const ReportAnalytics = memo(() => {
                     value={sourceFilter}
                     placeholder="By Lead Source"
                     options={filterOptions.leadSourceOptions}
-                    onChange={setSourceFilter}
+                    onChange={(e) => {
+                      const val = e && typeof e === 'object' && 'target' in e ? e.target.value : e;
+                      setSourceFilter(val);
+                      setSourcesPage(1);
+                    }}
                     showAllOption={false}
                   />
                 )}
@@ -423,7 +740,12 @@ export const ReportAnalytics = memo(() => {
                   value={statusFilter}
                   placeholder="By Status"
                   options={STATUS_OPTIONS}
-                  onChange={setStatusFilter}
+                  onChange={(e) => {
+                    const val = e && typeof e === 'object' && 'target' in e ? e.target.value : e;
+                    setStatusFilter(val);
+                    setTeamPage(1);
+                    setSourcesPage(1);
+                  }}
                   showAllOption={false}
                 />
 
@@ -458,341 +780,80 @@ export const ReportAnalytics = memo(() => {
             ACTIVE TAB: TEAM PERFORMANCE REPORT TABLE
         ============================================================================================================== */}
         {activeTab === 'team' && (
-          <div className="overflow-x-auto w-full no-scrollbar overscroll-x-contain [-webkit-overflow-scrolling:touch]">
-            <table className="w-full text-left border-collapse min-w-[760px]">
-              <thead>
-                <tr className="bg-gray text-[11px] font-bold uppercase tracking-wider text-black-90/70 border-b border-stroke">
-                  <th className="py-2.5 px-4 rounded-l-[7px] border-none">Executive Name</th>
-                  <th className="py-2.5 px-3 border-none">Code</th>
-                  <th className="py-2.5 px-3 border-none">Role</th>
-                  <th className="py-2.5 px-3 border-none">Leads Handled</th>
-                  <th className="py-2.5 px-3 border-none">Conversion Rate</th>
-                  <th className="py-2.5 px-3 border-none">Pipeline Value</th>
-                  <th className="py-2.5 px-3 border-none">Won Revenue</th>
-                  <th className="py-2.5 px-4 text-center rounded-r-[7px] border-none">Action</th>
+          <DataTable
+            columns={teamColumns}
+            data={paginatedTeamRows}
+            rowKey="id"
+            loading={loading}
+            emptyMessage="No active BDE team members or lead activity match your current filter selection."
+            footer={
+              filteredTeamRows.length > 0 ? (
+                <tr>
+                  <td className="crm-data-table-cell py-3 px-2 first:pl-4 font-semibold text-black-90 text-xs">
+                    Total Execution ({teamTotals.count} BDEs)
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 text-black-90/60">—</td>
+                  <td className="crm-data-table-cell py-3 px-2 text-black-90/60">—</td>
+                  <td className="crm-data-table-cell py-3 px-2 font-semibold text-black-90 text-xs">
+                    {teamTotals.totalLeads}
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 font-semibold text-primary text-xs">
+                    {teamTotals.avgConversion}
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 font-semibold text-black-90 text-xs">
+                    {teamTotals.pipelineValue}
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 font-semibold text-success text-xs">
+                    {teamTotals.wonRevenue}
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 last:pr-4 text-center font-medium text-black-90/60 text-[11px]">
+                    Team Total
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-stroke text-xs text-black-90">
-                {loading ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <tr key={i} className="animate-pulse">
-                      <td colSpan={8} className="py-3 px-4 bg-gray/20">
-                        <div className="h-4 bg-gray rounded w-3/4" />
-                      </td>
-                    </tr>
-                  ))
-                ) : filteredTeamRows.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="py-14 px-4 text-center">
-                      <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
-                        <div className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-2.5 select-none border-none">
-                          <User size={20} />
-                        </div>
-                        <h4 className="text-xs sm:text-sm font-bold text-black-90 mb-1">
-                          No Team Performance Records Found
-                        </h4>
-                        <p className="text-[11px] text-black-90/50 mb-3.5 leading-relaxed">
-                          No active BDE team members or lead activity match your current filter selection.
-                        </p>
-                        {(searchQuery || dateFilter !== 'This Quarter' || bdeFilter !== 'All' || statusFilter !== 'All') && (
-                          <button
-                            type="button"
-                            onClick={handleResetFilters}
-                            className="cursor-pointer inline-flex items-center gap-1 px-3 py-1.5 bg-gray hover:bg-stroke/40 text-black-90 rounded-[7px] text-xs font-semibold transition-colors border-b-2 border-stroke/80"
-                          >
-                            Clear all filters
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredTeamRows.map((bde, idx) => {
-                    const convVal =
-                      Number(bde.conversionRateValue) ||
-                      Number(String(bde.conversionRate || '').replace(/[^0-9.]/g, '')) ||
-                      0;
-                    const handledCount =
-                      Number(bde.leadsHandledCount) ||
-                      Number(String(bde.leadsHandled || '').replace(/\D/g, '')) ||
-                      0;
-
-                    return (
-                      <tr key={bde.id || idx} className="hover:bg-gray/30 transition-colors">
-                        {/* Executive Name & Avatar */}
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border-none select-none">
-                              {getInitials(bde.name)}
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                              <span className="font-semibold text-black-90 text-xs sm:text-sm truncate">
-                                {bde.name}
-                              </span>
-                              <span className="text-[11px] text-black-90/50 truncate">
-                                {bde.email}
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Code */}
-                        <td className="py-3 px-3">
-                          <span className="bg-gray text-black-90/70 border border-stroke px-1.5 py-0.5 rounded-[4px] text-[10px] font-mono font-bold">
-                            {bde.code}
-                          </span>
-                        </td>
-
-                        {/* Role / Designation */}
-                        <td className="py-3 px-3">
-                          <span className="text-xs text-black-90/80 font-medium">
-                            {bde.role || 'BDE'}
-                          </span>
-                        </td>
-
-                        {/* Leads Handled */}
-                        <td className="py-3 px-3">
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-black-90 text-xs">
-                              {handledCount} leads
-                            </span>
-                            <span className="text-[10px] text-black-90/50">
-                              {handledCount > 0 ? `${handledCount} processed · in-flight` : '0 processed'}
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* Conversion Rate */}
-                        <td className="py-3 px-3">
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-black-90 text-xs">
-                                {convVal.toFixed(1)}%
-                              </span>
-                              <div className="w-14 sm:w-16 h-1.5 bg-gray rounded-full overflow-hidden shrink-0">
-                                <div
-                                  className="h-full bg-primary rounded-full"
-                                  style={{ width: `${Math.min(100, Math.max(0, convVal))}%` }}
-                                />
-                              </div>
-                            </div>
-                            <span className="text-[10px] text-success font-medium">
-                              {convVal >= 20 ? 'On-target' : convVal > 0 ? 'Approaching target' : 'Pending activity'}
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* Pipeline Value */}
-                        <td className="py-3 px-3">
-                          <span className="font-bold text-black-90 text-xs">
-                            {bde.pipelineValue}
-                          </span>
-                        </td>
-
-                        {/* Won Revenue */}
-                        <td className="py-3 px-3">
-                          <span className="font-bold text-success text-xs">
-                            {bde.wonRevenue}
-                          </span>
-                        </td>
-
-                        {/* Action View Button */}
-                        <td className="py-3 px-4 text-center">
-                          <div className="flex items-center justify-center">
-                            <ViewBtn
-                              onClick={() =>
-                                handleOpenDrilldown('bde', bde.id, bde.name, { code: bde.code, role: bde.role })
-                              }
-                              title={`View drill-down records for ${bde.name}`}
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-
-              {/* Table Total Summary Row */}
-              {filteredTeamRows.length > 0 && (
-                <tfoot>
-                  <tr className="bg-gray font-bold text-xs text-black-90 border-t border-stroke">
-                    <td className="py-3 px-4 uppercase tracking-wider font-mono">
-                      TOTAL EXECUTION ({teamTotals.count} BDEs)
-                    </td>
-                    <td className="py-3 px-3">—</td>
-                    <td className="py-3 px-3">—</td>
-                    <td className="py-3 px-3">{teamTotals.totalLeads}</td>
-                    <td className="py-3 px-3 text-primary">{teamTotals.avgConversion}</td>
-                    <td className="py-3 px-3">{teamTotals.pipelineValue}</td>
-                    <td className="py-3 px-3 text-success">{teamTotals.wonRevenue}</td>
-                    <td className="py-3 px-4 text-center text-[11px] font-mono uppercase text-black-90/60">
-                      TEAM TOTAL
-                    </td>
-                  </tr>
-                </tfoot>
-              )}
-            </table>
-          </div>
+              ) : null
+            }
+          />
         )}
 
         {/* ==============================================================================================================
             ACTIVE TAB: LEAD SOURCE ATTRIBUTION FUNNEL TABLE
         ============================================================================================================== */}
         {activeTab === 'sources' && (
-          <div className="overflow-x-auto w-full no-scrollbar overscroll-x-contain [-webkit-overflow-scrolling:touch]">
-            <table className="w-full text-left border-collapse min-w-[760px]">
-              <thead>
-                <tr className="bg-gray text-[11px] font-bold uppercase tracking-wider text-black-90/70 border-b border-stroke">
-                  <th className="py-2.5 px-4 rounded-l-[7px] border-none">Lead Channel</th>
-                  <th className="py-2.5 px-3 border-none">Channel ID</th>
-                  <th className="py-2.5 px-3 border-none">Leads Intake</th>
-                  <th className="py-2.5 px-3 border-none">Qualified Leads</th>
-                  <th className="py-2.5 px-3 border-none">Deals Created</th>
-                  <th className="py-2.5 px-3 border-none">Won Deals</th>
-                  <th className="py-2.5 px-3 text-right border-none">Attributed Revenue</th>
-                  <th className="py-2.5 px-4 text-center rounded-r-[7px] border-none">Action</th>
+          <DataTable
+            columns={sourceColumns}
+            data={paginatedSourceRows}
+            rowKey="source"
+            loading={loading}
+            emptyMessage="No channel attribution records or deals found for the current selection."
+            footer={
+              filteredSourceRows.length > 0 ? (
+                <tr>
+                  <td className="crm-data-table-cell py-3 px-2 first:pl-4 font-semibold text-black-90 text-xs">
+                    Aggregated Total ({leadSourceTotals.count} Channels)
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 text-black-90/60">—</td>
+                  <td className="crm-data-table-cell py-3 px-2 font-semibold text-black-90 text-xs">
+                    {leadSourceTotals.intake}
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 font-semibold text-primary text-xs">
+                    {leadSourceTotals.qualifiedText}
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 font-semibold text-black-90 text-xs">
+                    {leadSourceTotals.deals}
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 font-semibold text-primary text-xs">
+                    {leadSourceTotals.won}
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 text-right font-semibold text-success text-xs">
+                    {leadSourceTotals.revenue}
+                  </td>
+                  <td className="crm-data-table-cell py-3 px-2 last:pr-4 text-center font-medium text-black-90/60 text-[11px]">
+                    Total
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-stroke text-xs text-black-90">
-                {loading ? (
-                  Array.from({ length: 4 }).map((_, i) => (
-                    <tr key={i} className="animate-pulse">
-                      <td colSpan={8} className="py-3 px-4 bg-gray/20">
-                        <div className="h-4 bg-gray rounded w-3/4" />
-                      </td>
-                    </tr>
-                  ))
-                ) : filteredSourceRows.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="py-14 px-4 text-center">
-                      <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
-                        <div className="w-11 h-11 rounded-full bg-secondary/10 text-secondary flex items-center justify-center mb-2.5 select-none border-none">
-                          <Globe size={20} />
-                        </div>
-                        <h4 className="text-xs sm:text-sm font-bold text-black-90 mb-1">
-                          No Lead Source Attribution Records Found
-                        </h4>
-                        <p className="text-[11px] text-black-90/50 mb-3.5 leading-relaxed">
-                          No channel attribution records or deals found for the current selection.
-                        </p>
-                        {(searchQuery || dateFilter !== 'This Quarter' || sourceFilter !== 'All' || statusFilter !== 'All') && (
-                          <button
-                            type="button"
-                            onClick={handleResetFilters}
-                            className="cursor-pointer inline-flex items-center gap-1 px-3 py-1.5 bg-gray hover:bg-stroke/40 text-black-90 rounded-[7px] text-xs font-semibold transition-colors border-b-2 border-stroke/80"
-                          >
-                            Clear all filters
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredSourceRows.map((src, idx) => {
-                    const Icon = getSourceIcon(src.source);
-                    const channelCode = getChannelCode(src.source, idx + 1);
-                    const intake = Number(src.leadsIntake) || 0;
-                    const qual = Number(src.qualifiedLeads) || 0;
-                    const rate = intake > 0 ? ((qual / intake) * 100).toFixed(1) : '0.0';
-
-                    return (
-                      <tr
-                        key={src.source || idx}
-                        className="hover:bg-gray/30 transition-colors"
-                      >
-                        {/* Channel Name & Icon */}
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-[7px] bg-secondary/10 border-b-2 border-stroke/80 text-secondary flex items-center justify-center shrink-0">
-                              <Icon size={14} />
-                            </div>
-                            <span className="font-semibold text-black-90 text-xs sm:text-sm">
-                              {src.source}
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* Channel Code */}
-                        <td className="py-3 px-3">
-                          <span className="text-[10px] font-mono text-black-90/60 bg-gray px-1.5 py-0.5 rounded-[4px] border border-stroke">
-                            {channelCode}
-                          </span>
-                        </td>
-
-                        {/* Leads Intake */}
-                        <td className="py-3 px-3">
-                          <span className="font-semibold text-black-90 text-xs">
-                            {src.leadsIntake}
-                          </span>
-                        </td>
-
-                        {/* Qualified Leads */}
-                        <td className="py-3 px-3">
-                          <span className="font-semibold text-black-90 text-xs">
-                            {qual} <span className="text-black-90/50 font-normal">({rate}%)</span>
-                          </span>
-                        </td>
-
-                        {/* Deals Created */}
-                        <td className="py-3 px-3">
-                          <span className="font-semibold text-black-90 text-xs">
-                            {src.dealsCreated}
-                          </span>
-                        </td>
-
-                        {/* Won Deals */}
-                        <td className="py-3 px-3">
-                          <span className="font-bold text-primary text-xs">
-                            {src.wonDeals}
-                          </span>
-                        </td>
-
-                        {/* Attributed Revenue */}
-                        <td className="py-3 px-3 text-right">
-                          <span className="font-bold text-success text-xs">
-                            {src.attributedRevenue}
-                          </span>
-                        </td>
-
-                        {/* Action View Button */}
-                        <td className="py-3 px-4 text-center">
-                          <div className="flex items-center justify-center">
-                            <ViewBtn
-                              onClick={() =>
-                                handleOpenDrilldown('leadSource', src.source, `Channel: ${src.source}`, { channelCode })
-                              }
-                              title={`View leads & deals for ${src.source}`}
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-
-              {/* Table Total Summary Row */}
-              {filteredSourceRows.length > 0 && (
-                <tfoot>
-                  <tr className="bg-gray font-bold text-xs text-black-90 border-t border-stroke">
-                    <td className="py-3 px-4 uppercase tracking-wider font-mono">
-                      AGGREGATED TOTAL ({leadSourceTotals.count} CHANNELS)
-                    </td>
-                    <td className="py-3 px-3">—</td>
-                    <td className="py-3 px-3">{leadSourceTotals.intake}</td>
-                    <td className="py-3 px-3 text-primary">{leadSourceTotals.qualifiedText}</td>
-                    <td className="py-3 px-3">{leadSourceTotals.deals}</td>
-                    <td className="py-3 px-3 text-primary">{leadSourceTotals.won}</td>
-                    <td className="py-3 px-3 text-right text-success">{leadSourceTotals.revenue}</td>
-                    <td className="py-3 px-4 text-center text-[11px] font-mono uppercase text-black-90/60">
-                      TOTAL
-                    </td>
-                  </tr>
-                </tfoot>
-              )}
-            </table>
-          </div>
+              ) : null
+            }
+          />
         )}
       </TableContainer>
 
@@ -864,12 +925,12 @@ export const ReportAnalytics = memo(() => {
                             <div>
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-black-90">{ld.lds_company || ld.lds_lead_no}</span>
-                                <span className="text-[10px] font-mono text-black-90/50">{ld.lds_lead_no}</span>
+                                <span className="text-[10px] font-semibold text-black-90/60">{ld.lds_lead_no}</span>
                               </div>
                               <span className="text-black-90/60 text-[11px] block mt-0.5">{ld.lds_contact || 'No Contact'}</span>
                             </div>
                             <div className="text-right">
-                              <span className="inline-block px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-primary/10 text-primary uppercase">
+                              <span className="inline-block px-2 py-0.5 rounded-[4px] text-[10px] font-semibold bg-primary/10 text-primary capitalize">
                                 {ld.lds_status}
                               </span>
                               <span className="text-[10px] text-black-90/40 block mt-0.5">
@@ -900,14 +961,14 @@ export const ReportAnalytics = memo(() => {
                             <div>
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-black-90">{dl.deal_title || dl.deal_no}</span>
-                                <span className="text-[10px] font-mono text-black-90/50">{dl.deal_no}</span>
+                                <span className="text-[10px] font-semibold text-black-90/60">{dl.deal_no}</span>
                               </div>
                               <span className="text-success font-semibold text-xs block mt-0.5">
                                 {formatCurrency(dl.deal_value, '₹')}
                               </span>
                             </div>
                             <div className="text-right">
-                              <span className="inline-block px-2 py-0.5 rounded-[4px] text-[10px] font-bold bg-secondary/10 text-secondary uppercase">
+                              <span className="inline-block px-2 py-0.5 rounded-[4px] text-[10px] font-semibold bg-secondary/10 text-secondary capitalize">
                                 {dl.deal_stage}
                               </span>
                               <span className="text-[10px] text-black-90/40 block mt-0.5">

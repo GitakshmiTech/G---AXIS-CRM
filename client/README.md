@@ -1,5 +1,37 @@
 # React + Vite
 
+## Report & Analytics Filter Selection Bug Fix & Dual-Layer Filter Architecture (24/11/2026)
+
+- **Root Cause & Crash Resolution (`Objects are not valid as a React child`)**:
+  - **Identified Failure**: In [TableFilterSelect.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/TableFilterSelect.jsx), selecting any filter option dispatched a synthetic event `{ target: { value, name }, currentTarget: ... }`. When [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx) passed `onChange={setDateFilter}`, `setDateFilter` stored the event object directly into state. Consequently, `<TableFilterSelect value={dateFilter}>` received the object and evaluated `displayLabel = value`, causing React to throw `Uncaught Error: Objects are not valid as a React child (found: object with keys {target, currentTarget})`.
+  - **Bulletproof `cleanValue` & `displayLabel` Resolution**:
+    - In [TableFilterSelect.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/TableFilterSelect.jsx), added safe resolution: `cleanValue` automatically unpacks `value?.target?.value ?? value` if an event object is received.
+    - Guaranteed `displayLabel` always returns a string (matching option label, clean string, or `effectivePlaceholder`), strictly preventing non-primitive objects from being rendered into JSX.
+  - **Sanitized Callback Handlers**:
+    - In [ReportAnalytics.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx), wrapped all 4 filter callbacks (`dateFilter`, `bdeFilter`, `sourceFilter`, `statusFilter`) with clean value extraction (`e?.target ? e.target.value : e`) and reset pagination to page 1 on filter changes.
+- **FRD-Compliant Dynamic Filtering**:
+  - Implemented dual-layer filtering across both API query parameters (`fetchTeamPerformanceReport` & `fetchLeadSourceAttributionReport`) and client-side reactive filtering in `filteredTeamRows` and `filteredSourceRows`.
+  - Selecting any BDE (e.g. `Dhruv`, `Kishan`, `Rohan Sharma`, `Sarah Jenkins`), Date Range (`This Quarter`, `This Month`, etc.), or Lead Channel instantly updates both the table rows and execution totals (`TOTAL EXECUTION | leads | conversion | pipeline | won revenue`) in real-time.
+
+
+## Team Member Deactivation Modal & Workload Reassignment Dropdown Polish (24/11/2026)
+
+- **FRD-Compliant Workload Reassignment Scoping (FRD Section 11.25)**:
+  - In [TeamMemberDetail.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/TeamMemberDetail.jsx) and [ViewMemberDrawer.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/team/ViewMemberDrawer.jsx), restricted the reassignment roster strictly to active sales personnel (`BDE`, `Sales Executive`, `Senior Sales Executive`, and `Sales Manager`).
+  - **Eliminated Administrative Non-Sales Accounts**: Excluded administrative personnel (`Arthur Pendelton (CRM Admin)`, `Super Admin`, etc.) who do not manage sales pipelines or customer deals.
+  - Automatically excludes the member currently being deactivated and any inactive team members.
+  - Added empty state feedback when no other active sales colleagues are available to receive transferred workloads.
+- **Eliminated Dropdown Menu Button Collision**:
+  - Resized the deactivation modal container from a cramped `max-w-md` box to a spacious, balanced dialog (`max-w-[500px] p-6`).
+  - Restructured the internal workload card with a dedicated 2-column metrics summary (`Active Leads to Transfer`, `Open Deals to Transfer`), providing generous vertical clearance so floating dropdown options never obscure or collide with the bottom `Cancel` and `Confirm Deactivation` action buttons.
+- **High-Contrast Dropdown Menu Surface & Removed Ugly Blue Text Highlight**:
+  - In [DropdownInput.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/inputs/DropdownInput.jsx), removed `inputRef.current?.select()`, eliminating the harsh native browser blue text selection highlight that appeared when focusing the dropdown input.
+  - Replaced borderless grey dropdown menu styling (`bg-gray border-none`) with a crisp, high-contrast flat surface: `bg-white-100 border border-stroke rounded-[7px]`, ensuring razor-sharp boundary definition and effortless readability against any card background (Rule #13, Rule #20, Rule #21).
+  - In [TeamMemberDetail.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/TeamMemberDetail.jsx), styled the reassignment combobox input with `bg-white-100 border-b-2 border-stroke/80` for elevated visual hierarchy inside the grey workload card.
+- **Enterprise Modal Architecture Alignment**:
+  - Standardized the dialog header with a circular alert badge (`AlertTriangle`, `bg-alert/10 text-alert`), title, employee metadata subtitle (`{name} · {role}`), and top-right `X` close control matching [QuotationApprovalModal.jsx](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/modules/quotations/QuotationApprovalModal.jsx).
+
+
 ## Mobile Viewport & Cross-Tab Data Table Responsive Optimization (24/11/2026)
 
 - **Eliminated Mobile Table Horizontal Squishing & Single-Letter Word Wrapping**:
@@ -370,6 +402,21 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 ## Changelog & Security Updates
+
+### [24/11/2026] Report & Analytics Reusable Architecture Refactoring & Single-Row Toolbar Alignment
+- **Single-Row Toolbar Alignment (`ReportAnalytics.jsx`)**:
+  - Fixed toolbar wrapping issue where switching to the `Lead Sources` tab caused the tab switcher to drop to a second line beneath the search input.
+  - Implemented `flex-nowrap`, `shrink-0`, and responsive search widths (`w-[170px] sm:w-[190px] lg:w-[210px]`) alongside clean `overflow-x-auto no-scrollbar` protection, guaranteeing all search, tab toggles, and filter controls stay locked on the exact same row.
+- **Component Standardization via Global `<DataTable>`**:
+  - Refactored [`ReportAnalytics.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/ReportAnalytics.jsx) to eliminate 400+ lines of custom handwritten HTML `<table>` elements and migrate directly to the global reusable [`DataTable.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/DataTable.jsx) component.
+  - Added optional, backward-compatible `footer` prop support to [`DataTable.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/components/common/Table/DataTable.jsx) to cleanly render table footers (`<tfoot>`) aligned with responsive column widths.
+- **Typography & Visual Consistency Alignment**:
+  - Completely removed screaming `uppercase` headers and monospaced `font-mono` badges (`bg-gray text-black-90/70 border border-stroke px-1.5 py-0.5 rounded-[4px] text-[10px]`) from column headers, employee codes, channel IDs, and totals.
+  - Standardized font styling and casing to 100% match `My Accounts` ([`Clients.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Clients.jsx)) and `Leads` ([`Leads.jsx`](file:///c:/Users/dell/OneDrive%20-%20Gitakshmi%20Technologies%20Private%20Limited/G---AXIS-CRM/client/src/pages/Leads.jsx)): standard `Inter` font, Title Case column headers (`Executive Name`, `Code`, `Role`, `Leads Handled`, `Conversion Rate`, `Pipeline Value`, `Won Revenue`, `Action`), and standard text tokens (`font-semibold text-black-90 text-xs`).
+  - Standardized the Drilldown drawer to eliminate `font-mono` and `uppercase` badges, switching to standard capitalized badges and clean text tokens.
+- **Architecture & Rules Compliance**:
+  - Fully complies with Rules #4 (Reusable Components), #5 & #19 (Zero Inline Bloat / Clean Architecture), #6 (Common Design Tokens), #10 (useMemo/useCallback optimizations), #13 (Strict Flat Design), and #24 (Circular Borderless Avatars).
+- **Build Verification**: Clean production build verified with Vite (`npm run build`) with 0 errors.
 
 ### [23/11/2026] Sales Manager "My Team" Module: Dynamic API & Full FRD Implementation (11.23, 11.24, 11.25)
 - **Backend API Endpoints (`/api/crm/team`)**:

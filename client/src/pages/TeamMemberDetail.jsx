@@ -99,17 +99,30 @@ export const TeamMemberDetail = () => {
     loadMemberDetail();
   }, [loadMemberDetail]);
 
-  // Load active peers for reassignment dropdown
+  // Load active peers for reassignment dropdown (FRD 11.25: Active sales colleagues only)
   useEffect(() => {
     if (showDeactivateModal) {
       fetchTeamMembers({ page: 1, limit: 100, status: 'Active' })
         .then((res) => {
           const peers = (res.rows || [])
-            .filter((m) => String(m.id) !== String(id))
-            .map((m) => ({ value: String(m.id), label: `${m.name} (${m.role})` }));
+            .filter((m) => {
+              if (String(m.id) === String(id)) return false;
+              if (String(m.status || '').toLowerCase() !== 'active') return false;
+              const role = String(m.role || '').toLowerCase();
+              if (role.includes('admin')) return false;
+              return (
+                role.includes('bde') ||
+                role.includes('sales') ||
+                role.includes('executive') ||
+                role.includes('manager')
+              );
+            })
+            .map((m) => ({ value: String(m.id), label: `${m.name} (${m.role || 'Sales Executive'})` }));
           setActivePeers(peers);
           if (peers.length > 0) {
             setReassignUserId(peers[0].value);
+          } else {
+            setReassignUserId('');
           }
         })
         .catch(() => {});
@@ -619,53 +632,104 @@ export const TeamMemberDetail = () => {
           SAFE DEACTIVATION & WORKLOAD REASSIGNMENT MODAL (FRD 11.25)
       =========================================================================================== */}
       {showDeactivateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-md bg-white-100 rounded-[7px] border-b-2 border-alert/40 p-5 flex flex-col gap-4">
-            <div className="flex items-center gap-2.5 text-alert font-bold text-base">
-              <AlertTriangle size={18} />
-              <span>Deactivate Team Member</span>
-            </div>
-
-            <p className="text-xs text-black-90/70 leading-relaxed">
-              Deactivating <strong className="text-black-90">{memberName}</strong> will stop automatic lead round-robin
-              assignment and revoke their active login sessions.
-            </p>
-
-            {workSummary.assignedLeads > 0 || workSummary.activeDeals > 0 ? (
-              <div className="p-3.5 rounded-[7px] border-b-2 border-stroke/80 bg-gray flex flex-col gap-3">
-                <span className="text-xs font-semibold text-black-90">
-                  This member currently has {workSummary.assignedLeads} active leads and {workSummary.activeDeals} open
-                  deals. Select a colleague to reassign them to:
-                </span>
-
-                <DropdownInput
-                  label="Reassign Workloads To"
-                  placeholder="Select active BDE or Executive"
-                  options={activePeers}
-                  value={reassignUserId}
-                  onChange={(e) => setReassignUserId(e.target.value)}
-                />
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-150"
+          onClick={() => !actionLoading && setShowDeactivateModal(false)}
+        >
+          <div
+            className="w-full max-w-[500px] bg-white-100 rounded-[7px] border-b-2 border-stroke/80 p-6 flex flex-col gap-4 animate-in zoom-in-95 duration-150 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between gap-3 border-b border-stroke/50 pb-3.5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-[7px] bg-alert/10 text-alert flex items-center justify-center shrink-0">
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-black-90">Deactivate Team Member</h3>
+                  <p className="text-xs text-black-90/55 font-medium">
+                    {memberName} · {detail?.role || 'BDE'}
+                  </p>
+                </div>
               </div>
-            ) : (
-              <p className="text-xs text-black-90/60 font-medium">
-                This member has no active open workloads. Are you sure you want to proceed?
-              </p>
-            )}
-
-            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-stroke/40">
               <button
                 type="button"
                 onClick={() => setShowDeactivateModal(false)}
                 disabled={actionLoading}
-                className="cursor-pointer px-4 py-2 rounded-[7px] border-b-2 border-stroke/80 bg-gray text-xs font-semibold text-black-90 hover:bg-gray/80"
+                title="Close dialog"
+                className="cursor-pointer rounded-[7px] p-1 text-black-90/50 hover:bg-gray transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Description Warning */}
+            <p className="text-xs text-black-90/70 leading-relaxed">
+              Deactivating <strong className="text-black-90">{memberName}</strong> will stop automatic lead round-robin
+              assignment and revoke their active login sessions across all devices.
+            </p>
+
+            {/* Workload Status & Reassignment Panel */}
+            {workSummary.assignedLeads > 0 || workSummary.activeDeals > 0 ? (
+              <div className="rounded-[7px] border-b-2 border-stroke/80 bg-gray p-4 flex flex-col gap-3">
+                {/* 2-Column Workload Metrics Strip */}
+                <div className="grid grid-cols-2 gap-2 bg-white-100 p-2.5 rounded-[7px] border border-stroke/60">
+                  <div>
+                    <span className="text-[11px] text-black-90/50 block font-medium">Active Leads to Transfer</span>
+                    <strong className="text-sm font-bold text-black-90">{workSummary.assignedLeads} leads</strong>
+                  </div>
+                  <div>
+                    <span className="text-[11px] text-black-90/50 block font-medium">Open Deals to Transfer</span>
+                    <strong className="text-sm font-bold text-black-90">{workSummary.activeDeals} deals</strong>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-black-90">
+                    Reassign Workloads To
+                  </label>
+                  <p className="text-[11px] text-black-90/55">
+                    Select an active sales colleague to safely receive and manage their active pipeline.
+                  </p>
+
+                  {activePeers.length > 0 ? (
+                    <DropdownInput
+                      name="reassignUserId"
+                      placeholder="Select active BDE or Sales Executive"
+                      options={activePeers}
+                      value={reassignUserId}
+                      onChange={(e) => setReassignUserId(e.target.value)}
+                      selectClassName="w-full h-[40px] px-3 pr-8 bg-white-100 border-b-2 border-stroke/80 rounded-[7px] text-xs text-black-90 font-medium focus:outline-none cursor-pointer transition-all"
+                    />
+                  ) : (
+                    <div className="p-3 bg-warning/10 border border-warning/30 rounded-[7px] text-xs text-warning font-medium">
+                      No other active sales team members are currently available to receive workloads.
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 bg-gray rounded-[7px] border-b-2 border-stroke/80 text-xs text-black-90/70 font-medium">
+                This member currently has no active leads or open deals in flight. Deactivation can proceed safely without reassigning pipeline records.
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-stroke/50">
+              <button
+                type="button"
+                onClick={() => setShowDeactivateModal(false)}
+                disabled={actionLoading}
+                className="cursor-pointer px-4 py-2 rounded-[7px] border-b-2 border-stroke/80 bg-gray text-xs font-semibold text-black-90 hover:bg-gray/80 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmDeactivate}
-                disabled={actionLoading}
-                className="cursor-pointer px-4 py-2 rounded-[7px] border-b-2 border-alert/80 bg-alert text-xs font-semibold text-white-100 hover:bg-alert/90 disabled:opacity-50"
+                disabled={actionLoading || ((workSummary.assignedLeads > 0 || workSummary.activeDeals > 0) && !reassignUserId)}
+                className="cursor-pointer px-4 py-2 rounded-[7px] border-b-2 border-alert/80 bg-alert text-xs font-semibold text-white-100 hover:bg-alert/90 transition-colors disabled:opacity-50"
               >
                 {actionLoading ? 'Processing…' : 'Confirm Deactivation'}
               </button>

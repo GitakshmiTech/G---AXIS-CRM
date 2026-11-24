@@ -31,6 +31,7 @@ export const DataTable = ({
   fixedLayout = true,
   fitContent = false,
   loading = false,
+  footer = null,
 }) => {
   //==================================================================================================================
   //    PERSISTENT SORTING STATE
@@ -264,6 +265,11 @@ export const DataTable = ({
             </tr>
           )}
         </tbody>
+        {footer && (
+          <tfoot className="border-t border-stroke bg-gray font-semibold text-xs text-black-90">
+            {footer}
+          </tfoot>
+        )}
       </table>
     </div>
   );

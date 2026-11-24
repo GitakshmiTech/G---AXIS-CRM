@@ -121,8 +121,19 @@ export const ViewMemberDrawer = memo(({
   };
 
   const otherActiveMembers = allTeamMembers
-    .filter((m) => m.id !== currentMember?.id && m.status === 'Active')
-    .map((m) => ({ value: m.id, label: `${m.name} (${m.role})` }));
+    .filter((m) => {
+      if (m.id === currentMember?.id) return false;
+      if (m.status !== 'Active') return false;
+      const role = String(m.role || '').toLowerCase();
+      if (role.includes('admin')) return false;
+      return (
+        role.includes('bde') ||
+        role.includes('sales') ||
+        role.includes('executive') ||
+        role.includes('manager')
+      );
+    })
+    .map((m) => ({ value: m.id, label: `${m.name} (${m.role || 'Sales Executive'})` }));
 
   return (
     <Drawer

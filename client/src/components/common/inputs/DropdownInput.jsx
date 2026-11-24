@@ -180,7 +180,6 @@ export const DropdownInput = memo(({
       } else {
         setIsOpen(true);
         inputRef.current?.focus();
-        setTimeout(() => inputRef.current?.select(), 0);
       }
     }
   }, [disabled, isOpen]);
@@ -278,8 +277,8 @@ export const DropdownInput = memo(({
         <div
           data-ui-style="dropdown-menu"
           data-ui-width={dropdownMenuClassName ? undefined : 'trigger'}
-          className={`absolute left-0 top-full mt-1 z-50 bg-gray border-none rounded-none overflow-hidden animate-in fade-in-50 duration-100 p-0 shadow-none ${dropdownMenuClassName || 'right-0 w-full min-w-full'}`}>
-          <div className="max-h-60 overflow-y-auto no-scrollbar flex flex-col gap-0.5 w-full">
+          className={`absolute left-0 top-full mt-1 z-50 bg-white-100 border border-stroke rounded-[7px] overflow-hidden animate-in fade-in-50 duration-100 p-0 shadow-none ${dropdownMenuClassName || 'right-0 w-full min-w-full'}`}>
+          <div className="max-h-60 overflow-y-auto no-scrollbar flex flex-col w-full">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((opt, idx) => {
                 const isSelected = String(opt.value) === String(currentValue);
@@ -289,10 +288,10 @@ export const DropdownInput = memo(({
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSelectOption(opt)}
                     className={`
-                      flex items-center justify-between w-full text-left px-2.5 py-1.5 text-xs transition-colors cursor-pointer rounded-none 
+                      flex items-center justify-between w-full text-left px-3 py-2 text-xs transition-colors cursor-pointer rounded-none border-b border-stroke/20 last:border-b-0
                       ${isSelected
                         ? 'bg-primary/10 text-primary font-semibold'
-                        : 'text-black-90 hover:bg-white-100 font-normal'
+                        : 'text-black-90 hover:bg-gray font-normal'
                       }
                     `}
                   >
