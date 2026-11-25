@@ -74,6 +74,11 @@ export const exportDeals = async ({ search = '', stage = '', ownerId = '' } = {}
   return apiClient(`${DEALS_ENDPOINT}/export${suffix ? `?${suffix}` : ''}`, { responseType: 'blob' });
 };
 
+const resolveOwnerId = (val) => {
+  if (!val || val === '__unassigned__') return null;
+  return String(val).trim();
+};
+
 /** Persist supported Deal fields and stage changes through their dedicated endpoints. */
 export const saveDeal = async (id, values) => {
   const dateParts = values.closeDate?.split('/');
@@ -85,7 +90,7 @@ export const saveDeal = async (id, values) => {
     probability: values.probability === '' ? null : Number(values.probability),
     userCount: values.userCount === '' ? null : Number(values.userCount),
     stage: values.stage?.trim().toLowerCase().replace(/[_-]+/g, ' '),
-    ownerId: values.ownerId === '__unassigned__' ? null : values.ownerId,
+    ownerId: resolveOwnerId(values.ownerId),
     closeDate,
     lostReason: values.lostReason?.trim() || '',
   };

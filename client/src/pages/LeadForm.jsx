@@ -77,7 +77,7 @@ const LeadForm = () => {
       toast(mode === 'edit' ? 'Lead updated successfully.' : 'Lead created successfully.');
       navigate('/leads', { replace: true });
     } catch (saveError) {
-      const errors = mapApiValidationErrors(saveError.data?.errors, {
+      const errors = mapApiValidationErrors(saveError.data?.errors || saveError.data?.error, {
         fullName: 'name', contactName: 'name', company: 'companyName',
       });
       setServerFieldErrors(errors);

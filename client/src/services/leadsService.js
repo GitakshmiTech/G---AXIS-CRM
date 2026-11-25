@@ -81,27 +81,49 @@ export const mapLeadFromApi = (lead = {}) => {
   });
 };
 
+const resolveAssignedTo = (val) => {
+  if (!val) return undefined;
+  const str = String(val).trim();
+  if (!str || str === '__unassigned__') return undefined;
+  return str;
+};
+
 /** Convert form fields into the backend allowlisted lead payload and retain extension fields. */
-export const mapLeadToApi = (form = {}) => ({
-  company: form.companyName?.trim(),
-  fullName: form.name?.trim(),
-  email: form.email?.trim(),
-  phone: form.phone?.trim(),
-  source: form.leadSource || undefined,
-  website: form.website || undefined,
-  status: STAGE_VALUES[form.stage] || 'new',
-  industryId: form.industryId || (/^[\da-f-]{36}$/i.test(form.industry || '') ? form.industry : undefined),
-  cityId: form.cityId || (/^[\da-f-]{36}$/i.test(form.city || '') ? form.city : undefined),
-  expectedValue: form.expectedValue || undefined,
-  assignedTo: form.assignedTo || undefined,
-  requirement: [
-    ['Requirement', form.requirement], ['Priority', form.priority], ['Product Interest', form.productInterest],
-    ['Designation', form.designation], ['Address', form.address], ['Country', form.country],
-    ['State', form.state], ['Postal Code', form.postalCode],
-  ].filter(([, value]) => value).map(([label, value]) => `${label}: ${value}`).join(' | ') || undefined,
-  priority: form.priority || undefined,
-  employeeScale: form.employeeScale || undefined,
-});
+export const mapLeadToApi = (form = {}) => {
+  const cleanNumber = (val) => {
+    if (val === undefined || val === null || val === '') return undefined;
+    const num = Number(String(val).replace(/[^0-9.-]/g, ''));
+    return Number.isFinite(num) ? num : undefined;
+  };
+
+  const cleanWebsite = (val) => {
+    if (!val) return undefined;
+    const str = String(val).trim();
+    if (!str) return undefined;
+    return /^https?:\/\//i.test(str) ? str : `https://${str}`;
+  };
+
+  return {
+    company: form.companyName?.trim() || form.company?.trim(),
+    fullName: form.name?.trim() || form.fullName?.trim(),
+    email: form.email?.trim() || undefined,
+    phone: form.phone?.trim() || undefined,
+    source: form.leadSource || form.source || undefined,
+    website: cleanWebsite(form.website),
+    status: STAGE_VALUES[form.stage] || (form.status ? String(form.status).toLowerCase() : 'new'),
+    industryId: form.industryId || (/^[\da-f-]{36}$/i.test(form.industry || '') ? form.industry : undefined),
+    cityId: form.cityId || (/^[\da-f-]{36}$/i.test(form.city || '') ? form.city : undefined),
+    expectedValue: cleanNumber(form.expectedValue),
+    assignedTo: resolveAssignedTo(form.assignedTo),
+    requirement: [
+      ['Requirement', form.requirement], ['Priority', form.priority], ['Product Interest', form.productInterest],
+      ['Designation', form.designation], ['Address', form.address], ['Country', form.country],
+      ['State', form.state], ['Postal Code', form.postalCode],
+    ].filter(([, value]) => value).map(([label, value]) => `${label}: ${value}`).join(' | ') || undefined,
+    priority: form.priority || undefined,
+    employeeScale: form.employeeScale || undefined,
+  };
+};
 
 /** Fetch leads with backend-supported search and status filters. */
 export const fetchLeads = async ({ search = '', status = '', source = '', page = 1, limit = 100 } = {}) => {

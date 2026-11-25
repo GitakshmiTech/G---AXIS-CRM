@@ -26,14 +26,14 @@ export const EditContactDrawer = memo(({
 }) => {
   const isView = mode === 'view';
   const [formData, setFormData] = useState({
-    firstName: 'Johnson',
-    lastName: 'Doe',
-    designation: 'VP of Sales',
-    leadSource: 'LinkedIn',
-    email: 'johnson.doe@abccompany.com',
-    phone: '98765 43210',
-    companyName: 'ABC Company Pvt Ltd',
-    assignedBde: 'Johnson Doe',
+    firstName: '',
+    lastName: '',
+    designation: '',
+    leadSource: '',
+    email: '',
+    phone: '',
+    companyName: '',
+    assignedBde: '',
     avatar: '',
     uploadedAvatar: null,
   });
@@ -44,17 +44,17 @@ export const EditContactDrawer = memo(({
 
   useEffect(() => {
     if (initialData) {
-      const names = (initialData.name || 'Johnson Doe').split(' ');
+      const names = (initialData.name || '').trim().split(' ');
       setFormData({
-        firstName: names[0] || 'Johnson',
-        lastName: names.slice(1).join(' ') || 'Doe',
-        designation: initialData.designation || 'VP of Sales',
-        leadSource: initialData.leadSource || 'LinkedIn',
-        email: initialData.email || 'johnson.doe@abccompany.com',
-        phone: initialData.phone || '98765 43210',
-        companyName: initialData.companyName || 'ABC Company Pvt Ltd',
-        assignedBde: initialData.assignedBde || 'Johnson Doe',
-        avatar: '',
+        firstName: names[0] || '',
+        lastName: names.slice(1).join(' ') || '',
+        designation: initialData.designation || '',
+        leadSource: initialData.leadSource || '',
+        email: initialData.email || '',
+        phone: initialData.phone || '',
+        companyName: initialData.companyName || '',
+        assignedBde: initialData.assignedBde || '',
+        avatar: initialData.avatar || '',
         uploadedAvatar: null,
       });
     }

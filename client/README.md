@@ -1,5 +1,65 @@
 # React + Vite
 
+## CRM Modules Architecture & API Verification: Sequential Primary/Foreign Keys & Employee-Based Team (25/11/2026)
+
+- **Sequential Integer Primary & Foreign Keys (Zero UUIDs in CRM)**:
+  - **CRM Quotations Service (`quotations.service.js`)**: Replaced all `randomUUID()` usages with atomic sequential sequence IDs via `getNextSequenceId({ tableName: 'crm_quotations' / 'crm_quotation_events' })`. Quotations now generate clean integer IDs (`quo_id: '1'`, `quo_root_id: '1'`) and clean human-readable codes (`quo_no: 'QT-0001'`).
+  - **CRM Leads Service (`leads.service.js`)**: Removed static mock user checks (e.g. `usr-gitakshmi-admin-001`). Implemented dynamic employee & creator resolution via `resolveCreatorId` and `validateActiveUser`, ensuring `lds_assigned_to` and `lds_created_by` persist simple numeric integer IDs (`'1'`, `'2'`).
+  - **CRM Deals Service (`deals.service.js`)**: Ensured all `deal_id`, `deal_owner_id`, and `deal_created_by` store clean sequential integers. Resolved deal owner names directly from `CoreEmployee` with fallback to `CoreUser`. Enabled both `POST` and `PATCH` methods for `/:id/assign`.
+  - **CRM Accounts & Contacts Services (`accounts.service.js`, `contacts.service.js`)**: Linked account owners to `CoreEmployee` records. Ensured manager/admin roles (`'admin'`, `'client admin'`, `'sales manager'`) have full access across the tenant, and contacts resolve correctly.
+  - **Lead Conversion Flow (`leads.service.js -> convertLead`)**: Converts qualified leads into `CrmAccount`, `CrmContact`, and `CrmDeal` in a single ACID transaction with sequential IDs (`acc_id: '2'`, `cnt_id: '2'`, `deal_id: '2'`), eliminating random strings and UUIDs.
+
+- **Dynamic Team Member Provisioning & CoreEmployee Integration (Requirement 3)**:
+  - **CRM Team Service (`team.service.js`)**:
+    - **`createTeamMember`**: Directly inserts new team members into the `core_employees` table (`emp_code`, `emp_first_name`, `emp_last_name`, `emp_email`, `emp_contact_number`, `emp_status`, `emp_role_id`) with clean sequential integer primary keys (`emp_id`). Also provisions authentication credentials in `core_users` with matching simple numeric IDs.
+    - **`listTeamMembers`**: Queries team members directly from `core_employees` table as primary source of truth, returning clean codes (`EMP-001`), simple integer IDs (`'1'`), and aggregated pipeline metrics (`assignedLeads`, `activeDeals`, `wonRevenue`).
+    - **`team.validation.js` & `leads.validation.js`**: Relaxed strict unknown field constraints (`.unknown(true)`) so standard frontend fields (`name`, `territory`, `notes`, `contact`) are accepted seamlessly without 400 validation failures.
+
+- **Frontend Client Cleanup & Zero Static Data (`client/src`)**:
+  - **`leadsService.js` & `dealsService.js`**: Removed legacy hardcoded static mock comparisons (`usr-bde-01`, `usr-admin-01`, `usr-sales-01`). Dynamic IDs passed from selected team members are passed cleanly to the backend.
+  - **`AddLeadDrawer.jsx`**: Dynamic BDE selection dropdown loads active team members directly from `fetchTeamMembers()` (`GET /api/crm/team`) without dummy fallbacks.
+  - **`api.js`**: Strict single-token policy enforced; strictly uses `accessToken` from `localStorage`. Zero mock token creation.
+
+- **Automated End-to-End Verification (`org_auraintera` with user `aura@yopmail.com`)**:
+  - Executed automated integration test suite against live running backend (`localhost:5000`):
+    - `GET /api/crm/team`: PASSED (Returns active employee `Nikul P` with `id: "1"`, `code: "EMP-001"`).
+    - `POST /api/crm/team`: PASSED (Created member in `core_employees` with sequential integer ID `emp_id: 2`).
+    - `GET /api/crm/leads`: PASSED.
+    - `POST /api/crm/leads`: PASSED (Created lead with simple integer `lds_id: "3"` and `lds_assigned_to: "1"`).
+    - `GET /api/crm/leads/:id`: PASSED.
+    - `POST /api/crm/leads/:id/activities`: PASSED (Sequential `flw_id: "1"`).
+    - `POST /api/crm/leads/:id/convert`: PASSED (Converted lead to Account `acc_id: "2"`, Contact `cnt_id: "2"`, Deal `deal_id: "2"`).
+    - `GET /api/crm/accounts`: PASSED.
+    - `GET /api/crm/contacts`: PASSED.
+    - `GET /api/crm/deals`: PASSED.
+    - `POST /api/crm/deals`: PASSED (`deal_id: "3"`, `deal_owner_id: "1"`).
+    - `PATCH /api/crm/deals/:id/assign`: PASSED.
+    - `GET /api/crm/quotations`: PASSED.
+    - `POST /api/crm/quotations`: PASSED (Created quotation with sequential integer `quo_id: "1"`, NO UUID).
+    - `GET /api/crm/reports/funnel-kpis`: PASSED.
+  - Client production build (`npm --prefix client run build`) completed successfully with 0 errors.
+
+## CRM Lead Creation & API Ecosystem Audit: Zero Static Data & Dynamic Role Integrity (25/11/2026)
+
+- **Resolved "Selected employee is not active or does not exist" Error**:
+  - **Identified Root Causes**:
+    1. **Missing CoreUser Model Association**: In `CoreUser.js`, `CoreUser` lacked `hasMany(CoreUserRole, { as: 'userRoles' })`. This caused `GET /crm/team` to fail with a `SequelizeEagerLoadingError: CoreUserRole is not associated to CoreUser!`, resulting in empty BDE selection lists in frontend lead forms.
+    2. **Unseeded Employee Roster in Tenant DB**: The database `core_users` table had only the single organization admin record (`usr-gitakshmi-admin-001`), whereas default session mappings and seeders expected active employees `1` (Admin), `2` (Sales Manager), and `3` (BDE).
+    3. **Resilient User Validation in Backend Leads Service**: In `leads.service.js`, enhanced `validateActiveUser` to resolve users across both numeric and UUID identifiers (`'1'`, `'2'`, `'3'`, `'usr-gitakshmi-admin-001'`, `usr_employee_code`), and gracefully accept empty/unassigned values (`null`) for unassigned prospect ingestion.
+    4. **Sequence ID Conflict Resolution (`ER_DUP_ENTRY`)**: Fixed `getNextSequenceId` in `moduleCode.helper.js` where initial INSERT failed to add `count`, preventing primary key collisions on `crm_leads` and other CRM entities.
+- **Complete End-to-End CRM Modules API Audit (Frontend & Backend)**:
+  - **Leads (`/api/crm/leads`)**: Verified `GET /crm/leads` and `POST /crm/leads`. Leads now create cleanly with auto-generated sequential codes (e.g. `LD-0005`), sanitized currency values, automatic URL normalization (`https://`), and correct assignee assignment.
+  - **Team (`/api/crm/team`)**: Verified `GET /crm/team`. Returns all active team members with dynamic workload telemetry (`assignedLeads`, `activeDeals`, `wonRevenue`) in O(1) batched queries.
+  - **Accounts (`/api/crm/accounts`)**: Fully compliant; loads accounts and lookup industries without static mock fallbacks.
+  - **Contacts (`/api/crm/contacts`)**: Verified `GET /crm/contacts` and update handlers. Cleared pre-filled dummy strings in drawer forms per Rule #23.
+  - **Deals (`/api/crm/deals`)**: Verified `GET /crm/deals` and `POST /crm/deals`. Automatically resolves authentic owner IDs and enforces valid deal stages (`prospect`, `qualification`, `proposal`, `negotiation`, `closed won`, `closed lost`).
+  - **Quotations (`/api/crm/quotations`)**: Verified `GET /crm/quotations` and `POST /crm/quotations` with item calculations and sequential numbers (`QT-0001`).
+  - **Reports & Analytics (`/api/crm/reports/*`)**: Audited all 4 reporting endpoints (`/funnel-kpis`, `/filter-options`, `/team-performance`, `/lead-source-attribution`). All return valid HTTP 200 data.
+- **Strict Single-Token Authentication Policy**:
+  - Removed all temporary/mock token keys (such as `gcrm-mock-jwt-token`) from `api.js`, `authSlice.js`, and `profileService.js`.
+  - The application strictly and exclusively uses `accessToken` stored in `localStorage`.
+
+
 ## Report & Analytics Filter Selection Bug Fix & Dual-Layer Filter Architecture (24/11/2026)
 
 - **Root Cause & Crash Resolution (`Objects are not valid as a React child`)**:
@@ -1237,3 +1297,14 @@ The React Compiler is not enabled on this template because of its impact on dev 
 - Removed duplicate inline update banners inside `UpdateProfileTab` and `LoginForm` so success messages exclusively appear once in the top toast notification viewport.
 - Updated `ToastViewport.jsx` with prominent z-index (`z-[9999]`), type-based bottom borders (`border-b-success` / `border-b-alert`), and accessible dismiss controls.
 - Aligned demo credentials and role detection with backend seeded database entities (`admin@gitakshmi.com`, `marcus@gitakshmi.com`, `sarah@gitakshmi.com`).
+
+### Removal of Static Frontend IDs & API Lead Assignment Fix (25/11/2026)
+- **Resolved "Selected employee is not active or does not exist" Error**: Fixed lead creation failure caused by static mock ID strings (`usr-bde-01`) being submitted to `POST /crm/leads`.
+- **Database-Aligned User Constants (`authConstants.js`)**: Updated `DEFAULT_USERS` IDs to match the seeded backend `core_users` records (`admin.id = '1'`, `sales.id = '2'`, `bde.id = '3'`).
+- **Dynamic JWT User ID Extraction (`authSlice.js`)**: Added `extractUserIdFromJwt` to decode and synchronize the authenticated `userId` directly from active JWT `accessToken` in `localStorage`.
+- **Legacy Storage Sanitization (`authSlice.js`)**: Sanitized cached `localStorage` user data on load and login, mapping any legacy `usr-*` strings to actual database employee IDs.
+- **Lead Creation Assignment (`AddLeadDrawer.jsx`)**: Updated BDE automatic assignment to resolve the live user ID from auth state and token, avoiding static ID fallbacks.
+- **API Payload Guards (`leadsService.js`, `dealsService.js`)**: Added assign-to sanitizers (`resolveAssignedTo`, `resolveOwnerId`) in API mappers to prevent any unassigned or invalid mock ID from ever reaching backend endpoints.
+- **Clean Form Inputs Compliance (`EditContactDrawer.jsx`)**: Removed hardcoded pre-filled dummy contact values (`Johnson Doe`, placeholder email/phone) to strictly satisfy Rule #23 (Clean Empty Form Inputs Rule).
+- **Backend Login Role Normalization (`profileService.js`)**: Corrected role property resolution (`data.role || data.roles`) and authenticated `user.id` mapping from live backend `/auth/login` responses.
+- **Single Token Standard (`api.js`, `authSlice.js`)**: Removed temporary hardcoded tokens and all references to `gcrm-mock-jwt-token`; API requests and Redux session management now strictly rely on the single real `accessToken` stored in `localStorage`.

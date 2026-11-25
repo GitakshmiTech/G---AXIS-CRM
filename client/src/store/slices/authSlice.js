@@ -4,7 +4,7 @@
 //==================================================================================================================
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { DEFAULT_USERS, USER_ROLES } from '../../constants/authConstants';
+import { DEFAULT_USERS, USER_ROLES, sanitizeUserId } from '../../constants/authConstants';
 import { authenticate, fetchProfile } from '../../services/profileService';
 
 //===========================================================================================
@@ -41,6 +41,27 @@ export const loadUserProfile = createAsyncThunk(
   }
 );
 
+// Helper to safely decode authenticated user ID from JWT token
+export const extractUserIdFromJwt = (token) => {
+  try {
+    if (!token || typeof token !== 'string') return null;
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const parsed = JSON.parse(jsonPayload);
+    return parsed.userId || parsed.id || parsed.sub || null;
+  } catch {
+    return null;
+  }
+};
+
 // Helper to safely load initial session from localStorage
 const getSavedRole = () => {
   try {
@@ -55,19 +76,36 @@ const getSavedRole = () => {
 };
 
 const getSavedUser = (role) => {
+  let user = null;
   try {
     const saved = localStorage.getItem('gcrm_user');
-    if (saved) return JSON.parse(saved);
+    if (saved) user = JSON.parse(saved);
   } catch {
     // Fallback if parsing fails
   }
-  return DEFAULT_USERS[role] || DEFAULT_USERS.bde;
+
+  if (!user) {
+    user = DEFAULT_USERS[role] || DEFAULT_USERS.bde;
+  }
+
+  // Ensure user.id is sanitized from any legacy mock IDs (usr-bde-01 -> '3', usr-admin-01 -> '1', etc.)
+  const token = localStorage.getItem('accessToken');
+  const tokenUserId = extractUserIdFromJwt(token);
+  const resolvedId = tokenUserId ? String(tokenUserId) : sanitizeUserId(user.id, role);
+
+  const sanitizedUser = { ...user, id: resolvedId };
+  try {
+    localStorage.setItem('gcrm_user', JSON.stringify(sanitizedUser));
+  } catch {
+    // Ignore storage write error
+  }
+  return sanitizedUser;
 };
 
 const initialRole = getSavedRole();
 const initialUser = getSavedUser(initialRole);
-const initialToken = localStorage.getItem('gcrm_token') || 'gcrm-mock-jwt-token';
-const initialIsAuth = localStorage.getItem('gcrm_auth') !== 'false';
+const initialToken = localStorage.getItem('accessToken');
+const initialIsAuth = localStorage.getItem('accessToken') !== 'false';
 
 const initialState = {
   user: initialUser,
@@ -88,8 +126,13 @@ export const authSlice = createSlice({
     loginSuccess: (state, action) => {
       const { role, user, token } = action.payload;
       const targetRole = role || USER_ROLES.BDE;
-      const targetUser = user || DEFAULT_USERS[targetRole] || DEFAULT_USERS.bde;
-      const targetToken = token || 'gcrm-mock-jwt-token';
+      const targetToken = token || localStorage.getItem('accessToken') || '';
+      const tokenUserId = extractUserIdFromJwt(targetToken);
+      const baseUser = user || DEFAULT_USERS[targetRole] || DEFAULT_USERS.bde;
+      const targetUser = {
+        ...baseUser,
+        id: tokenUserId ? String(tokenUserId) : sanitizeUserId(baseUser.id, targetRole),
+      };
 
       state.role = targetRole;
       state.user = targetUser;
@@ -100,7 +143,7 @@ export const authSlice = createSlice({
       try {
         localStorage.setItem('gcrm_role', targetRole);
         localStorage.setItem('gcrm_user', JSON.stringify(targetUser));
-        localStorage.setItem('gcrm_token', targetToken);
+        localStorage.setItem('accessToken', targetToken);
         localStorage.setItem('gcrm_auth', 'true');
         sessionStorage.setItem('last_login_type', targetRole);
       } catch {
@@ -118,7 +161,7 @@ export const authSlice = createSlice({
       try {
         localStorage.removeItem('gcrm_role');
         localStorage.removeItem('gcrm_user');
-        localStorage.removeItem('gcrm_token');
+        localStorage.removeItem('accessToken');
         localStorage.setItem('gcrm_auth', 'false');
         sessionStorage.removeItem('last_login_type');
       } catch {
@@ -173,8 +216,13 @@ export const authSlice = createSlice({
         state.error = null;
         const { role, user, token } = action.payload;
         const targetRole = role || USER_ROLES.BDE;
-        const targetUser = user || DEFAULT_USERS[targetRole] || DEFAULT_USERS.bde;
-        const targetToken = token || 'gcrm-mock-jwt-token';
+        const targetToken = token || localStorage.getItem('accessToken') || '';
+        const tokenUserId = extractUserIdFromJwt(targetToken);
+        const baseUser = user || DEFAULT_USERS[targetRole] || DEFAULT_USERS.bde;
+        const targetUser = {
+          ...baseUser,
+          id: tokenUserId ? String(tokenUserId) : sanitizeUserId(baseUser.id, targetRole),
+        };
 
         state.role = targetRole;
         state.user = targetUser;
@@ -184,7 +232,7 @@ export const authSlice = createSlice({
         try {
           localStorage.setItem('gcrm_role', targetRole);
           localStorage.setItem('gcrm_user', JSON.stringify(targetUser));
-          localStorage.setItem('gcrm_token', targetToken);
+          localStorage.setItem('accessToken', targetToken);
           localStorage.setItem('gcrm_auth', 'true');
           sessionStorage.setItem('last_login_type', targetRole);
         } catch {

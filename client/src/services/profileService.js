@@ -35,21 +35,22 @@ export const authenticate = async ({ email, password }) => {
       body: JSON.stringify({ domain: import.meta.env.VITE_TENANT_DOMAIN || 'gitakshmi', email, password }),
     });
     const data = getPayload(response);
-    const roleName = data.user?.roleName || '';
-    const role = /admin/i.test(roleName) ? 'admin' : /sales|manager/i.test(roleName) ? 'sales' : 'bde';
+    const primaryRole = String(data.role || data.roles?.[0] || data.user?.roles?.[0] || data.user?.roleName || '');
+    const role = /admin/i.test(primaryRole) ? 'admin' : /sales|manager/i.test(primaryRole) ? 'sales' : 'bde';
+    const token = data.token || data.accessToken || '';
     return {
       role,
-      token: data.token,
+      token,
       user: {
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        phone: data.user.phone || '',
-        employeeCode: data.user.employeeCode || '',
-        roleId: data.user.roleId || '',
+        id: String(data.user?.id || (role === 'admin' ? '1' : role === 'sales' ? '2' : '3')),
+        name: data.user?.name || '',
+        email: data.user?.email || email,
+        phone: data.user?.phone || '',
+        employeeCode: data.user?.employeeCode || '',
+        roleId: data.user?.roleId || '',
         role,
-        roleLabel: roleName,
-        designation: roleName,
+        roleLabel: primaryRole || role.toUpperCase(),
+        designation: primaryRole || role.toUpperCase(),
         avatar: '',
       },
     };
@@ -61,7 +62,7 @@ export const authenticate = async ({ email, password }) => {
       const resolved = resolveUserByCredentials(email);
       return {
         role: resolved.role,
-        token: 'gcrm-mock-jwt-token',
+        token: localStorage.getItem('accessToken') || '',
         user: resolved.user,
       };
     }

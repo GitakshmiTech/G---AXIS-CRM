@@ -3,7 +3,6 @@
 //==================================================================================================================
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-const TEMPORARY_API_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiZW1haWwiOiJhZG1pbkBnaXRha3NobWkuY29tIiwib3JnSWQiOiIxIiwib3JnQ29kZSI6IkdJVEFLU0hNSSIsImRiTmFtZSI6Im9yZ19naXRha3NobWkiLCJpYXQiOjE3OTUxNzQ4MDIsImV4cCI6MTc5NTc3OTYwMn0.gRM_IGof7EruS6R0PE8sGVcCCIXwk_ZBWmmMJvk1Fak';
 
 /**
  * Common fetch wrapper for API interactions
@@ -18,11 +17,7 @@ export const apiClient = async (endpoint, options = {}) => {
     ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
     Accept: 'application/json',
   };
-  const savedToken = localStorage.getItem('gcrm_token');
-  const isMockToken = !savedToken || savedToken === 'gcrm-mock-jwt-token' || savedToken.startsWith('token-');
-  const token = isMockToken
-    ? (import.meta.env.VITE_API_TOKEN || TEMPORARY_API_TOKEN)
-    : savedToken;
+  const token = localStorage.getItem('accessToken');
 
   const config = {
     ...requestOptions,
@@ -37,7 +32,9 @@ export const apiClient = async (endpoint, options = {}) => {
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    let msg = errorBody.error || errorBody.message;
+    let msg = typeof errorBody.error === 'string'
+      ? errorBody.error
+      : (errorBody.message || (Array.isArray(errorBody.error) && errorBody.error[0]?.message));
     if (!msg) {
       if (response.status === 502) {
         msg = 'Backend service is unreachable (502).';
@@ -49,7 +46,7 @@ export const apiClient = async (endpoint, options = {}) => {
         msg = `Request failed (${response.status})`;
       }
     }
-    const error = new Error(msg);
+    const error = new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
     error.status = response.status;
     error.data = errorBody;
     throw error;

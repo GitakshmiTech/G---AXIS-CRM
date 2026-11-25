@@ -64,7 +64,26 @@ export const AddLeadDrawer = memo(({
     authRole === 'super_admin' ||
     authRole.includes('manager') ||
     authRole.includes('admin');
-  const currentUserId = auth?.user?.id || auth?.user?.userId || '';
+
+  // Resolve authentic database user ID dynamically
+  const currentUserId = useMemo(() => {
+    let id = auth?.user?.id || auth?.user?.userId || '';
+    if (!id || /^usr-/i.test(String(id))) {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+          const parts = token.split('.');
+          if (parts.length >= 2) {
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            id = payload.userId || payload.id || id;
+          }
+        }
+      } catch {
+        // Ignore token decode error
+      }
+    }
+    return String(id || '');
+  }, [auth?.user?.id, auth?.user?.userId]);
 
   //==================================================================================================================
   //    DYNAMIC BDE OPTIONS FROM SALES TEAM SERVICE (Only queried for Sales Manager & Admin)

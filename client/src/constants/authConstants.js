@@ -21,7 +21,7 @@ export const DEMO_CREDENTIALS = [
 
 export const DEFAULT_USERS = {
   admin: {
-    id: 'usr-admin-01',
+    id: '1',
     name: 'Arthur Pendelton',
     email: 'admin@gitakshmi.com',
     role: 'admin',
@@ -32,7 +32,7 @@ export const DEFAULT_USERS = {
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
   },
   sales: {
-    id: 'usr-sales-01',
+    id: '2',
     name: 'Marcus Vance',
     email: 'marcus@gitakshmi.com',
     role: 'sales',
@@ -43,7 +43,7 @@ export const DEFAULT_USERS = {
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
   },
   bde: {
-    id: 'usr-bde-01',
+    id: '3',
     name: 'Sarah Jenkins',
     email: 'sarah@gitakshmi.com',
     role: 'bde',
@@ -53,6 +53,19 @@ export const DEFAULT_USERS = {
     employeeCode: 'EMP-003',
     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face',
   },
+};
+
+//==================================================================================================================
+//    USER ID SANITIZER HELPER
+//    Converts any legacy mock IDs (usr-*) to actual seeded database user IDs.
+//==================================================================================================================
+export const sanitizeUserId = (id, role = 'bde') => {
+  if (!id) return role === 'admin' ? '1' : role === 'sales' ? '2' : '3';
+  const strId = String(id).trim();
+  if (strId === 'usr-admin-01') return '1';
+  if (strId === 'usr-sales-01') return '2';
+  if (strId === 'usr-bde-01') return '3';
+  return strId;
 };
 
 //==================================================================================================================
